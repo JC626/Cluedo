@@ -1,6 +1,7 @@
 package cluedo.game;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,37 @@ public class Game
 	//TODO make Turn and Dice class
 	public static final int MIN_HUMAN_PLAYERS = 3;
 	public static final int MAX_HUMAN_PLAYERS = 6;
+	private static final String[] SUSPECT_NAMES = new String[]
+			{
+					"Miss Scarlett",
+					"Colonel Mustard",
+					"Mrs. White",
+					"Reverend Green",
+					"Mrs. Peacock",
+					"Professor Plum"
+					
+			};
+	private static final String[] WEAPON_NAMES = new String[]
+			{
+					"Dagger",
+					"Candlestick",
+					"Revolver",
+					"Rope",
+					"Lead Pipe",
+					"Spanner"
+			};
+	private static final String[] ROOM_NAMES = new String[]
+			{
+					"Ballroom",
+					"Billiard Room",
+					"Conservatory",
+					"Dining Room",
+					"Hall",
+					"Kitchen",
+					"Library",
+					"Lounge",
+					"Study" 
+			};
 	
 	private boolean firstTimeMoving;
 	private int remainingMoves;
@@ -26,6 +58,7 @@ public class Game
 	private Board board;
 	private final Dice dice = new Dice();
 	//private final Turn<Player> turn;
+	
 	private Map<Player,Boolean> isTransferred;
 	/*private Map<Player,CaseFile> playerToCasefile;
 	private Map<Player,Set<Card>> playerHand;
@@ -33,18 +66,45 @@ public class Game
 	private Map<Cell,Room> cellToRoom;
 	private Map<Player,Room> playerToRoom; 
 	
+	private List<Player> allPlayers;
+	private List<Player> humanPlayers;
+	private List<Weapon> weapons;
+	//FIXME should Game have a list of cells
+	//private List<Cell> cells;
 	//TODO Game class methods
 	//TODO Game constructor	
+	//public Game(int numPlayers, List<Piece> playerTokens, List<Piece> weaponTokens, List<Displayable> cellDisplayables, List<Displayable> weaponCardFaces, List<Displayable> roomCardFaces, List<Displayable> suspectCardFaces)
+		
 	public Game()
 	{
-		//turn = new Turn<Player>(null);
+		//Change from asserts to if statements with exceptions
+		//assert numPlayers >= MIN_HUMAN_PLAYERS;
+		//assert numPlayers <= MAX_HUMAN_PLAYERS;
+		//this.humanPlayers = createHumanPlayers(numPlayers);
+		//turn = new Turn<Player>(humanPlayers);
 	}
+	
+	//TODO create human players
+	/*private List<Player> createHumanPlayers(int numPlayers)
+	{
+		assert allPlayers != null : "Must create all player objects first";
+		assert allPlayers.size() == MAX_HUMAN_PLAYERS : "Must contain all players";
+		List<Player> players = new ArrayList<Player>();
+		
+		//Get random players
+		//Put random players in order according to the starting player
+		
+		return players;
+	}*/
+	
+	//TODO Game - create objects
 	
 	//TODO implement Game - takeExit
 	public Cell takeExit(Cell c)
 	{
 		return null;
 	}
+	
 	public Cell move(Direction dir)
 	{
 		if(remainingMoves <= 0)
@@ -59,19 +119,20 @@ public class Game
 				/*throw new InvalidMoveException();*/
 			}
 		}
-		//Cell newPos = board.move(dir,currentPlayer.getPiece());
+		//Cell newPos = board.move(currentPlayer.getPiece(),dir);
 		remainingMoves--;
 		return null;
 		//return newPos;
 		
 	}
-	/*public Map<Player,Iterator<Card>> makeSuggestion(WeaponCard weaponC, SuspectCard suspectC)
+	/*public Map<Player,List<Card>> makeSuggestion(WeaponCard weaponC, SuspectCard suspectC)
 	{
 		
 	}*/
+	
 	/*public boolean makeAccusation(Player player, WeaponCard weaponC, RoomCard roomC, SuspectCard suspectC)
 	{
-		Iterator<Player> players = getActivePlayers();
+		List<Player> players = getActivePlayers();
 		CaseFile accusation = new CaseFile(weaponC,roomC,suspectC)
 		if(accusation.equals(answer))
 		{
@@ -120,24 +181,30 @@ public class Game
 	}
 	//Getters
 	
-	public Iterator<Player> getActivePlayers()
+	public List<Player> getActivePlayers()
 	{
 		return null;
 		//return new Turn<Player>(players); 
 	}
 	//TODO implement Game - getAvailable exits
-		public Iterator<Cell> getAvailableExits()
+		public List<Cell> getAvailableExits()
 		{
 			//Check if player is in a room
-			 Room r = playerToRoom.get(currentPlayer);
-			 if(r == null)
+			 Room room = playerToRoom.get(currentPlayer);
+			 if(room == null)
 			 {
 			 	//throw new InvalidMethodCall
 			 }
 			//Get all the cells in the room 
+			 //Need to return unmodifiable list of cells
+			 //return room.getExitCells();
 			return null;
 		}
-	
+	/**
+	 * The number of moves the current player has left
+	 * to make in their turn
+	 * @return remaining moves the current player can make
+	 */
 	public int getRemainingMoves() 
 	{
 		return remainingMoves;
@@ -171,24 +238,47 @@ public class Game
 		return board.getPosition(piece);
 	}
 	
-	public Iterator<Room> getRooms()
+	public List<Room> getRooms()
 	{
 		return null;
 	}
-	public Iterator<Weapon> getWeapons()
+	public List<Weapon> getWeapons()
 	{
 		return null;
 	}
-	public Iterator<Cell> getCells()
+	public List<Cell> getCells()
 	{
 		return null;
 	}
-	/*public Iterator<Card> getPlayer()
+	/*public List<WeaponCard> getPlayerWeaponCards()
+	{
+		return null;
+	}
+	public List<RoomCard> getPlayerRoomCards()
+	{
+		return null;
+	}
+	public List<SuspectCard> getPlayerSuspectCards()
 	{
 		return null;
 	}*/
 
-
+	/**
+	 * A Casefile is either an answer case file, 
+	 * or a player’s case file, although there is no technical distinction.
+	 * Cards may be added to a player's casefile throughout the game
+	 *
+	 * 
+	 */
+	private class CaseFile
+	{
+		
+		/*Set<RoomCard> roomCards;
+		Set<SuspectCard> suspectCards;
+		Set<WeaponCard> weaponCards;*/
+		
+	}
+	
 	//TODO check Dice
 	
 	/**
