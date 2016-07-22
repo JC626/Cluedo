@@ -40,7 +40,7 @@ public class Player
 	 * The name associated with this Player.
 	 * Will not be null.
 	 */
-	String getName()
+	public String getName()
 	{
 		return name;
 	}
@@ -49,7 +49,7 @@ public class Player
 	 * The Piece associated with this Player.
 	 * Will not be null.
 	 */
-	Piece getPiece()
+	public Piece getPiece()
 	{
 		return piece;
 	}
