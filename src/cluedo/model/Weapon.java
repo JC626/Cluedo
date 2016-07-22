@@ -18,7 +18,7 @@ public class Weapon
 	private final int uniqueID;
 	
 	/**
-	 * The human readable name of this character.
+	 * The human readable name of this Weapon.
 	 * May not be empty.
 	 * May not be null.
 	 * Example: Lead Pipe
