@@ -68,7 +68,7 @@ public class Weapon
 	 * Will not be null.
 	 * @return The name associated with this Weapon.
 	 */
-	String getName()
+	public String getName()
 	{
 		return name;
 	}
@@ -77,7 +77,7 @@ public class Weapon
 	 * Will not be null.
 	 * @return The Piece associated with this Weapon.
 	 */
-	Piece getPiece()
+	public Piece getPiece()
 	{
 		return piece;
 	}
@@ -86,6 +86,7 @@ public class Weapon
 	 * Two Weapons are considered equal iff their IDs are are equal.
 	 * Note that this allows for safe name and Piece reuse between Weapons.
 	 */
+	@Override
 	public boolean equals(Object o)
 	{
 		boolean isEqual = false;
