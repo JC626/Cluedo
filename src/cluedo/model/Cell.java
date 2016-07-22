@@ -5,14 +5,35 @@ import java.util.TreeSet;
 
 import cluedo.utility.Heading.Direction;
 
+/**
+ * The basic unit within a Board.
+ * Contains a Displayable aspect that is displayed when no other Displayable is in this Cell.
+ * Each Cell has final x and y position, which can be used to distinguish one Cell from another.
+ */
 public class Cell
 {
-	//TODO variable comments, and class comment
+	/*
+	 * x and y are represent the position of this Cell.
+	 * Used by the Board for it's internal representation, as well as the UI
+	 * to display the board.
+	 * 
+	 *  May not be negative.
+	 */
+	
 	private final int x;
 	private final int y;
 	
+	/**
+	 * The UI method of displaying this Cell. Typically this will only be used if another object is not in the same place as the Cell.
+	 */
 	private final Displayable background;
 	
+	/**
+	 * The walls that this Cell has.
+	 * A wall indicates that any Piece in this Cell can't move in that direction.
+	 * 
+	 * A Cell as 0 .. 4 walls, which are determined on construction.
+	 */
 	private final Set<Direction> walls = new TreeSet<Direction>();
 
 	/**
@@ -48,6 +69,11 @@ public class Cell
 				throw new IllegalArgumentException("walls may not contain null items");
 			}
 			
+			if (this.walls.contains(d)) // We've come across this Direction before, this suggests the caller is using the constructor incorrectly.
+			{
+				throw new IllegalArgumentException("walls may not contain duplicate items");
+			}
+			
 			this.walls.add(d);
 		}
 		
@@ -68,24 +94,35 @@ public class Cell
 		return walls.contains(d);
 	}
 	
-	//TODO
+	/**
+	 * The background representation for this Cell.
+	 * @return A Displayble aspect, that should only be used if there is not another Displayable in this Cell.
+	 */
 	public Displayable getBackground()
 	{
 		return background;
 	}
 	
+	/**
+	 * The x position of this Cell.
+	 * @return a non negative int (may be 0).
+	 */
 	public int getX()
 	{
 		return x;
 	}
 
+	/**
+	 * The y position of this Cell.
+	 * @return a non negative int (may be 0).
+	 */
 	public int getY()
 	{
 		return y;
 	}
 	
 	/**
-	 * Two Cells are considered equal iff their IDs are equal.
+	 * Two Cells are considered equal iff their x and y values are equal.
 	 */
 	public boolean equals(Object o)
 	{
