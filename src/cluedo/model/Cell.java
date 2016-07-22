@@ -8,8 +8,8 @@ import cluedo.utility.Heading.Direction;
 public class Cell
 {
 	//TODO variable comments, and class comment
-	private static int generateID = 0;
-	private final int id; // This Cell's unique ID.
+	private final int x;
+	private final int y;
 	
 	private final Displayable background;
 	
@@ -17,12 +17,19 @@ public class Cell
 
 	/**
 	 * The basic unit within a Board.
+	 * @param x The x position of the Cell on the board. May not be negative.
+	 * @param y The y position of the Cell on the board. May not be negative.
 	 * @param background The Displayable aspect of this cell. May not be null.
 	 * @param walls The walls that this cell has. May not be null or, contain null or duplicate items.
 	 * @throws IllegalArgumentException if any of the above conditions are not met.
 	 */
-	public Cell(Displayable background, Direction ... walls)
+	public Cell(int x, int y, Displayable background, Direction ... walls)
 	{
+		if (x < 0 || y < 0)
+		{
+			throw new IllegalArgumentException("x and y may not be negative");
+		}
+		
 		if (background == null || walls == null)
 		{
 			throw new IllegalArgumentException("Arguments may not be null");
@@ -45,9 +52,8 @@ public class Cell
 		}
 		
 		this.background = background;
-		
-		id = generateID;
-		generateID++;
+		this.x = x;
+		this.y = y;
 	}
 
 	/**
@@ -68,13 +74,14 @@ public class Cell
 		return background;
 	}
 	
-	
-	/**
-	 * The unique ID associated with this Cell.
-	 */
-	public int getID()
+	public int getX()
 	{
-		return id;
+		return x;
+	}
+
+	public int getY()
+	{
+		return y;
 	}
 	
 	/**
@@ -87,7 +94,8 @@ public class Cell
 		if (o instanceof Piece)
 		{
 			Cell c = (Cell) o;
-			isEqual = this.getID() == c.getID();
+			isEqual = this.getX() == c.getX()
+					&& this.getY() == c.getY();
 		}
 		
 		return isEqual;
