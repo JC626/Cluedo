@@ -2,12 +2,17 @@ package cluedo.game;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import cluedo.board.Board;
 import cluedo.model.Cell;
+import cluedo.model.Displayable;
 import cluedo.model.Piece;
 import cluedo.model.Player;
 import cluedo.model.Room;
@@ -16,19 +21,20 @@ import cluedo.utility.Heading.Direction;
 
 public class Game
 {
-	//TODO make Turn and Dice class
+	public static void main(String args[]){
+		
+	}
+	//Constants
 	public static final int MIN_HUMAN_PLAYERS = 3;
 	public static final int MAX_HUMAN_PLAYERS = 6;
-	private static final String[] SUSPECT_NAMES = new String[]
-			{
-					"Miss Scarlett",
-					"Colonel Mustard",
-					"Mrs. White",
-					"Reverend Green",
-					"Mrs. Peacock",
-					"Professor Plum"
-					
-			};
+	public static final int MAX_PLAYERS = 6;
+	public static final int NUM_WEAPONS = 6;
+	/**
+	 * A map of the suspect names mapped to the order the player is
+	 * according to the clockwise order of the player's starting position
+	 * in the Cluedo game
+	 */
+	private static final Map<String,Integer> SUSPECT_NAMES = new HashMap<String,Integer>();
 	private static final String[] WEAPON_NAMES = new String[]
 			{
 					"Dagger",
@@ -57,7 +63,7 @@ public class Game
 	
 	private Board board;
 	private final Dice dice = new Dice();
-	//private final Turn<Player> turn;
+	private final Turn<Player> turn;
 	
 	private Map<Player,Boolean> isTransferred;
 	/*private Map<Player,CaseFile> playerToCasefile;
@@ -65,41 +71,114 @@ public class Game
 	private CaseFile answer;*/
 	private Map<Cell,Room> cellToRoom;
 	private Map<Player,Room> playerToRoom; 
-	
-	private List<Player> allPlayers;
+	private Set<Player> allPlayers;
 	private List<Player> humanPlayers;
 	private List<Weapon> weapons;
-	//FIXME should Game have a list of cells
+	//FIXME should Game have a list of cells?
 	//private List<Cell> cells;
+	
+	
+	//Static initializer
+		{
+			SUSPECT_NAMES.put("Miss Scarlett", 0);
+			SUSPECT_NAMES.put("Colonel Mustard", 1);
+			SUSPECT_NAMES.put("Mrs. White", 2);
+			SUSPECT_NAMES.put("Reverend Green", 3);
+			SUSPECT_NAMES.put("Mrs. Peacock", 4);
+			SUSPECT_NAMES.put("Professor Plum", 5);
+		}
+	
+	
 	//TODO Game class methods
-	//TODO Game constructor	
-	//public Game(int numPlayers, List<Piece> playerTokens, List<Piece> weaponTokens, List<Displayable> cellDisplayables, List<Displayable> weaponCardFaces, List<Displayable> roomCardFaces, List<Displayable> suspectCardFaces)
-		
-	public Game()
+	//TODO Game - create cards, cells and casefile
+	public Game(int numPlayers, List<Piece> playerTokens, List<Piece> weaponTokens, List<Displayable> cellDisplayables, List<Displayable> weaponCardFaces, List<Displayable> roomCardFaces, List<Displayable> suspectCardFaces)
 	{
-		//Change from asserts to if statements with exceptions
-		//assert numPlayers >= MIN_HUMAN_PLAYERS;
-		//assert numPlayers <= MAX_HUMAN_PLAYERS;
-		//this.humanPlayers = createHumanPlayers(numPlayers);
-		//turn = new Turn<Player>(humanPlayers);
+		//TODO Change from asserts to if statements with exceptions
+		assert numPlayers >= MIN_HUMAN_PLAYERS;
+		assert numPlayers <= MAX_HUMAN_PLAYERS;
+		this.allPlayers = createPlayers(playerTokens);
+		this.humanPlayers = createHumanPlayers(numPlayers);
+		turn = new Turn<Player>(humanPlayers);
+		this.weapons = createWeapons(weaponTokens);
 	}
 	
-	//TODO create human players
-	/*private List<Player> createHumanPlayers(int numPlayers)
+	/**
+	 * Create all the players in the Cluedo game
+	 * @param playerTokens
+	 * @return all the players in the Cluedo game
+	 */
+	private Set<Player> createPlayers(List<Piece> playerTokens)
+	{
+		Set<Player> players = new HashSet<Player>();
+		int i = 0;
+		for(String playerName : SUSPECT_NAMES.keySet())
+		{
+			assert i < MAX_PLAYERS : "Exceeded the total number of players";
+			Player p = new Player (playerName,playerTokens.get(i));
+			players.add(p);
+			i++;
+		}
+		return players;
+	}
+	/**
+	 * Select randomly the characters the human players will play as.
+	 * The starting character (and therefore player) is selected randomly.
+	 * The order of play is then based off the starting position
+	 * of the other characters in a clockwise order.
+	 * This order is: 
+	 * Miss Scarlett, Colonel Mustard, Mrs. White, Reverend Green, Mrs. Peacock, Professor Plum
+	 * 
+	 * @param numPlayers - The number of players playing Cluedo
+	 * @return The characters that the human players will play as
+	 */
+	private List<Player> createHumanPlayers(int numPlayers)
 	{
 		assert allPlayers != null : "Must create all player objects first";
-		assert allPlayers.size() == MAX_HUMAN_PLAYERS : "Must contain all players";
+		assert allPlayers.size() == MAX_PLAYERS : "Must contain all players in the game";
+		Player[] playerArr = new Player[MAX_HUMAN_PLAYERS];
+		Player startingPlayer = null;
+		//Generate random players
+		for(Player randPlayer : allPlayers)
+		{
+			if(startingPlayer == null)
+			{
+				startingPlayer = randPlayer;
+				playerArr[0] = startingPlayer;
+			}
+			else
+			{
+			 // Put added players in a clockwise order based off the starting player
+				int startOrder = SUSPECT_NAMES.get(startingPlayer.getName());
+				int playerOrder = SUSPECT_NAMES.get(randPlayer.getName());
+				int index = playerOrder > startOrder ? playerOrder - startOrder : playerOrder + startOrder;
+				playerArr[index] = randPlayer;
+			}
+			
+		}
 		List<Player> players = new ArrayList<Player>();
-		
-		//Get random players
-		//Put random players in order according to the starting player
-		
+		//Remove all null references in the array to put in the list
+		for(Player sortPlayer : playerArr)
+		{
+			if(sortPlayer != null)
+			{
+				players.add(sortPlayer);
+			}
+		}
 		return players;
-	}*/
+	}
 	
-	//TODO Game - create objects
+	private List<Weapon> createWeapons(List<Piece> weaponTokens)
+	{
+		List<Weapon> weapons = new ArrayList<Weapon>();
+		for(int i = 0; i < NUM_WEAPONS; i++)
+		{
+			Weapon w = new Weapon(WEAPON_NAMES[i],weaponTokens.get(i));
+			weapons.add(w);
+		}
+		return weapons;
+	}
 	
-	//TODO implement Game - takeExit
+	//TODO implement Game - takeExit. Need Room getExit method
 	public Cell takeExit(Cell c)
 	{
 		return null;
@@ -151,16 +230,16 @@ public class Game
 		}
 	}*/
 	
-	/*public Player nextTurn()
+	public Player nextTurn()
 	{
 		if(remainingMoves != 0){
-			throw new CurrentPlayerHasRemainingMovesException();
+			//throw new CurrentPlayerHasRemainingMovesException();
 		}
 		currentPlayer = turn.next();
 		firstTimeMoving = true;
-		return null;
+		return currentPlayer;
 	}
-	*/
+	
 	
 	/**
 	 * Checks if the current player is in the room
@@ -183,8 +262,8 @@ public class Game
 	
 	public List<Player> getActivePlayers()
 	{
-		return null;
-		//return new Turn<Player>(players); 
+		//TODO figure out which human players are still active
+		return Collections.unmodifiableList(turn.list);
 	}
 	//TODO implement Game - getAvailable exits
 		public List<Cell> getAvailableExits()
