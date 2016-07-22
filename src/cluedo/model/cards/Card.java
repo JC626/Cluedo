@@ -7,6 +7,9 @@ import cluedo.model.Displayable;
  * A card allows the player to reason about what may be in the answer,
  * as the cards that are in their hand clearly cannot be in the answer!
  * 
+ * There are three types of Cards (Weapon, Room, and Suspect) all of which
+ * will be used to ensure type safety and will rely on this class for functionality.
+ * 
  * Contains a Displayable aspect that is drawn by the UI.
  * Note, that unlike Pieces, this Displayable is likely to  be drawn off the Board
  * as Cards (in the physical game) would be held within the player's hands.
