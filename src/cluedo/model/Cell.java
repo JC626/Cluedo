@@ -91,7 +91,7 @@ public class Cell
 	{
 		boolean isEqual = false;
 		
-		if (o instanceof Piece)
+		if (o instanceof Cell)
 		{
 			Cell c = (Cell) o;
 			isEqual = this.getX() == c.getX()
