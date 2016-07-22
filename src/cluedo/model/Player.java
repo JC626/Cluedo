@@ -57,6 +57,7 @@ public class Player
 	/**
 	 * Two players are considered equal iff their names are equal, and their Pieces are equal.
 	 */
+	@Override
 	public boolean equals(Object o)
 	{
 		boolean isEqual = false;
