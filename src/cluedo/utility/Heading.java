@@ -1,10 +1,34 @@
 package cluedo.utility;
 
+/**
+ * Utility class for directions.
+ * As Players cannot legally move diagonally, the only available directions are:
+ * North
+ * South
+ * East
+ * West
+ * 
+ * This class also provides utility methods for acting on directions, such as opposite(Direction)
+ * which returns the direction opposite to the one input (North -> South).
+ *
+ */
 public final class Heading
 {
-	//TODO class, variable, and method comments.
+	/**
+	 * A direction relative to the orientation of the Board.
+	 * North is the "top" of the Board.
+	 */
 	public enum Direction {North, South, East, West};
 	
+	/**
+	 * North -> South,
+	 * South -> North,
+	 * East -> West,
+	 * West -> East
+	 * 
+	 * @param d The initial direction.
+	 * @return The direction opposite to d.
+	 */
 	public static Direction opposite(Direction d)
 	{
 		Direction opposite;
