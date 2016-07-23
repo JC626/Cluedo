@@ -10,8 +10,8 @@ import cluedo.utility.Heading.Direction;
  *
  */
 public class Board {
-	private final int WIDTH = 24;
-	private final int HEIGHT = 25;
+	public static final int WIDTH = 24;
+	public static final int HEIGHT = 25;
 	
 	/**
 	 * A map of only the cells that contains a Piece on it.
