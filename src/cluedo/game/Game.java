@@ -24,8 +24,9 @@ import cluedo.utility.Heading.Direction;
 
 public class Game
 {
+	//FIXME remove main from Game. Currently using for testing stuff
 	public static void main(String args[]){
-		
+
 	}
 	//Constants
 	public static final int MIN_HUMAN_PLAYERS = 3;
@@ -112,7 +113,6 @@ public class Game
 	
 	
 	//TODO Game class methods
-	//TODO Game - create cells
 	public Game(int numPlayers, List<Piece> playerTokens, List<Piece> weaponTokens, List<Displayable> cellDisplayables, 
 			List<Displayable> suspectCardFaces, List<Displayable> weaponCardFaces, List<Displayable> roomCardFaces)
 	{
@@ -129,7 +129,8 @@ public class Game
 		Set<WeaponCard> weaponCards = createWeaponCards(weaponCardFaces);
 		Set<RoomCard> roomCards = createRoomCards(roomCardFaces);
 		answer = createCaseFiles(suspectCards, weaponCards, roomCards);
-		
+		extraCards = distributeCards(suspectCards, weaponCards, roomCards);
+		//TODO Game - create cells
 	}
 	
 	/**
@@ -261,11 +262,11 @@ public class Game
 	}
 	/**
 	 * Creates a CaseFile for each human player
-	 * and the answer Casefile
+	 * and the answer CaseFile
 	 * @param suspectCards - all the suspect cards
 	 * @param weaponCards - all the weapon cards
 	 * @param roomCards - all the room cards
-	 * @return the Casefile for the answer of the game
+	 * @return the CaseFile for the answer of the game
 	 */
 	private CaseFile createCaseFiles(Set<SuspectCard> suspectCards,Set<WeaponCard> weaponCards,Set<RoomCard> roomCards)
 	{
@@ -296,7 +297,52 @@ public class Game
 		}
 		return new CaseFile(answerSuspect, answerWeapon, answerRoom);
 	}
-	
+	/**
+	 * Distribute the remaining cards (all the cards except the answer cards)
+	 * to the players.
+	 * The cards that each player has is removed from their CaseFile.
+	 * 
+	 * @param suspectCards - all the suspect cards
+	 * @param weaponCards - all the weapon cards
+	 * @param roomCards - all the room cards
+	 * @return the cards that were leftover after evenly distributing the cards.
+	 */
+	private Set<Card> distributeCards(Set<SuspectCard> suspectCards,Set<WeaponCard> weaponCards,Set<RoomCard> roomCards)
+	{
+		Set<Card> extra = new TreeSet<Card>();
+		Set<Card> allCards = new TreeSet<Card>();
+		allCards.addAll(suspectCards);
+		allCards.addAll(weaponCards);
+		allCards.addAll(roomCards);
+		int numPlayers = humanPlayers.size();
+		int numExtra = allCards.size() % numPlayers;
+		int numCards = (allCards.size() - numExtra) / numPlayers; //Number of cards each player will get
+		Set<Card> cardsForPlayer = new TreeSet<Card>();
+		for(Card card : allCards)
+		{
+			//All cards evenly distributed, put the rest of the cards in extra
+			if(numPlayers == 0){
+				extra.add(card);
+				continue;
+			}
+			//Remove the card from the player's CaseFile
+			Player player = humanPlayers.get(numPlayers-1);
+			CaseFile caseFile = playerToCasefile.get(player);
+			caseFile.removeCard(card);
+			cardsForPlayer.add(card);
+			numCards--;
+			if(numCards == 0)
+			{
+				//Put the cards in for a human player
+				playerHand.put(player, cardsForPlayer);
+				//Go to the next player
+				numPlayers--;
+				cardsForPlayer = new TreeSet<Card>();
+			}
+		}
+		return extra;
+		
+	}
 	//TODO implement Game - takeExit.
 	public Cell takeExit(Cell c)
 	{
@@ -492,17 +538,17 @@ public class Game
 			this.suspectCards = suspectCards;
 			this.weaponCards = weaponCards;
 		}
-		public void removeRoomCard(RoomCard card)
-		{
-			roomCards.remove(card);
-		}
-		public void removeWeaponCard(WeaponCard card)
-		{
-			weaponCards.remove(card);
-		}
-		public void removeSuspectCard(SuspectCard card)
-		{
-			suspectCards.remove(card);
+		public void removeCard(Card card)
+		{	if(card instanceof SuspectCard){
+				suspectCards.remove(card);
+			}
+			else if(card instanceof RoomCard)
+			{
+				roomCards.remove(card);
+			}
+			else if(card instanceof WeaponCard){
+				weaponCards.remove(card);
+			}
 		}
 		
 	}
