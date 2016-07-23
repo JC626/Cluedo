@@ -36,7 +36,7 @@ public class Game
 	public static final int MAX_HUMAN_PLAYERS = 6;
 	public static final int MAX_PLAYERS = 6;
 	public static final int NUM_WEAPONS = 6;
-	public static final int NUM_ROOMS = 6;
+	public static final int NUM_ROOMS = 9;
 	/**
 	 * A map of the suspect names mapped to the order the player is
 	 * according to the clockwise order of the player's starting position
