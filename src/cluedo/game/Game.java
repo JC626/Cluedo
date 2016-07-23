@@ -129,7 +129,7 @@ public class Game
 	
 	
 	//TODO Game class methods
-	public Game(int numPlayers, List<Piece> playerTokens, List<Piece> weaponTokens, List<Displayable> cellDisplayables, 
+	public Game(int numPlayers, List<Piece> playerTokens, List<Piece> weaponTokens, List<Cell> cells, 
 			List<Displayable> suspectCardFaces, List<Displayable> weaponCardFaces, List<Displayable> roomCardFaces)
 	{
 		if(numPlayers < MIN_HUMAN_PLAYERS || numPlayers > MAX_HUMAN_PLAYERS)
@@ -316,6 +316,7 @@ public class Game
 		}
 		return new CaseFile(answerSuspect, answerWeapon, answerRoom);
 	}
+	
 	/**
 	 * Distribute the remaining cards (all the cards except the answer cards)
 	 * to the players.
