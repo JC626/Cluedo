@@ -42,20 +42,22 @@ public class Board {
 	 * Move the player at a specified direction
 	 * 
 	 * @param piece
-	 * @param dir - The direction the piece is moving to
+	 * @param direction - The direction the piece is moving to
 	 * @return Cell - The new cell position of the piece
 	 */
-	public Cell move(Piece piece, Direction dir)
+	public Cell move(Piece piece, Direction direction)
 	{
 		if(!pieceOnCell.containsKey(piece)){
 			/*throw new IllegalMethodCallException();*/
 		}
 		Cell onPiece = pieceOnCell.get(piece);
-		if(onPiece.hasWall(dir))
+		if(onPiece.hasWall(direction))
 		{
 			//throw new IllegalMethodCallException();
 		}
-		return getCell(onPiece,dir);
+		Cell newPos = getCell(onPiece,direction);
+		this.setPosition(piece, newPos);
+		return newPos;
 	}
 	
 	/**
@@ -92,14 +94,14 @@ public class Board {
 	 * Get the neighbouring cell in the specified direction
 	 * from a given cell.
 	 * @param cell - the cell we are moving from
-	 * @param dir - the direction the neighbouring cell is
+	 * @param direction - the direction the neighbouring cell is
 	 * @return the new cell position
 	 */
-	private Cell getCell(Cell cell, Direction dir)
+	private Cell getCell(Cell cell, Direction direction)
 	{
 		int x = cell.getX();
 		int y = cell.getY();
-		switch(dir)
+		switch(direction)
 		{
 		case North:
 			y--;

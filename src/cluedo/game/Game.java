@@ -22,6 +22,13 @@ import cluedo.model.cards.SuspectCard;
 import cluedo.model.cards.WeaponCard;
 import cluedo.utility.Heading.Direction;
 
+//TODO Game description
+/**
+ * The Cluedo game
+ * This dictates the rules of Cluedo
+ * Creates all objects used in the game 
+ *
+ */
 public class Game
 {
 	//FIXME remove main from Game. Currently using for testing stuff
@@ -71,6 +78,10 @@ public class Game
 	private final Turn<Player> turn;
 	
 	private Set<Player> allPlayers;
+	/**
+	 * All the human players in the game
+	 * Includes human players that have been eliminated from the game.
+	 */
 	private List<Player> humanPlayers;
 	private Map<Player,CaseFile> playerToCasefile;
 	
@@ -136,7 +147,7 @@ public class Game
 	/**
 	 * Create all the players in the Cluedo game
 	 * @param playerTokens
-	 * @return all the players in the Cluedo game
+	 * @return All the players in the Cluedo game
 	 */
 	private Set<Player> createPlayers(List<Piece> playerTokens)
 	{
@@ -200,7 +211,7 @@ public class Game
 	/**
 	 * Create the weapons in the Cluedo Game
 	 * @param weaponTokens 
-	 * @return all the weapons in the Cluedo Game
+	 * @return All the weapons in the Cluedo Game
 	 */
 	private List<Weapon> createWeapons(List<Piece> weaponTokens)
 	{
@@ -215,7 +226,7 @@ public class Game
 	/**
 	 * Create the weapon cards in the Cluedo Game
 	 * @param weaponCardFaces
-	 * @return all the weapon cards in the Cluedo Game
+	 * @return All the weapon cards in the Cluedo Game
 	 */
 	private Set<WeaponCard> createWeaponCards(List<Displayable> weaponCardFaces)
 	{
@@ -230,7 +241,7 @@ public class Game
 	/**
 	 * Create the suspect cards in the Cluedo Game
 	 * @param suspectCardFaces
-	 * @return all the suspect cards in the Cluedo Game
+	 * @return All the suspect cards in the Cluedo Game
 	 */
 	private Set<SuspectCard> createSuspectCards(List<Displayable> suspectCardFaces)
 	{
@@ -248,7 +259,7 @@ public class Game
 	/**
 	 * Create the room cards in the Cluedo Game
 	 * @param roomCardFaces
-	 * @return all the room cards in the Cluedo Game
+	 * @return All the room cards in the Cluedo Game
 	 */
 	private Set<RoomCard> createRoomCards(List<Displayable> roomCardFaces)
 	{
@@ -266,7 +277,7 @@ public class Game
 	 * @param suspectCards - all the suspect cards
 	 * @param weaponCards - all the weapon cards
 	 * @param roomCards - all the room cards
-	 * @return the CaseFile for the answer of the game
+	 * @return The CaseFile for the answer of the game
 	 */
 	private CaseFile createCaseFiles(Set<SuspectCard> suspectCards,Set<WeaponCard> weaponCards,Set<RoomCard> roomCards)
 	{
@@ -274,24 +285,24 @@ public class Game
 		{
 			playerToCasefile.put(player, new CaseFile(suspectCards,weaponCards,roomCards));
 		}
-		Set<SuspectCard> answerSuspect = new TreeSet<SuspectCard>();
+		SuspectCard answerSuspect = null;
 		for(SuspectCard suspect : suspectCards)
 		{
-			answerSuspect.add(suspect);
+			answerSuspect = suspect;
 			suspectCards.remove(suspect);
 			break;
 		}
-		Set<WeaponCard> answerWeapon = new TreeSet<WeaponCard>();
+		WeaponCard answerWeapon = null;
 		for(WeaponCard weapon : weaponCards)
 		{
-			answerWeapon.add(weapon);
+			answerWeapon = weapon;
 			weaponCards.remove(weapon);
 			break;
 		}
-		Set<RoomCard> answerRoom = new TreeSet<RoomCard>();
+		RoomCard answerRoom = null;
 		for(RoomCard room : roomCards)
 		{
-			answerRoom.add(room);
+			answerRoom = room;
 			roomCards.remove(room);
 			break;
 		}
@@ -305,7 +316,7 @@ public class Game
 	 * @param suspectCards - all the suspect cards
 	 * @param weaponCards - all the weapon cards
 	 * @param roomCards - all the room cards
-	 * @return the cards that were leftover after evenly distributing the cards.
+	 * @return The cards that were leftover after evenly distributing the cards.
 	 */
 	private Set<Card> distributeCards(Set<SuspectCard> suspectCards,Set<WeaponCard> weaponCards,Set<RoomCard> roomCards)
 	{
@@ -349,7 +360,14 @@ public class Game
 		return null;
 	}
 	
-	public Cell move(Direction dir)
+	/**
+	 * Checks if the player can move by calling the move
+	 * method in the Board class. 
+	 * Assigns new player’s moves using rollDice()
+	 * @param direction
+	 * @return
+	 */
+	public Cell move(Direction direction)
 	{
 		if(remainingMoves <= 0)
 		{
@@ -363,11 +381,9 @@ public class Game
 				/*throw new InvalidMoveException();*/
 			}
 		}
-		//Cell newPos = board.move(currentPlayer.getPiece(),dir);
+		Cell newPos = board.move(currentPlayer.getPiece(),direction);
 		remainingMoves--;
-		return null;
-		//return newPos;
-		
+		return newPos;
 	}
 	/*public Map<Player,List<Card>> makeSuggestion(WeaponCard weaponC, SuspectCard suspectC)
 	{
@@ -427,9 +443,9 @@ public class Game
 	
 	public List<Player> getActivePlayers()
 	{
-		//TODO figure out which human players are still active
 		return Collections.unmodifiableList(turn.list);
 	}
+	
 	//TODO implement Game - getAvailable exits
 		public List<Cell> getAvailableExits()
 		{
@@ -447,7 +463,7 @@ public class Game
 	/**
 	 * The number of moves the current player has left
 	 * to make in their turn
-	 * @return remaining moves the current player can make
+	 * @return Remaining moves the current player can make
 	 */
 	public int getRemainingMoves() 
 	{
@@ -475,7 +491,7 @@ public class Game
 	 * Used by the UI to read
 	 * the state of pieces in the game
 	 * @param piece
-	 * @return the cell the piece is in 
+	 * @return The cell the piece is in 
 	 */
 	public Cell getPosition(Piece piece)
 	{
@@ -487,41 +503,57 @@ public class Game
 		return null;
 	}
 	/**
-	 * @return all the weapons in the Cluedo game
+	 * @return All the weapons in the Cluedo game
 	 */
 	public List<Weapon> getWeapons()
 	{
-		return weapons;
+		return Collections.unmodifiableList(weapons);
 	}
+	
 	public List<Cell> getCells()
 	{
 		return null;
 	}
+	
 	/**
-	 * @return the cards not distributed to players or in the answer.
+	 * @return The cards not distributed to players or in the answer.
 	 */
 	public Set<Card> getExtraCards()
 	{
-		return extraCards;
+		return Collections.unmodifiableSet(extraCards);
 	}
-	/*public List<WeaponCard> getPlayerWeaponCards()
+	
+	/**
+	 * @return The weapon cards in the current player's CaseFile
+	 */
+	public Set<WeaponCard> getPlayerWeaponCards()
 	{
-		return null;
+		CaseFile casefile = playerToCasefile.get(currentPlayer);
+		return Collections.unmodifiableSet(casefile.getWeaponCards());
 	}
-	public List<RoomCard> getPlayerRoomCards()
+	
+	/**
+	 * @return The room cards in the current player's CaseFile
+	 */
+	public Set<RoomCard> getPlayerRoomCards()
 	{
-		return null;
+		CaseFile casefile = playerToCasefile.get(currentPlayer);
+		return Collections.unmodifiableSet(casefile.getRoomCards());
 	}
-	public List<SuspectCard> getPlayerSuspectCards()
+	
+	/**
+	 * @return The suspect cards in the current player's CaseFile
+	 */
+	public Set<SuspectCard> getPlayerSuspectCards()
 	{
-		return null;
-	}*/
+		CaseFile casefile = playerToCasefile.get(currentPlayer);
+		return Collections.unmodifiableSet(casefile.getSuspectCards());
+	}
 
 	/**
-	 * A Casefile is either an answer case file, 
+	 * A CaseFile is either an answer case file, 
 	 * or a player’s case file, although there is no technical distinction.
-	 * Cards may be added to a player's casefile throughout the game
-	 *
+	 * Cards may be removed from a player's CaseFile throughout the game
 	 * 
 	 */
 	private class CaseFile
@@ -529,8 +561,9 @@ public class Game
 		private Set<SuspectCard> suspectCards;
 		private Set<WeaponCard> weaponCards;
 		private Set<RoomCard> roomCards;
-		public CaseFile(Set<SuspectCard> suspectCards, Set<WeaponCard> weaponCards, Set<RoomCard> roomCards) {
-			if(roomCards.size() == 0 || suspectCards.size() == 0 || weaponCards.size() == 0)
+		public CaseFile(Set<SuspectCard> suspectCards, Set<WeaponCard> weaponCards, Set<RoomCard> roomCards) 
+		{
+			if(suspectCards.size() == 0 || weaponCards.size() == 0 || roomCards.size() == 0)
 			{
 				throw new IllegalArgumentException("CaseFile must have at least one of each type of card");
 			}
@@ -538,6 +571,20 @@ public class Game
 			this.suspectCards = suspectCards;
 			this.weaponCards = weaponCards;
 		}
+		public CaseFile(SuspectCard suspectC, WeaponCard weaponC, RoomCard roomC)
+		{
+			if(suspectC == null || weaponC == null || roomC == null)
+			{
+				throw new IllegalArgumentException("CaseFile must have at least one of each type of card");
+			}
+			suspectCards = new TreeSet<SuspectCard>();
+			suspectCards.add(suspectC);
+			weaponCards = new TreeSet<WeaponCard>();
+			weaponCards.add(weaponC);
+			roomCards = new TreeSet<RoomCard>();
+			roomCards.add(roomC);
+		}
+	
 		public void removeCard(Card card)
 		{	if(card instanceof SuspectCard){
 				suspectCards.remove(card);
@@ -550,10 +597,64 @@ public class Game
 				weaponCards.remove(card);
 			}
 		}
+
+		public Set<SuspectCard> getSuspectCards() {
+			return suspectCards;
+		}
+
+		public Set<WeaponCard> getWeaponCards() {
+			return weaponCards;
+		}
+
+		public Set<RoomCard> getRoomCards() {
+			return roomCards;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + getOuterType().hashCode();
+			result = prime * result + ((roomCards == null) ? 0 : roomCards.hashCode());
+			result = prime * result + ((suspectCards == null) ? 0 : suspectCards.hashCode());
+			result = prime * result + ((weaponCards == null) ? 0 : weaponCards.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			CaseFile other = (CaseFile) obj;
+			if (!getOuterType().equals(other.getOuterType()))
+				return false;
+			if (roomCards == null) {
+				if (other.roomCards != null)
+					return false;
+			} else if (!roomCards.equals(other.roomCards))
+				return false;
+			if (suspectCards == null) {
+				if (other.suspectCards != null)
+					return false;
+			} else if (!suspectCards.equals(other.suspectCards))
+				return false;
+			if (weaponCards == null) {
+				if (other.weaponCards != null)
+					return false;
+			} else if (!weaponCards.equals(other.weaponCards))
+				return false;
+			return true;
+		}
+
+		private Game getOuterType() {
+			return Game.this;
+		}
 		
 	}
-	
-	//TODO check Dice
 	
 	/**
 	 * The dice used to roll moves in Cluedo	
