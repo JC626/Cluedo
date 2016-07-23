@@ -57,7 +57,7 @@ public class Cell
 		}
 
 		// Not an error per se, but it indicates that the caller is using the constructor incorrectly.
-		if (walls.length > Direction.values().length)
+		if (walls.length > Direction.values().length) // If walls has more items than in Direction, then there must be null or duplicates.
 		{
 			throw new IllegalArgumentException("walls may not contain duplicate items");
 		}
