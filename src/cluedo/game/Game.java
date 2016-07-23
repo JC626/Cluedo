@@ -31,10 +31,6 @@ import cluedo.utility.Heading.Direction;
  */
 public class Game
 {
-	//FIXME remove main from Game. Currently using for testing stuff
-	public static void main(String args[]){
-
-	}
 	//Constants
 	public static final int MIN_HUMAN_PLAYERS = 3;
 	public static final int MAX_HUMAN_PLAYERS = 6;
@@ -75,14 +71,23 @@ public class Game
 	
 	private Board board;
 	private final Dice dice = new Dice();
-	private final Turn<Player> turn;
+	/**
+	 * One cycle of the Cluedo game.
+	 * Contains all the active players
+	 */
+	private Turn<Player> turn;
+	/**
+	 * Iterator that contains all human players in
+	 * the game (i.e. eliminated and active players)
+	 */
+	private final Turn<Player> allHumanIterator;
 	
 	private Set<Player> allPlayers;
 	/**
 	 * All the human players in the game
-	 * Includes human players that have been eliminated from the game.
+	 * Does not include eliminated players from the game.
 	 */
-	private List<Player> humanPlayers;
+	private List<Player> activeHumanPlayers;
 	private Map<Player,CaseFile> playerToCasefile;
 	
 	/**
@@ -132,8 +137,9 @@ public class Game
 			throw new IllegalArgumentException("Must have between: " + MIN_HUMAN_PLAYERS + " and " + MAX_HUMAN_PLAYERS + " human players");
 		}
 		this.allPlayers = createPlayers(playerTokens);
-		this.humanPlayers = createHumanPlayers(numPlayers);
-		turn = new Turn<Player>(humanPlayers);
+		this.activeHumanPlayers = createHumanPlayers(numPlayers);
+		turn = new Turn<Player>(activeHumanPlayers);
+		allHumanIterator =  new Turn<Player>(activeHumanPlayers);
 		this.weapons = createWeapons(weaponTokens);
 		//Cards
 		Set<SuspectCard> suspectCards = createSuspectCards(suspectCardFaces);
@@ -141,6 +147,8 @@ public class Game
 		Set<RoomCard> roomCards = createRoomCards(roomCardFaces);
 		answer = createCaseFiles(suspectCards, weaponCards, roomCards);
 		extraCards = distributeCards(suspectCards, weaponCards, roomCards);
+		isTransferred = new HashMap<Player,Boolean>();
+		playerToRoom = new HashMap<Player,Room>();
 		//TODO Game - create cells
 	}
 	
@@ -281,7 +289,7 @@ public class Game
 	 */
 	private CaseFile createCaseFiles(Set<SuspectCard> suspectCards,Set<WeaponCard> weaponCards,Set<RoomCard> roomCards)
 	{
-		for(Player player : humanPlayers)
+		for(Player player : activeHumanPlayers)
 		{
 			playerToCasefile.put(player, new CaseFile(suspectCards,weaponCards,roomCards));
 		}
@@ -325,7 +333,7 @@ public class Game
 		allCards.addAll(suspectCards);
 		allCards.addAll(weaponCards);
 		allCards.addAll(roomCards);
-		int numPlayers = humanPlayers.size();
+		int numPlayers = activeHumanPlayers.size();
 		int numExtra = allCards.size() % numPlayers;
 		int numCards = (allCards.size() - numExtra) / numPlayers; //Number of cards each player will get
 		Set<Card> cardsForPlayer = new TreeSet<Card>();
@@ -337,7 +345,7 @@ public class Game
 				continue;
 			}
 			//Remove the card from the player's CaseFile
-			Player player = humanPlayers.get(numPlayers-1);
+			Player player = activeHumanPlayers.get(numPlayers-1);
 			CaseFile caseFile = playerToCasefile.get(player);
 			caseFile.removeCard(card);
 			cardsForPlayer.add(card);
@@ -390,26 +398,55 @@ public class Game
 		
 	}*/
 	
-	/*public boolean makeAccusation(Player player, WeaponCard weaponC, RoomCard roomC, SuspectCard suspectC)
+	/**
+	 * 
+	 * An accusation is when the player thinks they know what the 
+	 * murder weapon, murderer and the murder room is.
+	 * Any player can make an accusation.
+	 * The cards must correctly match the cards in the answer CaseFile
+	 * If the player is incorrect, the player is eliminated from the game
+	 * but their cards are still hidden from active players and are still used
+	 * during suggestions.
+	 * 
+	 * @param player - The player making the accusation
+	 * @param weaponCard - The suspected murder weapon
+	 * @param roomCard - The suspected room of the murder
+	 * @param suspectCard - The suspected murderer
+	 * @return Whether the player was successful in making their accusation
+	 */
+	public boolean makeAccusation(Player player, WeaponCard weaponCard, RoomCard roomCard, SuspectCard suspectCard)
 	{
 		List<Player> players = getActivePlayers();
-		CaseFile accusation = new CaseFile(weaponC,roomC,suspectC)
+		CaseFile accusation = new CaseFile(suspectCard,weaponCard,roomCard);
 		if(accusation.equals(answer))
-		{
-			//game over
+		{//Game over, the player won!
 			return true;
+		}
+		else if(players.size() == 1)
+		{//Last player in the game failed.
+			return false;
 		}
 		else
 		{
-			//remove player from rotation
-			if(currentPlayer.equals(player))
+			//Remove player from the game
+			players.remove(player);
+			int pos = turn.getPos();
+			int currentPlayerPos = SUSPECT_NAMES.get(currentPlayer.getName());
+			int removedPos = SUSPECT_NAMES.get(player.getName());
+			if(removedPos <= currentPlayerPos)
 			{
-				//FIXME go to next player if it was the currentPlayer making the accusation?
-				nextTurn();
+				pos--;
+				if(removedPos == currentPlayerPos)
+				{
+					//Go to next player if it was the current player who failed to make the accusation
+					nextTurn();
+					//Remove player from the active players
+					turn = new Turn<Player>(players,pos);
+				}
 			}
 			return false;
 		}
-	}*/
+	}
 	
 	public Player nextTurn()
 	{
@@ -676,9 +713,11 @@ public class Game
 		}
 	}
 	
-	
-	//TODO check Turn class
-	// Class modified from Stack Overflow: https://stackoverflow.com/questions/20343265/looping-data-structure-in-java
+	/**
+	 * Class modified from Stack Overflow: https://stackoverflow.com/questions/20343265/looping-data-structure-in-java
+	 * Iterator that loops around in cycles so that it will never end
+	 * @param <E>
+	 */
 	private class Turn<E> implements Iterator<E>, Cloneable
 	{
 	    private final List<E> list;
@@ -692,6 +731,15 @@ public class Game
 	    	
 	        this.list = list;
 	        pos = 0;
+	    }
+	    public Turn(List<E> list, int pos)
+	    {
+	    	ensureNotNull(list);
+	    	ensureNotEmpty(list); // A turn must have at least one player.
+	    	ensureNotContainNullItem(list); // Turns may not contain null players.
+	    	
+	        this.list = list;
+	        this.pos = pos;
 	    }
 
 		public boolean hasNext()
@@ -709,7 +757,7 @@ public class Game
 	        pos = (pos + 1) % list.size();
 	        return nextItem;
 	    }
-
+	   
 	    public void remove()
 	    {
 	         throw new RuntimeException("Cannot remove items from iterator");
@@ -743,6 +791,10 @@ public class Game
 	    			throw new IllegalArgumentException("List may not contain null items");
 	    		}
 	    	}
+		}
+
+		public int getPos() {
+			return pos;
 		}
 	}
 }
