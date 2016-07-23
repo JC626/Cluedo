@@ -1,14 +1,13 @@
 package cluedo.game;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import cluedo.board.Board;
 import cluedo.model.Cell;
@@ -17,6 +16,10 @@ import cluedo.model.Piece;
 import cluedo.model.Player;
 import cluedo.model.Room;
 import cluedo.model.Weapon;
+import cluedo.model.cards.Card;
+import cluedo.model.cards.RoomCard;
+import cluedo.model.cards.SuspectCard;
+import cluedo.model.cards.WeaponCard;
 import cluedo.utility.Heading.Direction;
 
 public class Game
@@ -29,6 +32,7 @@ public class Game
 	public static final int MAX_HUMAN_PLAYERS = 6;
 	public static final int MAX_PLAYERS = 6;
 	public static final int NUM_WEAPONS = 6;
+	public static final int NUM_ROOMS = 6;
 	/**
 	 * A map of the suspect names mapped to the order the player is
 	 * according to the clockwise order of the player's starting position
@@ -65,18 +69,36 @@ public class Game
 	private final Dice dice = new Dice();
 	private final Turn<Player> turn;
 	
-	private Map<Player,Boolean> isTransferred;
-	/*private Map<Player,CaseFile> playerToCasefile;
-	private Map<Player,Set<Card>> playerHand;
-	private CaseFile answer;*/
-	private Map<Cell,Room> cellToRoom;
-	private Map<Player,Room> playerToRoom; 
 	private Set<Player> allPlayers;
 	private List<Player> humanPlayers;
+	private Map<Player,CaseFile> playerToCasefile;
+	
+	/**
+	 * The cards that each player has in their hand.
+	 * Every player has different cards to each other
+	 */
+	private Map<Player,Set<Card>> playerHand;
+	/**
+	 * These are the cards leftover after evenly
+	 * distributing the cards to all the players.
+	 * Does not contain the answer cards.
+	 * Every player will be able to view these cards.
+	 * This Set may be empty
+	 */
+	private Set<Card> extraCards;
+	/**
+	 * Contains one of each type of card (SuspectCard, WeaponCard, RoomCard).
+	 * These are the cards that the player needs to guess correctly to win the game
+	 */
+	private CaseFile answer; 
+	
+	private Map<Cell,Room> cellToRoom;
+	private Map<Player,Boolean> isTransferred;
+	private Map<Player,Room> playerToRoom; 
+
 	private List<Weapon> weapons;
 	//FIXME should Game have a list of cells?
 	//private List<Cell> cells;
-	
 	
 	//Static initializer
 		{
@@ -90,16 +112,24 @@ public class Game
 	
 	
 	//TODO Game class methods
-	//TODO Game - create cards, cells and casefile
-	public Game(int numPlayers, List<Piece> playerTokens, List<Piece> weaponTokens, List<Displayable> cellDisplayables, List<Displayable> weaponCardFaces, List<Displayable> roomCardFaces, List<Displayable> suspectCardFaces)
+	//TODO Game - create cells
+	public Game(int numPlayers, List<Piece> playerTokens, List<Piece> weaponTokens, List<Displayable> cellDisplayables, 
+			List<Displayable> suspectCardFaces, List<Displayable> weaponCardFaces, List<Displayable> roomCardFaces)
 	{
-		//TODO Change from asserts to if statements with exceptions
-		assert numPlayers >= MIN_HUMAN_PLAYERS;
-		assert numPlayers <= MAX_HUMAN_PLAYERS;
+		if(numPlayers < MIN_HUMAN_PLAYERS || numPlayers > MAX_HUMAN_PLAYERS)
+		{
+			throw new IllegalArgumentException("Must have between: " + MIN_HUMAN_PLAYERS + " and " + MAX_HUMAN_PLAYERS + " human players");
+		}
 		this.allPlayers = createPlayers(playerTokens);
 		this.humanPlayers = createHumanPlayers(numPlayers);
 		turn = new Turn<Player>(humanPlayers);
 		this.weapons = createWeapons(weaponTokens);
+		//Cards
+		Set<SuspectCard> suspectCards = createSuspectCards(suspectCardFaces);
+		Set<WeaponCard> weaponCards = createWeaponCards(weaponCardFaces);
+		Set<RoomCard> roomCards = createRoomCards(roomCardFaces);
+		answer = createCaseFiles(suspectCards, weaponCards, roomCards);
+		
 	}
 	
 	/**
@@ -109,7 +139,7 @@ public class Game
 	 */
 	private Set<Player> createPlayers(List<Piece> playerTokens)
 	{
-		Set<Player> players = new HashSet<Player>();
+		Set<Player> players = new TreeSet<Player>();
 		int i = 0;
 		for(String playerName : SUSPECT_NAMES.keySet())
 		{
@@ -166,7 +196,11 @@ public class Game
 		}
 		return players;
 	}
-	
+	/**
+	 * Create the weapons in the Cluedo Game
+	 * @param weaponTokens 
+	 * @return all the weapons in the Cluedo Game
+	 */
 	private List<Weapon> createWeapons(List<Piece> weaponTokens)
 	{
 		List<Weapon> weapons = new ArrayList<Weapon>();
@@ -177,8 +211,93 @@ public class Game
 		}
 		return weapons;
 	}
+	/**
+	 * Create the weapon cards in the Cluedo Game
+	 * @param weaponCardFaces
+	 * @return all the weapon cards in the Cluedo Game
+	 */
+	private Set<WeaponCard> createWeaponCards(List<Displayable> weaponCardFaces)
+	{
+		Set<WeaponCard> weaponCards = new TreeSet<WeaponCard>();
+		for(int i = 0; i < NUM_WEAPONS; i++)
+		{
+			WeaponCard card = new WeaponCard(WEAPON_NAMES[i],weaponCardFaces.get(i));
+			weaponCards.add(card);
+		}
+		return weaponCards;
+	}
+	/**
+	 * Create the suspect cards in the Cluedo Game
+	 * @param suspectCardFaces
+	 * @return all the suspect cards in the Cluedo Game
+	 */
+	private Set<SuspectCard> createSuspectCards(List<Displayable> suspectCardFaces)
+	{
+		Set<SuspectCard> suspectCards = new TreeSet<SuspectCard>();
+		int i = 0;
+		for(String suspectName : SUSPECT_NAMES.keySet())
+		{
+			assert i < MAX_PLAYERS : "Exceeded the total number of suspects";
+			SuspectCard p = new SuspectCard(suspectName,suspectCardFaces.get(i));
+			suspectCards.add(p);
+			i++;
+		}
+		return suspectCards;
+	}
+	/**
+	 * Create the room cards in the Cluedo Game
+	 * @param roomCardFaces
+	 * @return all the room cards in the Cluedo Game
+	 */
+	private Set<RoomCard> createRoomCards(List<Displayable> roomCardFaces)
+	{
+		Set<RoomCard> roomCards = new TreeSet<RoomCard>();
+		for(int i = 0; i < NUM_ROOMS; i++)
+		{
+			RoomCard card = new RoomCard(ROOM_NAMES[i],roomCardFaces.get(i));
+			roomCards.add(card);
+		}
+		return roomCards;
+	}
+	/**
+	 * Creates a CaseFile for each human player
+	 * and the answer Casefile
+	 * @param suspectCards - all the suspect cards
+	 * @param weaponCards - all the weapon cards
+	 * @param roomCards - all the room cards
+	 * @return the Casefile for the answer of the game
+	 */
+	private CaseFile createCaseFiles(Set<SuspectCard> suspectCards,Set<WeaponCard> weaponCards,Set<RoomCard> roomCards)
+	{
+		for(Player player : humanPlayers)
+		{
+			playerToCasefile.put(player, new CaseFile(suspectCards,weaponCards,roomCards));
+		}
+		Set<SuspectCard> answerSuspect = new TreeSet<SuspectCard>();
+		for(SuspectCard suspect : suspectCards)
+		{
+			answerSuspect.add(suspect);
+			suspectCards.remove(suspect);
+			break;
+		}
+		Set<WeaponCard> answerWeapon = new TreeSet<WeaponCard>();
+		for(WeaponCard weapon : weaponCards)
+		{
+			answerWeapon.add(weapon);
+			weaponCards.remove(weapon);
+			break;
+		}
+		Set<RoomCard> answerRoom = new TreeSet<RoomCard>();
+		for(RoomCard room : roomCards)
+		{
+			answerRoom.add(room);
+			roomCards.remove(room);
+			break;
+		}
+		return new CaseFile(answerSuspect, answerWeapon, answerRoom);
+	}
 	
-	//TODO implement Game - takeExit. Need Room getExit method
+	//TODO implement Game - takeExit.
 	public Cell takeExit(Cell c)
 	{
 		return null;
@@ -321,13 +440,23 @@ public class Game
 	{
 		return null;
 	}
+	/**
+	 * @return all the weapons in the Cluedo game
+	 */
 	public List<Weapon> getWeapons()
 	{
-		return null;
+		return weapons;
 	}
 	public List<Cell> getCells()
 	{
 		return null;
+	}
+	/**
+	 * @return the cards not distributed to players or in the answer.
+	 */
+	public Set<Card> getExtraCards()
+	{
+		return extraCards;
 	}
 	/*public List<WeaponCard> getPlayerWeaponCards()
 	{
@@ -351,10 +480,30 @@ public class Game
 	 */
 	private class CaseFile
 	{
-		
-		/*Set<RoomCard> roomCards;
-		Set<SuspectCard> suspectCards;
-		Set<WeaponCard> weaponCards;*/
+		private Set<SuspectCard> suspectCards;
+		private Set<WeaponCard> weaponCards;
+		private Set<RoomCard> roomCards;
+		public CaseFile(Set<SuspectCard> suspectCards, Set<WeaponCard> weaponCards, Set<RoomCard> roomCards) {
+			if(roomCards.size() == 0 || suspectCards.size() == 0 || weaponCards.size() == 0)
+			{
+				throw new IllegalArgumentException("CaseFile must have at least one of each type of card");
+			}
+			this.roomCards = roomCards;
+			this.suspectCards = suspectCards;
+			this.weaponCards = weaponCards;
+		}
+		public void removeRoomCard(RoomCard card)
+		{
+			roomCards.remove(card);
+		}
+		public void removeWeaponCard(WeaponCard card)
+		{
+			weaponCards.remove(card);
+		}
+		public void removeSuspectCard(SuspectCard card)
+		{
+			suspectCards.remove(card);
+		}
 		
 	}
 	
