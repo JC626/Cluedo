@@ -1,4 +1,4 @@
-package cluedo.game;
+ package cluedo.game;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -80,7 +80,7 @@ public class Game
 	 * Iterator that contains all human players in
 	 * the game (i.e. eliminated and active players)
 	 */
-	private final Turn<Player> allHumanIterator;
+	private Turn<Player> allHumanIterator;
 	
 	private Set<Player> allPlayers;
 	/**
@@ -112,10 +112,9 @@ public class Game
 	private Map<Cell,Room> cellToRoom;
 	private Map<Player,Boolean> isTransferred;
 	private Map<Player,Room> playerToRoom; 
-
+	
+	//FIXME Need weapons?
 	private List<Weapon> weapons;
-	//FIXME should Game have a list of cells?
-	//private List<Cell> cells;
 	
 	//Static initializer
 		{
@@ -394,14 +393,50 @@ public class Game
 		remainingMoves--;
 		return newPos;
 	}
-	/*public Map<Player,List<Card>> makeSuggestion(WeaponCard weaponC, SuspectCard suspectC)
+	
+	/**
+	 * A suggestion is when a player suggests what the murder weapon, murderer and 
+	 * murder room is.
+	 * This is so that the player can determine what cards were part of the murder
+	 * by a process of elimination.
+	 * The current player can make a suggestion when they are in a room.
+	 * The room the player is in is part of the suggestion.
+	 * 
+	 * Players in a clockwise order to the current player must disprove the suggestion
+	 * if they have at least one of the cards in their hand. The suggestion ends
+	 * when one or none of the players can disprove the suggestion
+	 * 
+	 * @param weaponCard that is suggested is part of the murder (in the answer CaseFile)
+	 * @param suspectCard that is suggested is part of the murder (in the answer CaseFile)
+	 * @return One player with the card or cards they have that can disprove the suggestion
+	 */
+	public Map<Player,Set<Card>> makeSuggestion(WeaponCard weaponCard, SuspectCard suspectCard)
 	{
-		
-	}*/
+		allHumanIterator = new Turn<Player>(allHumanIterator.getList(),turn.getPos());
+		Player player = allHumanIterator.next();
+		Map<Player,Set<Card>> disprover = new HashMap<Player,Set<Card>>();
+		while(player != currentPlayer)
+		{
+			Set<Card> cards = playerHand.get(player);
+			if(cards.contains(weaponCard))
+			{
+				cards.add(weaponCard);
+			}
+			if(cards.contains(suspectCard))
+			{
+				cards.add(suspectCard);
+			}
+			if(!cards.isEmpty()){
+				disprover.put(player,cards);
+				return disprover;
+			}
+		}
+		return null;
+	}
 	
 	/**
 	 * 
-	 * An accusation is when the player thinks they know what the 
+	 * An accusation is when the player guesses what the 
 	 * murder weapon, murderer and the murder room is.
 	 * Any player can make an accusation.
 	 * The cards must correctly match the cards in the answer CaseFile
@@ -546,11 +581,6 @@ public class Game
 	public List<Weapon> getWeapons()
 	{
 		return Collections.unmodifiableList(weapons);
-	}
-	
-	public List<Cell> getCells()
-	{
-		return null;
 	}
 	
 	/**
@@ -796,6 +826,9 @@ public class Game
 
 		public int getPos() {
 			return pos;
+		}
+		public List<E> getList() {
+			return list;
 		}
 	}
 }
