@@ -452,6 +452,10 @@ public class Game
 	 */
 	public boolean makeAccusation(Player player, WeaponCard weaponCard, RoomCard roomCard, SuspectCard suspectCard)
 	{
+		if(!getActivePlayers().contains(player))
+		{
+			throw new IllegalArgumentException("Only active players can make accusations");
+		}
 		List<Player> players = getActivePlayers();
 		CaseFile accusation = new CaseFile(suspectCard,weaponCard,roomCard);
 		if(accusation.equals(answer))
@@ -570,7 +574,7 @@ public class Game
 	{
 		return board.getPosition(piece);
 	}
-	
+	//TODO getRooms Game
 	public List<Room> getRooms()
 	{
 		return null;
