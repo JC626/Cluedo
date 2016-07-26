@@ -21,6 +21,7 @@ import cluedo.model.cards.RoomCard;
 import cluedo.model.cards.SuspectCard;
 import cluedo.model.cards.WeaponCard;
 import cluedo.utility.Heading.Direction;
+import cluedo.utility.Turn;
 
 //TODO Game description
 /**
@@ -70,7 +71,6 @@ public class Game
 	private Player currentPlayer;
 	
 	private Board board;
-	private final Dice dice = new Dice();
 	/**
 	 * One cycle of the Cluedo game.
 	 * Contains all the active players
@@ -539,6 +539,7 @@ public class Game
 	}
 	
 	/**
+	 * Simulates the roll of two six-sided die
 	 * Generate the number of moves for the current player 
 	 * (when they first decide to move)
 	 * The number of moves is between 2 to 12
@@ -546,7 +547,9 @@ public class Game
 	private void rollDice()
 	{
 		assert remainingMoves == 0 : "Last player must not have any remaining moves ";
-		remainingMoves = dice.roll();
+		int d1 = (int)(Math.random() * 7 + 1);
+		int d2 = (int)(Math.random() * 7 + 1);
+		remainingMoves = d1 + d2;
 	}
 	
 	//Getters
@@ -556,7 +559,7 @@ public class Game
 	 */
 	public List<Player> getActivePlayers()
 	{
-		return Collections.unmodifiableList(turn.list);
+		return Collections.unmodifiableList(activeHumanPlayers);
 	}
 	
 	//TODO implement Game - getAvailable exits
@@ -772,113 +775,5 @@ public class Game
 		}
 		
 	}
-	
-	/**
-	 * The dice used to roll moves in Cluedo	
-	 *
-	 */
-	private class Dice
-	{
-		/**
-		 * Simulates the roll of two six-sided die
-		 * by generating a number between 2 to 12
-		 * @return The dice roll
-		 */
-		public int roll()
-		{
-			int d1 = (int)(Math.random() * 7 + 1);
-			int d2 = (int)(Math.random() * 7 + 1);
-			return d1 + d2;
-		}
-	}
-	
-	/**
-	 * Class modified from Stack Overflow: https://stackoverflow.com/questions/20343265/looping-data-structure-in-java
-	 * Iterator that loops around in cycles so that it will never end
-	 * @param <E>
-	 */
-	private class Turn<E> implements Iterator<E>, Cloneable
-	{
-	    private final List<E> list;
-	    private int pos;
 
-	    public Turn(List<E> list)
-	    {
-	    	ensureNotNull(list);
-	    	ensureNotEmpty(list); // A turn must have at least one player.
-	    	ensureNotContainNullItem(list); // Turns may not contain null players.
-	    	
-	        this.list = list;
-	        pos = 0;
-	    }
-	    public Turn(List<E> list, int pos)
-	    {
-	    	ensureNotNull(list);
-	    	ensureNotEmpty(list); // A turn must have at least one player.
-	    	ensureNotContainNullItem(list); // Turns may not contain null players.
-	    	
-	        this.list = list;
-	        this.pos = pos;
-	    }
-
-		public boolean hasNext()
-	    {
-	    	return list.size() >= 1;
-	    }
-
-	    public E next()
-	    {
-	    	if (!hasNext())
-	    	{
-	    		throw new IllegalStateException("No next item");
-	    	}
-	        E nextItem = list.get(pos);
-	        pos = (pos + 1) % list.size();
-	        return nextItem;
-	    }
-	   
-	    public void remove()
-	    {
-	         throw new RuntimeException("Cannot remove items from iterator");
-	    }
-	    
-
-	    // These methods throw illegal argument exceptions if their respective conditions aren't met.
-	    // The order of calls are important, as (e.g. ensureNotEmpty(list) assumes that the list is non null).
-	    private void ensureNotNull(List<E> list)
-		{
-			if (list == null)
-			{
-				throw new IllegalArgumentException("List must be non null");
-			}
-		}
-	    
-	    private void ensureNotEmpty(List<E> list)
-		{
-			if (list.size() <= 0)
-			{
-				throw new IllegalArgumentException("List must be non null, with at least one item");
-			}
-		}
-	    
-	    private void ensureNotContainNullItem(List<E> list)
-		{
-	    	for (E item : list) 
-	    	{
-	    		if (item == null)
-	    		{
-	    			throw new IllegalArgumentException("List may not contain null items");
-	    		}
-	    	}
-		}
-
-		public int getPos() 
-		{
-			return pos;
-		}
-		public List<E> getList() 
-		{
-			return list;
-		}
-	}
 }
