@@ -82,7 +82,7 @@ public abstract class Card
 	 * Will not be null.
 	 * @return The name associated with this Card.
 	 */
-	String getName()
+	public String getName()
 	{
 		return name;
 	}
@@ -91,7 +91,7 @@ public abstract class Card
 	 * Will not be null.
 	 * @return The Displayable aspect associated with this Card.
 	 */
-	Displayable getFace()
+	public Displayable getFace()
 	{
 		return face;
 	}

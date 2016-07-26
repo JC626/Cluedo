@@ -109,12 +109,16 @@ public class Game
 	 */
 	private CaseFile answer; 
 	
+	Set<SuspectCard> suspectCards;
+	Set<WeaponCard> weaponCards;
+	Set<RoomCard> roomCards;
+	
 	private Map<Cell,Room> cellToRoom;
 	private Map<Player,Boolean> isTransferred;
 	private Map<Player,Room> playerToRoom; 
 	
 	//FIXME Need weapons?
-	private List<Weapon> weapons;
+	private Set<Weapon> weapons;
 	
 	//Static initializer
 		{
@@ -141,11 +145,12 @@ public class Game
 		allHumanIterator =  new Turn<Player>(activeHumanPlayers);
 		this.weapons = createWeapons(weaponTokens);
 		//Cards
-		Set<SuspectCard> suspectCards = createSuspectCards(suspectCardFaces);
-		Set<WeaponCard> weaponCards = createWeaponCards(weaponCardFaces);
-		Set<RoomCard> roomCards = createRoomCards(roomCardFaces);
+		suspectCards = createSuspectCards(suspectCardFaces);
+		weaponCards = createWeaponCards(weaponCardFaces);
+		roomCards = createRoomCards(roomCardFaces);
 		answer = createCaseFiles(suspectCards, weaponCards, roomCards);
 		extraCards = distributeCards(suspectCards, weaponCards, roomCards);
+		
 		isTransferred = new HashMap<Player,Boolean>();
 		playerToRoom = new HashMap<Player,Room>();
 		//TODO Game - create cells
@@ -169,6 +174,7 @@ public class Game
 		}
 		return players;
 	}
+	
 	/**
 	 * Select randomly the characters the human players will play as.
 	 * The starting character (and therefore player) is selected randomly.
@@ -189,6 +195,10 @@ public class Game
 		//Generate random players
 		for(Player randPlayer : allPlayers)
 		{
+			if(numPlayers == 0)
+			{
+				break;
+			}
 			if(startingPlayer == null)
 			{
 				startingPlayer = randPlayer;
@@ -196,12 +206,13 @@ public class Game
 			}
 			else
 			{
-			 // Put added players in a clockwise order based off the starting player
+			 // Put added players in a clockwise order based off the starting player's position on the board
 				int startOrder = SUSPECT_NAMES.get(startingPlayer.getName());
 				int playerOrder = SUSPECT_NAMES.get(randPlayer.getName());
 				int index = playerOrder > startOrder ? playerOrder - startOrder : playerOrder + startOrder;
 				playerArr[index] = randPlayer;
 			}
+			numPlayers--;
 			
 		}
 		List<Player> players = new ArrayList<Player>();
@@ -215,14 +226,15 @@ public class Game
 		}
 		return players;
 	}
+	
 	/**
 	 * Create the weapons in the Cluedo Game
 	 * @param weaponTokens 
 	 * @return All the weapons in the Cluedo Game
 	 */
-	private List<Weapon> createWeapons(List<Piece> weaponTokens)
+	private Set<Weapon> createWeapons(List<Piece> weaponTokens)
 	{
-		List<Weapon> weapons = new ArrayList<Weapon>();
+		Set<Weapon> weapons = new TreeSet<Weapon>();
 		for(int i = 0; i < NUM_WEAPONS; i++)
 		{
 			Weapon w = new Weapon(WEAPON_NAMES[i],weaponTokens.get(i));
@@ -230,6 +242,7 @@ public class Game
 		}
 		return weapons;
 	}
+	
 	/**
 	 * Create the weapon cards in the Cluedo Game
 	 * @param weaponCardFaces
@@ -245,6 +258,7 @@ public class Game
 		}
 		return weaponCards;
 	}
+	
 	/**
 	 * Create the suspect cards in the Cluedo Game
 	 * @param suspectCardFaces
@@ -263,6 +277,7 @@ public class Game
 		}
 		return suspectCards;
 	}
+	
 	/**
 	 * Create the room cards in the Cluedo Game
 	 * @param roomCardFaces
@@ -278,6 +293,7 @@ public class Game
 		}
 		return roomCards;
 	}
+	
 	/**
 	 * Creates a CaseFile for each human player
 	 * and the answer CaseFile
@@ -363,17 +379,17 @@ public class Game
 		
 	}
 	//TODO implement Game - takeExit.
-	public Cell takeExit(Cell c)
+	/*public Cell takeExit(Cell c)
 	{
 		return null;
-	}
+	}*/
 	
 	/**
 	 * Checks if the player can move by calling the move
 	 * method in the Board class. 
 	 * Assigns new player’s moves using rollDice()
-	 * @param direction
-	 * @return
+	 * @param direction - direction playing is moving towards from their current cell position
+	 * @return The cell that the player has moved to
 	 */
 	public Cell move(Direction direction)
 	{
@@ -415,9 +431,23 @@ public class Game
 		allHumanIterator = new Turn<Player>(allHumanIterator.getList(),turn.getPos());
 		Player player = allHumanIterator.next();
 		Map<Player,Set<Card>> disprover = new HashMap<Player,Set<Card>>();
+		RoomCard roomCard = null;
+		String roomName = playerToRoom.get(currentPlayer).getName();
+		for(RoomCard card : roomCards)
+		{
+			if(card.getName().equals(roomName))
+			{
+				roomCard = card;
+				break;
+			}
+		}
 		while(player != currentPlayer)
 		{
 			Set<Card> cards = playerHand.get(player);
+			if(cards.contains(roomCard))
+			{
+				cards.add(roomCard);
+			}
 			if(cards.contains(weaponCard))
 			{
 				cards.add(weaponCard);
@@ -431,7 +461,7 @@ public class Game
 				return disprover;
 			}
 		}
-		return null;
+		return new HashMap<Player,Set<Card>>();
 	}
 	
 	/**
@@ -452,11 +482,11 @@ public class Game
 	 */
 	public boolean makeAccusation(Player player, WeaponCard weaponCard, RoomCard roomCard, SuspectCard suspectCard)
 	{
-		if(!getActivePlayers().contains(player))
+		List<Player> players = getActivePlayers();
+		if(!players.contains(player))
 		{
 			throw new IllegalArgumentException("Only active players can make accusations");
 		}
-		List<Player> players = getActivePlayers();
 		CaseFile accusation = new CaseFile(suspectCard,weaponCard,roomCard);
 		if(accusation.equals(answer))
 		{//Game over, the player won!
@@ -468,7 +498,7 @@ public class Game
 		}
 		else
 		{
-			//Remove player from the game
+			//Accusation failed, remove player from the game
 			players.remove(player);
 			int pos = turn.getPos();
 			int currentPlayerPos = SUSPECT_NAMES.get(currentPlayer.getName());
@@ -507,6 +537,7 @@ public class Game
 	{
 		return playerToRoom.get(currentPlayer) != null;
 	}
+	
 	/**
 	 * Generate the number of moves for the current player 
 	 * (when they first decide to move)
@@ -514,10 +545,15 @@ public class Game
 	 */
 	private void rollDice()
 	{
+		assert remainingMoves == 0 : "Last player must not have any remaining moves ";
 		remainingMoves = dice.roll();
 	}
+	
 	//Getters
 	
+	/**
+	 * @return The human players still playing the Cluedo game (have not been eliminated)
+	 */
 	public List<Player> getActivePlayers()
 	{
 		return Collections.unmodifiableList(turn.list);
@@ -544,6 +580,7 @@ public class Game
 	 */
 	public int getRemainingMoves() 
 	{
+		assert remainingMoves >= 0 : "Cannot have negative remaining moves";
 		return remainingMoves;
 	}
 	
@@ -574,17 +611,19 @@ public class Game
 	{
 		return board.getPosition(piece);
 	}
+	
 	//TODO getRooms Game
 	public List<Room> getRooms()
 	{
 		return null;
 	}
+	
 	/**
 	 * @return All the weapons in the Cluedo game
 	 */
-	public List<Weapon> getWeapons()
+	public Set<Weapon> getWeapons()
 	{
-		return Collections.unmodifiableList(weapons);
+		return Collections.unmodifiableSet(weapons);
 	}
 	
 	/**
@@ -670,20 +709,24 @@ public class Game
 			}
 		}
 
-		public Set<SuspectCard> getSuspectCards() {
+		public Set<SuspectCard> getSuspectCards() 
+		{
 			return suspectCards;
 		}
 
-		public Set<WeaponCard> getWeaponCards() {
+		public Set<WeaponCard> getWeaponCards()
+		{
 			return weaponCards;
 		}
 
-		public Set<RoomCard> getRoomCards() {
+		public Set<RoomCard> getRoomCards() 
+		{
 			return roomCards;
 		}
 
 		@Override
-		public int hashCode() {
+		public int hashCode() 
+		{
 			final int prime = 31;
 			int result = 1;
 			result = prime * result + getOuterType().hashCode();
@@ -694,7 +737,8 @@ public class Game
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(Object obj) 
+		{
 			if (this == obj)
 				return true;
 			if (obj == null)
@@ -722,7 +766,8 @@ public class Game
 			return true;
 		}
 
-		private Game getOuterType() {
+		private Game getOuterType() 
+		{
 			return Game.this;
 		}
 		
@@ -730,7 +775,6 @@ public class Game
 	
 	/**
 	 * The dice used to roll moves in Cluedo	
-	 * @author Janice
 	 *
 	 */
 	private class Dice
@@ -828,10 +872,12 @@ public class Game
 	    	}
 		}
 
-		public int getPos() {
+		public int getPos() 
+		{
 			return pos;
 		}
-		public List<E> getList() {
+		public List<E> getList() 
+		{
 			return list;
 		}
 	}

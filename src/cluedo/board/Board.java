@@ -53,9 +53,13 @@ public class Board {
 		Cell onPiece = pieceOnCell.get(piece);
 		if(onPiece.hasWall(direction))
 		{
-			//throw new IllegalMethodCallException();
+			//throw new InvalidMoveException("Cannot move in that direction as a wall is blocking the way");
 		}
 		Cell newPos = getCell(onPiece,direction);
+		if(cellHasPiece.get(newPos) != null)
+		{
+			//throw new InvalidMoveException("Cannot move to a cell with another player on it");
+		}
 		this.setPosition(piece, newPos);
 		return newPos;
 	}
@@ -68,7 +72,7 @@ public class Board {
 	public Cell getPosition(Piece piece)
 	{
 		if(!pieceOnCell.containsKey(piece)){
-			//throw new IllegalMethodCallException();
+			throw new IllegalArgumentException("Not a valid piece: " + piece);
 		}
 		return pieceOnCell.get(piece);
 	}
@@ -83,7 +87,7 @@ public class Board {
      * Entering/exiting 
 	 *
 	 * @param piece
-	 * @param cell - 
+	 * @param cell  
 	 */
 	public void setPosition(Piece piece, Cell cell)
 	{
@@ -95,7 +99,7 @@ public class Board {
 	 * from a given cell.
 	 * @param cell - the cell we are moving from
 	 * @param direction - the direction the neighbouring cell is
-	 * @return the new cell position
+	 * @return The new cell position
 	 */
 	private Cell getCell(Cell cell, Direction direction)
 	{
