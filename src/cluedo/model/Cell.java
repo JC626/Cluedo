@@ -24,11 +24,6 @@ public abstract class Cell implements Displayable
 	private final int y;
 	
 	/**
-	 * The UI method of displaying this Cell. Typically this will only be used if another object is not in the same place as the Cell.
-	 */
-	private final Displayable background;
-	
-	/**
 	 * The walls that this Cell has.
 	 * A wall indicates that any Piece in this Cell can't move in that direction.
 	 * 
@@ -44,14 +39,14 @@ public abstract class Cell implements Displayable
 	 * @param walls The walls that this cell has. May not be null or, contain null or duplicate items.
 	 * @throws IllegalArgumentException if any of the above conditions are not met.
 	 */
-	public Cell(int x, int y, Displayable background, Direction ... walls)
+	public Cell(int x, int y, Direction ... walls)
 	{
 		if (x < 0 || y < 0)
 		{
 			throw new IllegalArgumentException("x and y may not be negative");
 		}
 		
-		if (background == null || walls == null)
+		if (walls == null)
 		{
 			throw new IllegalArgumentException("Arguments may not be null");
 		}
@@ -77,7 +72,6 @@ public abstract class Cell implements Displayable
 			this.walls.add(d);
 		}
 		
-		this.background = background;
 		this.x = x;
 		this.y = y;
 	}
@@ -92,15 +86,6 @@ public abstract class Cell implements Displayable
 	public boolean hasWall(Direction d)
 	{
 		return walls.contains(d);
-	}
-	
-	/**
-	 * The background representation for this Cell.
-	 * @return A Displayble aspect, that should only be used if there is not another Displayable in this Cell.
-	 */
-	public Displayable getBackground()
-	{
-		return background;
 	}
 	
 	/**
@@ -147,7 +132,6 @@ public abstract class Cell implements Displayable
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((background == null) ? 0 : background.hashCode());
 		result = prime * result + ((walls == null) ? 0 : walls.hashCode());
 		result = prime * result + x;
 		result = prime * result + y;
