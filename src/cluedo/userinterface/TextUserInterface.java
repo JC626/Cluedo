@@ -38,12 +38,9 @@ public class TextUserInterface
 	private final String emptyCell = "-";
 	private final String cellWall = "W";
 
-
-
-
 	private final GameOptions gameOptions = new GameOptions();
 	private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-	private final Map<Cell, Piece> tokens = new HashMap<Cell, Piece>(); // Weapon, or Player tokens TODO do we need this?
+	private final Map<Cell, Piece> tokens = new HashMap<Cell, Piece>();
 
 	private Game game;
 
@@ -234,14 +231,9 @@ public class TextUserInterface
 	}
 
 
-	private List<Cell> createCells()
+	private Cell[][] createCells()
 	{
-		List<Cell> cells = new ArrayList<Cell>();
-
-		//TODO clean Builder
-		//TODO integrate Builder
-
-		return cells;
+		return new CellBuilder().getCells();
 	}
 
 	private List<Piece> createPlayerTokens()
@@ -309,11 +301,6 @@ public class TextUserInterface
 	private void println(String s)
 	{
 		print(s + "\n");
-	}
-
-	private void print()
-	{
-		print("");
 	}
 
 	private void println()
@@ -457,13 +444,13 @@ public class TextUserInterface
 
 		List<Piece> weaponTokens = createWeaponTokens();
 		List<Piece> playerTokens = createPlayerTokens();
-		List<Cell> cells = createCells();
+		Cell[][] cells = createCells();
 
 		List<Displayable> suspectCards = createSuspectCards();
 		List<Displayable> weaponCards = createWeaponCards();
 		List<Displayable> roomCards = createRoomCards();
 
-		game = new Game(numberOfPlayers, playerTokens, weaponTokens, cells, suspectCards, weaponCards, roomCards);
+		//game = new Game(numberOfPlayers, playerTokens, weaponTokens, cells, suspectCards, weaponCards, roomCards);
 
 		// TODO startGame(); Go over documentation to find other methods to write
 	}
@@ -604,6 +591,8 @@ public class TextUserInterface
 
 
 	/**
+	 * Creates the Cells for building the Board.
+	 * 
 	 * For reasons explained in the documentation, the UI needs to make all Cells.
 	 * This, in combination of Cells needing to print the things in them at the time of
 	 * their own printing and the lack of layering in a CLI leads to this class being
@@ -723,10 +712,12 @@ public class TextUserInterface
 			// Our current row, strongly related to the top, middle, and bottom this determines
 			// which one is to be printed next.
 			private int currentRow = 0;
+			private final String wallDefinition;
 
 			public CellImpl(int x, int y, Direction[] walls)
 			{
 				super(x, y, walls);
+				wallDefinition = getWallDef(this.walls);
 			}
 
 			@Override
@@ -734,17 +725,30 @@ public class TextUserInterface
 			{
 				if (currentRow == 0)
 				{
-					System.out.print(calculateTopString(getWallDef(walls)));
+					print(calculateTopString(wallDefinition));
 					currentRow++;
 				}
 				else if (currentRow == 1)
 				{
-					System.out.print(calculateMiddleString(getWallDef(walls)));
+					Piece piece = tokens.get(this);
+					print(((wallDefinition.contains("W")) ? cellWall : emptyCell));
+					
+					if (piece != null)
+					{
+						piece.display();
+					}
+					else
+					{
+						print(emptyCell); 
+					}
+					
+					print(((wallDefinition.contains("E")) ? cellWall : emptyCell));
+						
 					currentRow++;
 				}
 				else if (currentRow == 2)
 				{
-					System.out.print(calculateBottomString(getWallDef(walls)));
+					print(calculateBottomString(wallDefinition));
 					currentRow = 0;
 				}
 			}
@@ -805,31 +809,6 @@ public class TextUserInterface
 					}
 				}
 				return top;
-			}
-
-			private String calculateMiddleString(String wallDefinition)
-			{
-				String middle = "";
-				if (wallDefinition.contains("W"))
-				{
-					middle = middle + cellWall;
-				}
-				else
-				{
-					middle = middle + emptyCell;
-				}
-
-				middle = middle + emptyCell; // FIXME need to update for Pieces, Secret passage
-
-				if (wallDefinition.contains("E"))
-				{
-					middle = middle + cellWall;
-				}
-				else
-				{
-					middle = middle + emptyCell;
-				}
-				return middle;
 			}
 
 			private String calculateBottomString(String wallDefinition)
