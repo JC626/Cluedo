@@ -2,6 +2,9 @@ package cluedo.board;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import cluedo.exceptions.IllegalMethodCallException;
+import cluedo.exceptions.InvalidMoveException;
 import cluedo.model.*;
 import cluedo.utility.Heading.Direction;
 
@@ -13,7 +16,7 @@ public class Board {
 	public static final int WIDTH = 24;
 	public static final int HEIGHT = 25;
 	
-	/**
+	/**d
 	 * A map of only the cells that contains a Piece on it.
 	 */
 	private Map<Cell, Piece> cellHasPiece;
@@ -36,29 +39,38 @@ public class Board {
 		pieceOnCell = new HashMap<Piece, Cell>();
 	}
 	
-	//TODO Exceptions in Board class (commented out)
-	
 	/**
 	 * Move the player at a specified direction
 	 * 
-	 * @param piece
+	 * @param piece - Player's piece on the board to move
 	 * @param direction - The direction the piece is moving to
 	 * @return Cell - The new cell position of the piece
+	 * @throws InvalidMoveException 
+	 * If the current player cannot move as there is another player in the
+	 * way or a wall is blocking the way
+	 * @throws IllegalMethodCallException 
+	 * If the piece does not exist
+	 * @throws IllegalArgumentException 
+	 * If the arguments are null
 	 */
-	public Cell move(Piece piece, Direction direction)
+	public Cell move(Piece piece, Direction direction) throws InvalidMoveException
 	{
+		if(piece == null || direction == null)
+		{
+			throw new IllegalArgumentException("Arguments cannot be null");
+		}
 		if(!pieceOnCell.containsKey(piece)){
-			/*throw new IllegalMethodCallException();*/
+			throw new IllegalMethodCallException("Cannot move the piece as it does not exist");
 		}
 		Cell onPiece = pieceOnCell.get(piece);
 		if(onPiece.hasWall(direction))
 		{
-			//throw new InvalidMoveException("Cannot move in that direction as a wall is blocking the way");
+			throw new InvalidMoveException("Cannot move in that direction as a wall is blocking the way");
 		}
-		Cell newPos = getCell(onPiece,direction);
+		Cell newPos = getNeighbouringCell(onPiece,direction);
 		if(cellHasPiece.get(newPos) != null)
 		{
-			//throw new InvalidMoveException("Cannot move to a cell with another player on it");
+			throw new InvalidMoveException("Cannot move to a cell with another player on it");
 		}
 		this.setPosition(piece, newPos);
 		return newPos;
@@ -68,9 +80,15 @@ public class Board {
 	 * Get the cell position of a particular piece
 	 * @param piece
 	 * @return Cell - The cell the piece is on
+	 * @throws IllegalArgumentException 
+	 * If the piece does not exist or is null
 	 */
 	public Cell getPosition(Piece piece)
 	{
+		if(piece == null)
+		{
+			throw new IllegalArgumentException("Argument is null");
+		}
 		if(!pieceOnCell.containsKey(piece)){
 			throw new IllegalArgumentException("Not a valid piece: " + piece);
 		}
@@ -83,14 +101,19 @@ public class Board {
 	 * Starting position for pieces
      * Secret passage usage
      * Suggestions to move weapons and Pieces (if needed)
-	 * player’s are handled by the game, as the rules change
-     * Entering/exiting 
+     * Entering/exiting rooms
 	 *
 	 * @param piece
 	 * @param cell  
+	 * @throws IllegalArgumentException
+	 * If the arguments are null
 	 */
 	public void setPosition(Piece piece, Cell cell)
 	{
+		if(piece == null || cell == null)
+		{
+			throw new IllegalArgumentException("Arguments are null");
+		}
 		cellHasPiece.put(cell,piece);
 		pieceOnCell.put(piece,cell);
 	}
@@ -100,9 +123,17 @@ public class Board {
 	 * @param cell - the cell we are moving from
 	 * @param direction - the direction the neighbouring cell is
 	 * @return The new cell position
+	 * @throws IllegalArgumentException
+	 * If the direction is invalid or the neighbouring cell 
+	 * does not exist as it is outside the board's boundaries.
+	 * Also if the parameters are null
 	 */
-	private Cell getCell(Cell cell, Direction direction)
+	private Cell getNeighbouringCell(Cell cell, Direction direction)
 	{
+		if(cell == null || direction == null)
+		{
+			throw new IllegalArgumentException("Arguments are null");
+		}
 		int x = cell.getX();
 		int y = cell.getY();
 		switch(direction)
