@@ -8,12 +8,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import cluedo.game.Game;
 import cluedo.model.Cell;
 import cluedo.model.Displayable;
 import cluedo.model.Piece;
+import cluedo.utility.Heading.Direction;
 
 /**
  * A user interface, for human players, that consists of input and output from the command line.
@@ -32,10 +34,17 @@ public class TextUserInterface
 	private static final String userPrompt = "> ";
 	private static final String shortcutDisplayCommand = "shortcuts";
 
+	// Displayable characters:
+	private final String emptyCell = "-";
+	private final String cellWall = "W";
+
+
+
+
 	private final GameOptions gameOptions = new GameOptions();
 	private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 	private final Map<Cell, Piece> tokens = new HashMap<Cell, Piece>(); // Weapon, or Player tokens TODO do we need this?
-	
+
 	private Game game;
 
 	/**
@@ -455,7 +464,7 @@ public class TextUserInterface
 		List<Displayable> roomCards = createRoomCards();
 
 		game = new Game(numberOfPlayers, playerTokens, weaponTokens, cells, suspectCards, weaponCards, roomCards);
-		
+
 		// TODO startGame(); Go over documentation to find other methods to write
 	}
 
@@ -591,5 +600,269 @@ public class TextUserInterface
 	{
 		boolean printBoardAtStartTurn = true;
 		boolean verboseErrors = false; // Print out exception stack traces.
+	}
+
+
+	/**
+	 * For reasons explained in the documentation, the UI needs to make all Cells.
+	 * This, in combination of Cells needing to print the things in them at the time of
+	 * their own printing and the lack of layering in a CLI leads to this class being
+	 * a private inner class.
+	 * 
+	 * Cells cannot contain game state, but need to access game state, in order to know
+	 * what they're to draw. This problem also exists with Players, and Weapons. For
+	 * Players and Weapons an acceptable solution was to have them contain Pieces (Displayable
+	 * aspects) because the drawing of the Piece doesn't effect anything else.
+	 * 
+	 * This is not a suitable solution for Cells because what is drawn, and where, depends 
+	 * partially on the game state - this means Cells need to access the state. If the Cells
+	 * contained the state themselves then it could be modified by the UI; the only alternative
+	 * is to have the Cells access state via the UI.
+	 * 
+	 */
+	private class CellBuilder
+	{
+		private Cell[][] cells;
+
+		public CellBuilder()
+		{
+			/*
+			 * North, South, East, West are NSEW.
+			 * 
+			 * Walls are defined inside the cell that has them (cells inside rooms own walls, not the cell inside the hallway).
+			 * Walls inside the mansion are owned by the cells inside the mansion rather than out.
+			 * This means that the outside cells are all 0000 or starting positions.
+			 * 
+			 * Currently undrawn, subject to change later are:
+			 * i.e. just draw where the player is now.
+			 * C is the center (needed?) It's not treated specially in the game... Used as a marker, for any changed later.
+			 * 
+			 * Place holder is 0 to make the map appear as square as possible.
+			 * Secret passages are X.
+			 * Each side of the doors are D.
+			 * Note: The bottom of the hall has a wall (is not a rectangle). The wall on the actual board is half way between a cell.
+			 */ 
+
+			String[][] map =
+				{
+						{ "0000", "0000", "0000", "0000", "0000", "0000", "0000", "0000", "0000", "NWEA", "0000", "0000", "0000", "0000", "NWEA", "0000", "0000", "0000", "0000", "0000", "0000", "0000", "0000", "0000" },
+						{ "NW00", "N000", "N000", "N000", "N000", "NE00", "0000", "NW00", "N000", "0000", "NW00", "N000", "N000", "NE00", "0000", "N000", "NE00", "0000", "NW00", "N000", "N000", "N000", "N000", "NE000" },
+						{ "W000", "0000", "0000", "0000", "0000", "000E", "N000", "0000", "NW00", "N000", "0000", "0000", "0000", "0000", "N000", "NE00", "0000", "N000", "W000", "0000", "0000", "0000", "0000", "E000" },
+						{ "W000", "0000", "0000", "0000", "0000", "E000", "0000", "0000", "W000", "0000", "0000", "0000", "0000", "0000", "0000", "E000", "0000", "0000", "W000", "0000", "0000", "0000", "0000", "E000" },
+						{ "W000", "0000", "0000", "0000", "0000", "E000", "0000", "0000", "W000", "0000", "0000", "0000", "0000", "0000", "0000", "E000", "0000", "0000", "WD00", "0000", "0000", "0000", "0000", "ES00" },
+						{ "WS00", "0000", "0000", "0000", "0000", "E000", "0000", "D000", "D000", "0000", "0000", "0000", "0000", "0000", "0000", "D000", "D000", "0000", "D000", "WS00", "S000", "S000", "ESX0", "0000" },
+						{ "0000", "WS00", "S000", "S000", "D000", "ES00", "0000", "0000", "W000", "0000", "0000", "0000", "0000", "0000", "0000", "E000", "0000", "0000", "0000", "0000", "0000", "0000", "0000", "NESA" },
+						{ "NSW0", "0000", "0000", "0000", "D000", "0000", "0000", "0000", "SW00", "D000", "S000", "S000", "S000", "S000", "D000", "ES00", "0000", "0000", "0000", "0000", "0000", "0000", "E000", "0000" },
+						{ "0000", "W000", "0000", "0000", "0000", "0000", "0000", "0000", "0000", "D000", "0000", "0000", "0000", "0000", "D000", "0000", "0000", "0000", "NW00", "N000", "N000", "N000", "N000", "NE00" },
+						{ "NW00", "N000", "N000", "N000", "NE00", "0000", "0000", "0000", "0000", "0000", "0000", "0000", "0000", "0000", "0000", "0000", "0000", "D000", "D000", "0000", "0000", "0000", "0000", "E000" },
+						{ "W000", "0000", "0000", "0000", "0000", "N000", "N000", "NE00", "0000", "0000", "CCCC", "CCCC", "CCCC", "CCCC", "CCCC", "0000", "0000", "0000", "W000", "0000", "0000", "0000", "0000", "E000" },
+						{ "W000", "0000", "0000", "0000", "0000", "0000", "0000", "E000", "0000", "0000", "CCCC", "CCCC", "CCCC", "CCCC", "CCCC", "0000", "0000", "0000", "W000", "0000", "0000", "0000", "0000", "E000" },
+						{ "W000", "0000", "0000", "0000", "0000", "0000", "0000", "D000", "D000", "0000", "CCCC", "CCCC", "CCCC", "CCCC", "CCCC", "0000", "0000", "0000", "WS00", "S000", "S000", "S000", "D000", "SE00" },
+						{ "W000", "0000", "0000", "0000", "0000", "0000", "0000", "E000", "0000", "0000", "CCCC", "CCCC", "CCCC", "CCCC", "CCCC", "0000", "0000", "0000", "0000", "0000", "D000", "0000", "DE00", "0000" },
+						{ "W000", "0000", "0000", "0000", "0000", "0000", "0000", "E000", "0000", "0000", "CCCC", "CCCC", "CCCC", "CCCC", "CCCC", "0000", "0000", "0000", "NW00", "N000", "D000", "N000", "NE00", "0000" },
+						{ "WS00", "S000", "S000", "S000", "S000", "S000", "D000", "SE00", "0000", "0000", "CCCC", "CCCC", "CCCC", "CCCC", "CCCC", "0000", "0000", "NW00", "0000", "0000", "0000", "0000", "0000", "NE00" },
+						{ "0000", "W000", "0000", "0000", "0000", "0000", "D000", "0000", "0000", "0000", "CCCC", "CCCC", "CCCC", "CCCC", "CCCC", "0000", "D000", "D000", "0000", "0000", "0000", "0000", "0000", "E000" },
+						{ "NSWA", "0000", "0000", "0000", "0000", "0000", "0000", "0000", "0000", "0000", "0000", "D000", "D000", "0000", "0000", "0000", "0000", "SW00", "0000", "0000", "0000", "0000", "0000", "SE00" },
+						{ "0000", "W000", "0000", "0000", "0000", "0000", "D000", "0000", "0000", "NW00", "N000", "D000", "D000", "N000", "NE00", "0000", "0000", "0000", "SW00", "S000", "S000", "S000", "SE00", "0000" },
+						{ "NWX0", "N000", "N000", "N000", "N000", "N000", "DE00", "0000", "0000", "W000", "0000", "0000", "0000", "0000", "E000", "0000", "0000", "0000", "0000", "0000", "0000", "0000", "0000", "NESA" },
+						{ "W000", "0000", "0000", "0000", "0000", "0000", "E000", "0000", "0000", "W000", "0000", "0000", "0000", "0000", "D000", "D000", "0000", "D000", "0000", "0000", "0000", "0000", "E000", "0000" },
+						{ "W000", "0000", "0000", "0000", "0000", "0000", "E000", "0000", "0000", "W000", "0000", "0000", "0000", "0000", "E000", "0000", "0000", "DW00", "N000", "N000", "N000", "N000", "N000", "NEX0" },
+						{ "W000", "0000", "0000", "0000", "0000", "0000", "E000", "0000", "0000", "W000", "0000", "0000", "0000", "0000", "E000", "0000", "0000", "W000", "0000", "0000", "0000", "0000", "0000", "E000" },
+						{ "W000", "0000", "0000", "0000", "0000", "0000", "SE00", "0000", "S000", "SW00", "0000", "0000", "0000", "0000", "SE00", "S000", "0000", "SW00", "0000", "0000", "0000", "0000", "0000", "E000" },
+						{ "SW00", "S000", "S000", "S000", "S000", "SE00", "0000", "ESWA", "0000", "0000", "SW00", "S000", "S000", "SE00", "0000", "0000", "ESW0", "0000", "SW00", "S000", "S000", "S000", "S000", "SE00" },
+				};
+
+			cells = new Cell[map.length][map[0].length];
+
+			for (int row = 0; row < map.length; row++)
+			{
+				for (int col = 0; col < map[row].length; col++)
+				{
+					String s = map[row][col].toUpperCase();
+
+					cells[row][col] = new CellImpl(row, col, wallsFromString(s));
+				}
+			}
+		}
+		
+		public Cell[][] getCells()
+		{
+			return cells;
+		}
+
+		private Direction[] wallsFromString(String wallDef)
+		{
+			List<Direction> walls = new ArrayList<Direction>();
+
+			if (wallDef.contains("N"))
+			{
+				walls.add(Direction.North);
+			}
+
+			if (wallDef.contains("S"))
+			{
+				walls.add(Direction.South);
+			}
+
+			if (wallDef.contains("E"))
+			{
+				walls.add(Direction.East);
+			}
+
+			if (wallDef.contains("W"))
+			{
+				walls.add(Direction.West);
+			}
+
+			return walls.toArray(new Direction[walls.size()]);
+		}
+
+
+		private class CellImpl extends Cell
+		{
+			// Our current row, strongly related to the top, middle, and bottom this determines
+			// which one is to be printed next.
+			private int currentRow = 0;
+
+			public CellImpl(int x, int y, Direction[] walls)
+			{
+				super(x, y, walls);
+			}
+
+			@Override
+			public void display()
+			{
+				if (currentRow == 0)
+				{
+					System.out.print(calculateTopString(getWallDef(walls)));
+					currentRow++;
+				}
+				else if (currentRow == 1)
+				{
+					System.out.print(calculateMiddleString(getWallDef(walls)));
+					currentRow++;
+				}
+				else if (currentRow == 2)
+				{
+					System.out.print(calculateBottomString(getWallDef(walls)));
+					currentRow = 0;
+				}
+			}
+
+			private String getWallDef(Set<Direction> walls)
+			{
+				String wallDef = "";
+				if (walls.contains(Direction.North))
+				{
+					wallDef = wallDef + "N";
+				}
+
+				if (walls.contains(Direction.South))
+				{
+					wallDef = wallDef + "S";
+				}
+
+				if (walls.contains(Direction.East))
+				{
+					wallDef = wallDef + "E";
+				}
+
+				if (walls.contains(Direction.West))
+				{
+					wallDef = wallDef + "W";
+				}
+
+				return wallDef;
+			}
+
+			private String calculateTopString(String wallDefinition)
+			{
+				String top = "";
+				if (wallDefinition.contains("N"))
+				{
+					top = cellWall + cellWall + cellWall;
+				}
+				else
+				{
+					if (wallDefinition.contains("W"))
+					{
+						top = top + cellWall;
+					}
+					else
+					{
+						top = top + emptyCell;
+					}
+
+					top = top + emptyCell; // There is no middle section, if there isn't North
+
+					if (wallDefinition.contains("E"))
+					{
+						top = top + cellWall;
+					}
+					else
+					{
+						top = top + emptyCell;
+					}
+				}
+				return top;
+			}
+
+			private String calculateMiddleString(String wallDefinition)
+			{
+				String middle = "";
+				if (wallDefinition.contains("W"))
+				{
+					middle = middle + cellWall;
+				}
+				else
+				{
+					middle = middle + emptyCell;
+				}
+
+				middle = middle + emptyCell; // FIXME need to update for Pieces, Secret passage
+
+				if (wallDefinition.contains("E"))
+				{
+					middle = middle + cellWall;
+				}
+				else
+				{
+					middle = middle + emptyCell;
+				}
+				return middle;
+			}
+
+			private String calculateBottomString(String wallDefinition)
+			{
+				String bottom = "";
+				if (wallDefinition.contains("S"))
+				{
+					bottom = cellWall + cellWall + cellWall;
+				}
+				else
+				{
+					if (wallDefinition.contains("W"))
+					{
+						bottom = bottom + cellWall;
+					}
+					else
+					{
+						bottom = bottom + emptyCell;
+					}
+
+					bottom = bottom + emptyCell; // There is no middle section, if there isn't South
+
+					if (wallDefinition.contains("E"))
+					{
+						bottom = bottom + cellWall;
+					}
+					else
+					{
+						bottom = bottom + emptyCell;
+					}
+				}
+				return bottom;
+			}
+		}
 	}
 }

@@ -29,7 +29,7 @@ public abstract class Cell implements Displayable
 	 * 
 	 * A Cell as 0 .. 4 walls, which are determined on construction.
 	 */
-	private final Set<Direction> walls = new TreeSet<Direction>();
+	protected final Set<Direction> walls = new TreeSet<Direction>();
 
 	/**
 	 * The basic unit within a Board.
