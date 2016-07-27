@@ -392,7 +392,7 @@ public class TextUserInterface
 
 	/**
 	 * Modifies the global gameOptions with input the user selects.
-	 * This method grows almost linearly with the number of options
+	 * This method grows almost linearly with the number of options.
 	 */
 	private void setOptions()
 	{
@@ -435,11 +435,24 @@ public class TextUserInterface
 		} while (!finished);
 	}
 
+	/**
+	 * Wrapper for the more verbose promptMenuBoolean, with some reasonable defaults.
+	 * @param question The question to be asked presented to the user.
+	 * @return The user selection, True for an affirmative, false otherwise.
+	 */
 	private boolean promptMenuBoolean(String question)
 	{
 		return promptMenuBoolean(question, "True", "False");
 	}
 
+	/**
+	 * Ask the user a boolean question.
+	 * Wrapper for executeMenu with reasonable regex options.
+	 * @param question The question to be presented to the user.
+	 * @param truePrompt Affirmative answer.
+	 * @param falsePrompt Negative answer.
+	 * @return The user selection, true for truePrompt, false otherwise.
+	 */
 	private boolean promptMenuBoolean(String question, String truePrompt, String falsePrompt)
 	{
 		boolean userAnswer;
