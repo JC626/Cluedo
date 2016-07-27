@@ -43,6 +43,28 @@ public class TextUserInterface
 	private final Map<Cell, Piece> tokens = new HashMap<Cell, Piece>();
 
 	private Game game;
+	
+	private void newGame()
+	{
+		int numberOfPlayers = promptMenuNumber("Select players: ", Game.MIN_HUMAN_PLAYERS, Game.MAX_PLAYERS, " players");
+
+		List<Piece> weaponTokens = createWeaponTokens();
+		List<Piece> playerTokens = createPlayerTokens();
+		Cell[][] cells = createCells();
+
+		List<Displayable> suspectCards = createSuspectCards();
+		List<Displayable> weaponCards = createWeaponCards();
+		List<Displayable> roomCards = createRoomCards();
+
+		//game = new Game(numberOfPlayers, playerTokens, weaponTokens, cells, suspectCards, weaponCards, roomCards);
+
+		runGame();
+	}
+
+	private void runGame()
+	{
+		// TODO write the main loop
+	}
 
 	/**
 	 * Print out a menu, and return the index + 1 of the option selected from menuOptions.
@@ -230,7 +252,6 @@ public class TextUserInterface
 		return regex;
 	}
 
-
 	private Cell[][] createCells()
 	{
 		return new CellBuilder().getCells();
@@ -286,13 +307,6 @@ public class TextUserInterface
 	}
 
 
-
-
-
-
-
-
-
 	private void print(String s)
 	{
 		System.out.print(s);
@@ -312,13 +326,13 @@ public class TextUserInterface
 	public static void main(String[] args)
 	{
 		TextUserInterface t = new TextUserInterface();
-		t.startGame();
+		t.mainMenu();
 
 		System.out.println("Thank you for playing!");
 	}
 
 
-	public void startGame()
+	public void mainMenu()
 	{
 		int userSelection;
 		boolean endGame = false;
@@ -343,9 +357,8 @@ public class TextUserInterface
 			regex.add("q|exit");
 
 
-			printBanner();
-			printByline();
-
+			printGreeting();
+			
 			userSelection = executeMenu("Press ? or 1 for a tutorial", options, regex);
 
 			switch (userSelection)
@@ -367,6 +380,14 @@ public class TextUserInterface
 
 			printBlankLines(7); // FIXME 7 was also chosen arbitrarily
 		}
+	}
+
+	private void printGreeting()
+	{
+		// Banner courtesy of http://www.desmoulins.fr/index_us.php?pg=scripts!online!asciiart
+		print(BANNER);
+		println("A text based detective game -- now with advanced graphics!");
+		printBlankLines(3); // Give some space for readability.
 	}
 
 	/**
@@ -436,23 +457,6 @@ public class TextUserInterface
 		userAnswer = (executeMenu(question, options, regex) == 1) ? true : false;
 
 		return userAnswer;
-	}
-
-	private void newGame()
-	{
-		int numberOfPlayers = promptMenuNumber("Select players: ", Game.MIN_HUMAN_PLAYERS, Game.MAX_PLAYERS, " players");
-
-		List<Piece> weaponTokens = createWeaponTokens();
-		List<Piece> playerTokens = createPlayerTokens();
-		Cell[][] cells = createCells();
-
-		List<Displayable> suspectCards = createSuspectCards();
-		List<Displayable> weaponCards = createWeaponCards();
-		List<Displayable> roomCards = createRoomCards();
-
-		//game = new Game(numberOfPlayers, playerTokens, weaponTokens, cells, suspectCards, weaponCards, roomCards);
-
-		// TODO startGame(); Go over documentation to find other methods to write
 	}
 
 	/**
@@ -550,22 +554,6 @@ public class TextUserInterface
 	private void printGameRules()
 	{
 		//TODO game rules
-	}
-
-	private void printBanner()
-	{
-		// Banner courtesy of http://www.desmoulins.fr/index_us.php?pg=scripts!online!asciiart
-		print(BANNER);
-
-		// Give a bit of space below the banner for readability.
-		println();
-		println();
-	}
-
-	private void printByline()
-	{
-		println("A text based detective game -- now with advanced graphics!");
-		println();
 	}
 
 	private void printBlankLines(int lines)
