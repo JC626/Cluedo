@@ -10,7 +10,7 @@ import cluedo.utility.Heading.Direction;
  * Contains a Displayable aspect that is displayed when no other Displayable is in this Cell.
  * Each Cell has final x and y position, which can be used to distinguish one Cell from another.
  */
-public class Cell
+public abstract class Cell implements Displayable
 {
 	/*
 	 * x and y are represent the position of this Cell.
