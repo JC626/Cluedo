@@ -332,7 +332,6 @@ public class TextUserInterface
 
 		options.add("How to play");
 		options.add("New game");
-		options.add("Load game");
 		options.add("Options");
 		options.add("Quit");
 
@@ -344,7 +343,6 @@ public class TextUserInterface
 			regex.clear();
 			regex.add("h|\\?|help|tutorial");
 			regex.add("n|new|start");
-			regex.add("l|load|resume");
 			regex.add("o|setting(s?)"); // match "setting" or "settings" but not "settingss" or any number of extra 's'
 			regex.add("q|exit");
 
@@ -363,12 +361,9 @@ public class TextUserInterface
 					newGame();
 					break;
 				case 3:
-					println("Not yet implemented");
-					break;
-				case 4:
 					setOptions();
 					break;
-				case 5:
+				case 4:
 					// Done, exit; note the lack of a break here.
 				default:
 					endGame = true;
