@@ -50,9 +50,15 @@ public class Board {
 	 * way or a wall is blocking the way
 	 * @throws IllegalMethodCallException 
 	 * If the piece does not exist
+	 * @throws IllegalArgumentException 
+	 * If the arguments are null
 	 */
 	public Cell move(Piece piece, Direction direction) throws InvalidMoveException
 	{
+		if(piece == null || direction == null)
+		{
+			throw new IllegalArgumentException("Arguments cannot be null");
+		}
 		if(!pieceOnCell.containsKey(piece)){
 			throw new IllegalMethodCallException("Cannot move the piece as it does not exist");
 		}
@@ -75,10 +81,14 @@ public class Board {
 	 * @param piece
 	 * @return Cell - The cell the piece is on
 	 * @throws IllegalArgumentException 
-	 * If the piece does not exist
+	 * If the piece does not exist or is null
 	 */
 	public Cell getPosition(Piece piece)
 	{
+		if(piece == null)
+		{
+			throw new IllegalArgumentException("Argument is null");
+		}
 		if(!pieceOnCell.containsKey(piece)){
 			throw new IllegalArgumentException("Not a valid piece: " + piece);
 		}
@@ -95,9 +105,15 @@ public class Board {
 	 *
 	 * @param piece
 	 * @param cell  
+	 * @throws IllegalArgumentException
+	 * If the arguments are null
 	 */
 	public void setPosition(Piece piece, Cell cell)
 	{
+		if(piece == null || cell == null)
+		{
+			throw new IllegalArgumentException("Arguments are null");
+		}
 		cellHasPiece.put(cell,piece);
 		pieceOnCell.put(piece,cell);
 	}
@@ -109,10 +125,15 @@ public class Board {
 	 * @return The new cell position
 	 * @throws IllegalArgumentException
 	 * If the direction is invalid or the neighbouring cell 
-	 * does not exist as it is outside the board's boundaries
+	 * does not exist as it is outside the board's boundaries.
+	 * Also if the parameters are null
 	 */
 	private Cell getNeighbouringCell(Cell cell, Direction direction)
 	{
+		if(cell == null || direction == null)
+		{
+			throw new IllegalArgumentException("Arguments are null");
+		}
 		int x = cell.getX();
 		int y = cell.getY();
 		switch(direction)
