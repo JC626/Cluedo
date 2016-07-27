@@ -10,6 +10,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import cluedo.board.Board;
+import cluedo.exceptions.IllegalMethodCallException;
+import cluedo.exceptions.InvalidMoveException;
 import cluedo.model.Cell;
 import cluedo.model.Displayable;
 import cluedo.model.Piece;
@@ -69,8 +71,6 @@ public class Game
 	private boolean firstTimeMoving;
 	private int remainingMoves;
 	private Player currentPlayer;
-	
-	private Board board;
 	/**
 	 * One cycle of the Cluedo game.
 	 * Contains all the active players
@@ -120,6 +120,8 @@ public class Game
 	//FIXME Need weapons?
 	private Set<Weapon> weapons;
 	
+	private Board board;
+	private boolean gameOver;
 	//Static initializer
 		{
 			SUSPECT_NAMES.put("Miss Scarlett", 0);
@@ -378,21 +380,25 @@ public class Game
 		return extra;
 		
 	}
-	//TODO implement Game - takeExit.
-	/*public Cell takeExit(Cell c)
-	{
-		return null;
-	}*/
 	
 	/**
 	 * Checks if the player can move by calling the move
 	 * method in the Board class. 
 	 * Assigns new player’s moves using rollDice()
-	 * @param direction - direction playing is moving towards from their current cell position
+	 * @param direction - direction player is moving towards from their current cell position
 	 * @return The cell that the player has moved to
+	 * @throws InvalidMoveException
+	 * If the current player cannot move as there is another player in the
+	 * way or a wall is blocking the way
+	 * @throws IllegalMethodCallException 
+	 * If the game is over
 	 */
-	public Cell move(Direction direction)
+	public Cell move(Direction direction) throws InvalidMoveException
 	{
+		if(gameOver)
+		{
+			throw new IllegalMethodCallException("Game is over.");
+		}
 		if(remainingMoves <= 0)
 		{
 			if(firstTimeMoving)
@@ -425,9 +431,15 @@ public class Game
 	 * @param weaponCard that is suggested is part of the murder (in the answer CaseFile)
 	 * @param suspectCard that is suggested is part of the murder (in the answer CaseFile)
 	 * @return One player with the card or cards they have that can disprove the suggestion
+	 * @throws IllegalMethodCallException 
+	 * If the game is over
 	 */
 	public Map<Player,Set<Card>> makeSuggestion(WeaponCard weaponCard, SuspectCard suspectCard)
 	{
+		if(gameOver)
+		{
+			throw new IllegalMethodCallException("Game is over.");
+		}
 		allHumanIterator = new Turn<Player>(allHumanIterator.getList(),turn.getPos());
 		Player player = allHumanIterator.next();
 		Map<Player,Set<Card>> disprover = new HashMap<Player,Set<Card>>();
@@ -479,10 +491,22 @@ public class Game
 	 * @param roomCard - The suspected room of the murder
 	 * @param suspectCard - The suspected murderer
 	 * @return Whether the player was successful in making their accusation
+	 * @throws IllegalMethodCallException 
+	 * If the game is over or there are no players left in the game
+	 * @throws IllegalArgumentException
+	 * If the player making the accusation does not exist or is not an active player
 	 */
 	public boolean makeAccusation(Player player, WeaponCard weaponCard, RoomCard roomCard, SuspectCard suspectCard)
 	{
+		if(gameOver)
+		{
+			throw new IllegalMethodCallException("Game is over.");
+		}
 		List<Player> players = getActivePlayers();
+		if(players.isEmpty())
+		{
+			throw new IllegalMethodCallException("No players playing");
+		}
 		if(!players.contains(player))
 		{
 			throw new IllegalArgumentException("Only active players can make accusations");
@@ -490,6 +514,7 @@ public class Game
 		CaseFile accusation = new CaseFile(suspectCard,weaponCard,roomCard);
 		if(accusation.equals(answer))
 		{//Game over, the player won!
+			gameOver = true;
 			return true;
 		}
 		else if(players.size() == 1)
@@ -518,17 +543,6 @@ public class Game
 		}
 	}
 	
-	public Player nextTurn()
-	{
-		if(remainingMoves != 0){
-			//throw new CurrentPlayerHasRemainingMovesException();
-		}
-		currentPlayer = turn.next();
-		firstTimeMoving = true;
-		return currentPlayer;
-	}
-	
-	
 	/**
 	 * Checks if the current player is in the room
 	 * @return true if the current player is in a room, false otherwise
@@ -537,15 +551,50 @@ public class Game
 	{
 		return playerToRoom.get(currentPlayer) != null;
 	}
+	//TODO implement Game - takeExit.
+	public Cell takeExit(Cell c) throws InvalidMoveException
+	{
+		if(gameOver)
+		{
+			throw new IllegalMethodCallException("Game is over.");
+		}
+		if(isInRoom())
+		{
+			throw new InvalidMoveException("Player is not in a room. Cannot exit a room");
+		}
+		return null;
+	}
+	
+	public Player nextTurn()
+	{
+		if(gameOver)
+		{
+			throw new IllegalMethodCallException("Game is over.");
+		}
+		if(remainingMoves != 0){
+			//FIXME exception for remaining moves
+			//throw new CurrentPlayerHasRemainingMovesException();
+		}
+		currentPlayer = turn.next();
+		firstTimeMoving = true;
+		return currentPlayer;
+	}
 	
 	/**
 	 * Simulates the roll of two six-sided die
 	 * Generate the number of moves for the current player 
 	 * (when they first decide to move)
 	 * The number of moves is between 2 to 12
+	 * 
+	 * @throws IllegalMethodCallException 
+	 * If the game is over
 	 */
 	private void rollDice()
 	{
+		if(gameOver)
+		{
+			throw new IllegalMethodCallException("Game is over.");
+		}
 		assert remainingMoves == 0 : "Last player must not have any remaining moves ";
 		int d1 = (int)(Math.random() * 7 + 1);
 		int d2 = (int)(Math.random() * 7 + 1);
@@ -563,19 +612,30 @@ public class Game
 	}
 	
 	//TODO implement Game - getAvailable exits
-		public List<Cell> getAvailableExits()
+	public List<Cell> getAvailableExits() throws InvalidMoveException
+	{
+		if(gameOver)
 		{
-			//Check if player is in a room
-			 Room room = playerToRoom.get(currentPlayer);
-			 if(room == null)
-			 {
-			 	//throw new InvalidMethodCall
-			 }
-			//Get all the cells in the room 
-			 //Need to return unmodifiable list of cells
-			 //return room.getExitCells();
-			return null;
+			throw new IllegalMethodCallException("Game is over.");
 		}
+		//Check if player is in a room
+		if(!isInRoom())
+		{
+			throw new InvalidMoveException("Cannot move out of a room when the player is not in a room");
+		}
+		//Get all the cells in the room 
+		List<Cell> availableExitCells = new ArrayList<Cell>();
+		/*
+		 * Iterate through all the cells and add to the list
+		 * if the exit isn't blocked;
+		 */
+		/*if(availableExitCells.isEmpty())
+			 {
+				 throw new NoAvailableExitException("");
+			 }*/
+		return Collections.unmodifiableList(availableExitCells);
+	}
+	
 	/**
 	 * The number of moves the current player has left
 	 * to make in their turn
@@ -587,12 +647,15 @@ public class Game
 		return remainingMoves;
 	}
 	
+	//TODO better description for getRoom
 	/**
 	 * Convenience method for the UI
 	 * for example to print out whether a player
 	 * entered a room
 	 * @param cell - A room cell
 	 * @return The room the cell is in
+	 * @throws IllegalArgumentException
+	 * If the cell is not in a room
 	 */
 	public Room getRoom(Cell cell)
 	{
@@ -609,6 +672,8 @@ public class Game
 	 * the state of pieces in the game
 	 * @param piece
 	 * @return The cell the piece is in 
+	 *  @throws IllegalArgumentException 
+	 * If the piece does not exist
 	 */
 	public Cell getPosition(Piece piece)
 	{
@@ -698,7 +763,11 @@ public class Game
 			roomCards = new TreeSet<RoomCard>();
 			roomCards.add(roomC);
 		}
-	
+		
+		/**
+		 * Remove the card from the casefile
+		 * @param card - The card to remove from the casefile
+		 */
 		public void removeCard(Card card)
 		{	if(card instanceof SuspectCard){
 				suspectCards.remove(card);
