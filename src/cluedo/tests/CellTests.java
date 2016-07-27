@@ -13,7 +13,7 @@ import org.junit.Test;
 
 public class CellTests
 {
-	private static Displayable validDisplay;
+	private static Cell cell;
 	private static Random random;
 	
 	private int validX;
@@ -23,9 +23,6 @@ public class CellTests
 	@BeforeClass
 	public static void setup()
 	{
-		// The Displayable doesn't need to be setup separately because only the UI calls display().
-		validDisplay = () -> {}; // Empty display method.
-		
 		// Used for random numbers to (e.g. generate walls)
 		random = new Random();
 	}
@@ -114,25 +111,19 @@ public class CellTests
 	@Test (expected = IllegalArgumentException.class)
 	public void xNegative()
 	{
-		new Cell(-1, validY, validDisplay, validWalls);
+		new Cell(-1, validY, validWalls){public void display(){}};
 	}
 	
 	@Test (expected = IllegalArgumentException.class)
 	public void yNegative()
 	{
-		new Cell(validX, -1, validDisplay, validWalls);
+		new Cell(validX, -1, validWalls){public void display(){}};
 	}
-	
-	@Test (expected = IllegalArgumentException.class)
-	public void displayableNull()
-	{
-		new Cell(validX, validY, null, validWalls);
-	}
-	
+
 	@Test (expected = IllegalArgumentException.class)
 	public void wallsNull()
 	{
-		new Cell(validX, validY, validDisplay, null);
+		new Cell(validX, validY, null){public void display(){}};
 	}
 	
 	@Test (expected = IllegalArgumentException.class)
@@ -140,20 +131,20 @@ public class CellTests
 	{
 		Direction[] invalidWalls = {Direction.South, null, Direction.East};
 
-		new Cell(validX, validY, validDisplay, invalidWalls);
+		new Cell(validX, validY, invalidWalls){public void display(){}};
 	}
 	
 	@Test (expected = IllegalArgumentException.class)
 	public void wallsContainingDuplicate()
 	{
 		Direction[] invalidWalls = {Direction.North, Direction.East, Direction.North};
-		new Cell(validX, validY, validDisplay, invalidWalls);
+		new Cell(validX, validY, invalidWalls){public void display(){}};
 	}
 	
 	@Test (expected = IllegalArgumentException.class)
 	public void wallsContainingDuplicateSize()
 	{
 		Direction[] invalidWalls = {Direction.North, Direction.West, Direction.East, Direction.South, Direction.North};
-		new Cell(validX, validY, validDisplay, invalidWalls);
+		new Cell(validX, validY, invalidWalls){public void display(){}};
 	}
 }
