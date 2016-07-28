@@ -87,12 +87,19 @@ public class Game {
 	int[] STUDY = new int[] { 17, 21, 18, 21, 19, 21, 20, 21, 21, 21, 22, 21, 23, 21, 17, 22, 18, 22, 19, 22, 20, 22,
 			21, 22, 22, 22, 23, 22, 17, 23, 18, 23, 19, 23, 20, 23, 21, 23, 22, 23, 23, 23, 18, 24, 19, 24, 20, 24, 21,
 			24, 22, 24, 23, 24 };
+	/**
+	 * Each player's starting position according to the order
+	 * specified in SUSPECT_NAMES
+	 */
+	int[] STARTINGPOSITION = new int[]{
+			7,24, 0,17, 9,0, 14,0, 23,6, 19,23
+	};
 
 	private boolean firstTimeMoving;
 	private int remainingMoves;
 	private Player currentPlayer;
 	/**
-	 * One cycle of the Cluedo game. Contains all the active players
+	 * One round of the Cluedo game. Contains all the active players
 	 */
 	private Turn<Player> turn;
 	/**
@@ -101,7 +108,7 @@ public class Game {
 	 */
 	private Turn<Player> allHumanIterator;
 
-	private Set<Player> allPlayers;
+	private List<Player> allPlayers;
 	/**
 	 * All the human players in the game Does not include eliminated players
 	 * from the game.
@@ -127,9 +134,9 @@ public class Game {
 	 */
 	private CaseFile answer;
 
-	Set<SuspectCard> suspectCards;
-	Set<WeaponCard> weaponCards;
-	Set<RoomCard> roomCards;
+	List<SuspectCard> suspectCards;
+	List<WeaponCard> weaponCards;
+	List<RoomCard> roomCards;
 
 	private Map<Cell, Room> cellToRoom;
 	private Map<Player, Boolean> isTransferred;
@@ -137,10 +144,10 @@ public class Game {
 	private Room lastRoom; //lastRoom player entered in
 	// FIXME Need weapons?
 	private Set<Weapon> weapons;
-
+	
 	private Board board;
 	private boolean gameOver;
-	// TODO StartingPositions of players
+	
 	// Static initializer
 	{
 		SUSPECT_NAMES.put("Miss Scarlett", 0);
@@ -153,7 +160,7 @@ public class Game {
 
 	// TODO Game class methods
 
-	public Game(int numPlayers, List<Piece> playerTokens, List<Piece> weaponTokens, List<Cell> cells,
+	public Game(int numPlayers, List<Piece> playerTokens, List<Piece> weaponTokens,
 			List<Displayable> suspectCardFaces, List<Displayable> weaponCardFaces, List<Displayable> roomCardFaces) {
 		if (numPlayers < MIN_HUMAN_PLAYERS || numPlayers > MAX_HUMAN_PLAYERS) {
 			throw new IllegalArgumentException(
@@ -173,7 +180,9 @@ public class Game {
 
 		isTransferred = new HashMap<Player, Boolean>();
 		playerToRoom = new HashMap<Player, Room>();
-		// TODO Game - create cells
+		setStartingPosition();
+		// TODO StartingPositions of players
+		
 	}
 
 	/**
@@ -182,8 +191,8 @@ public class Game {
 	 * @param playerTokens
 	 * @return All the players in the Cluedo game
 	 */
-	private Set<Player> createPlayers(List<Piece> playerTokens) {
-		Set<Player> players = new TreeSet<Player>();
+	private List<Player> createPlayers(List<Piece> playerTokens) {
+		List<Player> players = new ArrayList<Player>();
 		int i = 0;
 		for (String playerName : SUSPECT_NAMES.keySet()) {
 			assert i < MAX_PLAYERS : "Exceeded the total number of players";
@@ -208,10 +217,11 @@ public class Game {
 	private List<Player> createHumanPlayers(int numPlayers) {
 		assert allPlayers != null : "Must create all player objects first";
 		assert allPlayers.size() == MAX_PLAYERS : "Must contain all players in the game";
+		Set<Player> allRandomPlayers = new TreeSet<Player>(allPlayers);
 		Player[] playerArr = new Player[MAX_HUMAN_PLAYERS];
 		Player startingPlayer = null;
 		// Generate random players
-		for (Player randPlayer : allPlayers) {
+		for (Player randPlayer : allRandomPlayers) {
 			if (numPlayers == 0) {
 				break;
 			}
@@ -260,8 +270,8 @@ public class Game {
 	 * @param weaponCardFaces
 	 * @return All the weapon cards in the Cluedo Game
 	 */
-	private Set<WeaponCard> createWeaponCards(List<Displayable> weaponCardFaces) {
-		Set<WeaponCard> weaponCards = new TreeSet<WeaponCard>();
+	private List<WeaponCard> createWeaponCards(List<Displayable> weaponCardFaces) {
+		List<WeaponCard> weaponCards = new ArrayList<WeaponCard>();
 		for (int i = 0; i < NUM_WEAPONS; i++) {
 			WeaponCard card = new WeaponCard(WEAPON_NAMES[i], weaponCardFaces.get(i));
 			weaponCards.add(card);
@@ -275,8 +285,8 @@ public class Game {
 	 * @param suspectCardFaces
 	 * @return All the suspect cards in the Cluedo Game
 	 */
-	private Set<SuspectCard> createSuspectCards(List<Displayable> suspectCardFaces) {
-		Set<SuspectCard> suspectCards = new TreeSet<SuspectCard>();
+	private List<SuspectCard> createSuspectCards(List<Displayable> suspectCardFaces) {
+		List<SuspectCard> suspectCards = new ArrayList<SuspectCard>();
 		int i = 0;
 		for (String suspectName : SUSPECT_NAMES.keySet()) {
 			assert i < MAX_PLAYERS : "Exceeded the total number of suspects";
@@ -293,8 +303,8 @@ public class Game {
 	 * @param roomCardFaces
 	 * @return All the room cards in the Cluedo Game
 	 */
-	private Set<RoomCard> createRoomCards(List<Displayable> roomCardFaces) {
-		Set<RoomCard> roomCards = new TreeSet<RoomCard>();
+	private List<RoomCard> createRoomCards(List<Displayable> roomCardFaces) {
+		List<RoomCard> roomCards = new ArrayList<RoomCard>();
 		for (int i = 0; i < NUM_ROOMS; i++) {
 			RoomCard card = new RoomCard(ROOM_NAMES[i], roomCardFaces.get(i));
 			roomCards.add(card);
@@ -313,8 +323,8 @@ public class Game {
 	 *            - all the room cards
 	 * @return The CaseFile for the answer of the game
 	 */
-	private CaseFile createCaseFiles(Set<SuspectCard> suspectCards, Set<WeaponCard> weaponCards,
-			Set<RoomCard> roomCards) {
+	private CaseFile createCaseFiles(List<SuspectCard> suspectCards, List<WeaponCard> weaponCards,
+			List<RoomCard> roomCards) {
 		for (Player player : activeHumanPlayers) {
 			playerToCasefile.put(player, new CaseFile(suspectCards, weaponCards, roomCards));
 		}
@@ -352,8 +362,8 @@ public class Game {
 	 *            - all the room cards
 	 * @return The cards that were leftover after evenly distributing the cards.
 	 */
-	private Set<Card> distributeCards(Set<SuspectCard> suspectCards, Set<WeaponCard> weaponCards,
-			Set<RoomCard> roomCards) {
+	private Set<Card> distributeCards(List<SuspectCard> suspectCards, List<WeaponCard> weaponCards,
+			List<RoomCard> roomCards) {
 		Set<Card> extra = new TreeSet<Card>();
 		Set<Card> allCards = new TreeSet<Card>();
 		allCards.addAll(suspectCards);
@@ -361,11 +371,8 @@ public class Game {
 		allCards.addAll(roomCards);
 		int numPlayers = activeHumanPlayers.size();
 		int numExtra = allCards.size() % numPlayers;
-		int numCards = (allCards.size() - numExtra) / numPlayers; // Number of
-																	// cards
-																	// each
-																	// player
-																	// will get
+		//Number of cards each player will get
+		int numCards = (allCards.size() - numExtra) / numPlayers; 
 		Set<Card> cardsForPlayer = new TreeSet<Card>();
 		for (Card card : allCards) {
 			// All cards evenly distributed, put the rest of the cards in extra
@@ -388,7 +395,17 @@ public class Game {
 			}
 		}
 		return extra;
-
+	}
+	private void setStartingPosition(){
+		int playerCount = 0;
+		for(int i = 0; i < STARTINGPOSITION.length;i+=2)
+		{
+			int x = STARTINGPOSITION[i];
+			int y = STARTINGPOSITION[i+1];
+			board.setPosition(allPlayers.get(playerCount).getPiece(), x, y);
+			playerCount++;
+		}
+		//TODO Set startingPosition for weapons. Need roomCells
 	}
 
 	/**
@@ -758,25 +775,29 @@ public class Game {
 	/**
 	 * @return The weapon cards in the current player's CaseFile
 	 */
-	public Set<WeaponCard> getPlayerWeaponCards() {
+	public List<WeaponCard> getPlayerWeaponCards() {
 		CaseFile casefile = playerToCasefile.get(currentPlayer);
-		return Collections.unmodifiableSet(casefile.getWeaponCards());
+		return Collections.unmodifiableList(casefile.getWeaponCards());
 	}
 
 	/**
 	 * @return The room cards in the current player's CaseFile
 	 */
-	public Set<RoomCard> getPlayerRoomCards() {
+	public List<RoomCard> getPlayerRoomCards() {
 		CaseFile casefile = playerToCasefile.get(currentPlayer);
-		return Collections.unmodifiableSet(casefile.getRoomCards());
+		return Collections.unmodifiableList(casefile.getRoomCards());
 	}
 
 	/**
 	 * @return The suspect cards in the current player's CaseFile
 	 */
-	public Set<SuspectCard> getPlayerSuspectCards() {
+	public List<SuspectCard> getPlayerSuspectCards() {
 		CaseFile casefile = playerToCasefile.get(currentPlayer);
-		return Collections.unmodifiableSet(casefile.getSuspectCards());
+		return Collections.unmodifiableList(casefile.getSuspectCards());
+	}
+	
+	public Cell[][] getCells(){
+		return board.getCells();
 	}
 
 	public boolean isGameOver() {
@@ -793,11 +814,11 @@ public class Game {
 	 * 
 	 */
 	private class CaseFile {
-		private Set<SuspectCard> suspectCards;
-		private Set<WeaponCard> weaponCards;
-		private Set<RoomCard> roomCards;
+		private List<SuspectCard> suspectCards;
+		private List<WeaponCard> weaponCards;
+		private List<RoomCard> roomCards;
 
-		public CaseFile(Set<SuspectCard> suspectCards, Set<WeaponCard> weaponCards, Set<RoomCard> roomCards) {
+		public CaseFile(List<SuspectCard> suspectCards, List<WeaponCard> weaponCards, List<RoomCard> roomCards) {
 			if (suspectCards.size() == 0 || weaponCards.size() == 0 || roomCards.size() == 0) {
 				throw new IllegalArgumentException("CaseFile must have at least one of each type of card");
 			}
@@ -810,11 +831,11 @@ public class Game {
 			if (suspectC == null || weaponC == null || roomC == null) {
 				throw new IllegalArgumentException("CaseFile must have at least one of each type of card");
 			}
-			suspectCards = new TreeSet<SuspectCard>();
+			suspectCards = new ArrayList<SuspectCard>();
 			suspectCards.add(suspectC);
-			weaponCards = new TreeSet<WeaponCard>();
+			weaponCards = new ArrayList<WeaponCard>();
 			weaponCards.add(weaponC);
-			roomCards = new TreeSet<RoomCard>();
+			roomCards = new ArrayList<RoomCard>();
 			roomCards.add(roomC);
 		}
 
@@ -834,15 +855,15 @@ public class Game {
 			}
 		}
 
-		public Set<SuspectCard> getSuspectCards() {
+		public List<SuspectCard> getSuspectCards() {
 			return suspectCards;
 		}
 
-		public Set<WeaponCard> getWeaponCards() {
+		public List<WeaponCard> getWeaponCards() {
 			return weaponCards;
 		}
 
-		public Set<RoomCard> getRoomCards() {
+		public List<RoomCard> getRoomCards() {
 			return roomCards;
 		}
 
