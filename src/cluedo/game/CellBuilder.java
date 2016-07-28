@@ -1,4 +1,4 @@
-package cluedo.utility.builders;
+package cluedo.game;
 
 import java.util.ArrayList;
 import java.util.List;

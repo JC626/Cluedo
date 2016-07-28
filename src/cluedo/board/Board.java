@@ -5,18 +5,20 @@ import java.util.Map;
 
 import cluedo.exceptions.IllegalMethodCallException;
 import cluedo.exceptions.InvalidMoveException;
+import cluedo.game.CellBuilder;
 import cluedo.model.*;
 import cluedo.utility.Heading.Direction;
 
 /**
  * The Board for the Cluedo game
+ * Keeps track of the location of Pieces in the game
  *
  */
 public class Board {
 	public static final int WIDTH = 24;
 	public static final int HEIGHT = 25;
 	
-	/**d
+	/**
 	 * A map of only the cells that contains a Piece on it.
 	 */
 	private Map<Cell, Piece> cellHasPiece;
@@ -30,12 +32,11 @@ public class Board {
 	 * Representation of the Board
 	 */
 	private Cell[][] cells = new Cell[WIDTH][HEIGHT];
-
-	// TODO Board constructor
-	public Board() { // Need Cells and Pieces
-						// Put all cells into HashMap?
+	
+	public Board() { 
+		CellBuilder cellBuilder = new CellBuilder();
+		cells = cellBuilder.getCells();
 		cellHasPiece = new HashMap<Cell, Piece>();
-		// Put all pieces into the map with null cell?
 		pieceOnCell = new HashMap<Piece, Cell>();
 	}
 	
@@ -118,6 +119,36 @@ public class Board {
 		pieceOnCell.put(piece,cell);
 	}
 	/**
+	 * /**
+	 * Sets the piece to the specified cell position
+	 * 
+	 * Used for setting:
+	 * Starting position for pieces
+     * Secret passage usage
+     * Suggestions to move weapons and Pieces (if needed)
+     * Entering/exiting rooms
+	 *
+	 * @param piece
+	 * @param x
+	 * @param y
+	 * @throws IllegalArgumentException
+	 * If the arguments are null or x and y is out of the board's bounds
+	 */
+	public void setPosition(Piece piece, int x, int y )
+	{
+		if(piece == null)
+		{
+			throw new IllegalArgumentException("Arguments are null");
+		}
+		if(x >= Board.WIDTH || x < 0 || y >= Board.HEIGHT || y < 0)
+		{
+			throw new IllegalArgumentException("Coordinates out of the board's boundaries");
+		}
+		Cell cell = cells[x][y];
+		cellHasPiece.put(cell,piece);
+		pieceOnCell.put(piece,cell);
+	}
+	/**
 	 * Get the neighbouring cell in the specified direction
 	 * from a given cell.
 	 * @param cell - the cell we are moving from
@@ -158,5 +189,9 @@ public class Board {
 			throw new IllegalArgumentException("Movement outside the board boundaries - internal error");
 		}
 		return cells[x][y];
+	}
+
+	public Cell[][] getCells() {
+		return cells;
 	}
 }
