@@ -3,20 +3,21 @@ package cluedo.userinterface;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Pattern;
 
+import cluedo.board.Board;
 import cluedo.game.Game;
 import cluedo.model.Cell;
 import cluedo.model.Displayable;
 import cluedo.model.Piece;
+import cluedo.model.Player;
 import cluedo.utility.Heading.Direction;
-import cluedo.utility.builders.CellBuilder;
 
 /**
  * A user interface, for human players, that consists of input and output from the command line.
@@ -43,6 +44,9 @@ public class TextUserInterface
 	private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 	private final Map<Cell, Piece> tokens = new HashMap<Cell, Piece>();
 
+	// The size of the buffer is the number of Cells, multiplied by the size of each cell (3 by 3).
+	private final Character[][] drawingBuffer = new Character[3 * Board.WIDTH][3 * Board.HEIGHT]; // The drawing buffer, which will be modified in layers based in game state.
+
 	private Game game;
 
 	private void newGame()
@@ -51,20 +55,100 @@ public class TextUserInterface
 
 		List<Piece> weaponTokens = createWeaponTokens();
 		List<Piece> playerTokens = createPlayerTokens();
-		Cell[][] cells = createCells();
 
 		List<Displayable> suspectCards = createSuspectCards();
 		List<Displayable> weaponCards = createWeaponCards();
 		List<Displayable> roomCards = createRoomCards();
 
-		//game = new Game(numberOfPlayers, playerTokens, weaponTokens, cells, suspectCards, weaponCards, roomCards);
+		//game = new Game(numberOfPlayers, playerTokens, weaponTokens, suspectCards, weaponCards, roomCards);
 
 		runGame();
 	}
 
 	private void runGame()
 	{
-		// TODO write the main loop
+		printCanonBackground();
+
+		while (true)//!game.getActivePlayers().isEmpty()) // FIXME change to .isGameOver()
+		{
+			Player currentPlayer = new Player("Name", new Piece()
+			{
+				@Override
+				public void display()
+				{
+				}
+			});	//game.nextTurn();
+
+			int moves = 4;//game.getRemainingMoves();
+
+			while (moves >= 0) // game.getRemainingMoves()
+			{
+
+				List<String> options = new ArrayList<String>();
+				List<String> regex = new ArrayList<String>();
+
+				if (false)//game.isInRoom()) 
+				{
+					/*
+					 * If the current player is in a room, then they can do the following:
+					 * 
+					 * Make a suggestion
+					 * Exit the room (if they haven't just entered)
+					 */
+
+					//TODO if (game.canMakeSuggestion()) {
+					options.add("Make a suggestion");
+					regex.add("suggest||"); //} // The default action is to suggest
+
+					options.add("Exit the " + game.getRoom(game.getPosition(currentPlayer.getPiece())).getName());
+					regex.add("exit|leave|go"); // TODO Make default if they've already made a suggestion
+				}
+				else
+				{
+					/*
+					 * The player can:
+					 * 
+					 * Move
+					 */
+					options.add("Move");
+					regex.add("n*s*e*w*"); // Allow the user to press any number of NSEW to direct their character.
+				}
+
+				if (gameOptions.printBoardAtStartTurn)
+				{
+					printBoard();
+				}
+
+				executeDefaultMenu(currentPlayer.getName(), options, regex);
+
+				continuePromptMenu();
+			}
+		}
+	}
+
+	private void printBoard()
+	{
+		generateBoard();
+
+		for (int row = 0; row < drawingBuffer.length; row++)
+		{
+			for (int col = 0; col < drawingBuffer[row].length; col++)
+			{
+				print(drawingBuffer[row][col].toString());
+			}
+			println();
+		}
+	}
+
+	private void generateBoard()
+	{
+		for (int row = 0; row < drawingBuffer.length; row++)
+		{
+			for (int col = 0; col < drawingBuffer[row].length; col++)
+			{
+				drawingBuffer[row][col] = new Character('W');
+			}
+		}
 	}
 
 	/**
@@ -198,42 +282,95 @@ public class TextUserInterface
 	 * @param regexMatches
 	 * @return The index of the 
 	 */
-	private int executeDefaultMenu(String playerName, List<String> menuOptions, Optional<List<String>> regexMatches)
+	private int executeDefaultMenu(String playerName, List<String> menuOptions, List<String> regexOptions)
 	{
-		String menuTitle = String.format("%s, what do you want to do next?\n\n", playerName);
+		String menuTitle = String.format("%s, what do you want to do next?", playerName);
+
+		int userSelection = 0; // The compiler claims that userSelection may not have been initialised, we know however that it will be.
+		boolean selectedCallerOption = false; // The 
 
 		/*
-		 * At any time we want the user to be able to reprint out the board, their remaining moves, and make an accusation.
-		 * We add these options before printing out the menu options because it allows them to remain in a consistent place
-		 * between different calls.
+		 * At any time we want the user to be able to reprint out the board, their remaining moves, view their 
+		 * case file or hand, and make an accusation.
+		 * We add these options before printing out the menu options because it allows them to remain in a 
+		 * consistent place between different menu options.
+		 * User testing suggested that the order should be:
 		 * 
 		 * Reprint remaining moves
 		 * Print board
-		 * Review evidence
-		 * 
-		 * 
+		 * Review evidence (hand, and case file options)
+		 * Make an accusation
 		 */
 
-		// TODO user tests suggested order of default options should be:
-		// Reprint remaining moves
-		// Reprint board
-		// Print case file
-		// Print hand
-
 		List<String> options = new ArrayList<String>();
-		// The text for the printing of the board option depends on the settings set by the user.
+		List<String> regex = new ArrayList<String>();
 
+		
 
-		// Add our default options
-		options.add("Reprint remaining moves");
-		options.add((gameOptions.printBoardAtStartTurn) ? "Reprint board" : "Print board");
-		options.add("Review evidence"); // Leads on to view hand, and view case file
+		while (!selectedCallerOption)
+		{
+			
+			// Add our default options.
+			options.clear(); // Don't double up the options added from the caller.
+			options.add("Reprint remaining moves");
+			options.add((gameOptions.printBoardAtStartTurn) ? "Reprint board" : "Print board"); // The text for the printing of the board option depends on the settings set by the user.
+			options.add("Review evidence"); // Leads on to view hand, and view case file
+			options.add("Make an accusation");
 
-		options.addAll(menuOptions); // Add all of the caller provided menu options.
+			// And their associated regexs.
+			// Adding regexs here (even empty ones) is necessary to line up the caller's regexs with their options.
+			regex.clear(); // Clear to avoid doubling up automatically added regex.
+			regex.add("r|remaining");
+			regex.add("b|board");
+			regex.add("h|cf|hand|case file|evidence");
+			regex.add("a|accuse");
 
-		int userSelection = executeMenu(menuTitle, options, makeEmptyRegex(options.size()));
+			options.addAll(menuOptions); // Add all of the caller provided menu options.
+			regex.addAll(regexOptions); // And their associated regexs.
+
+			userSelection = executeMenu(menuTitle, options, regex);
+			
+			/*
+			 * We deal with options 1 to 4, so the calling function doesn't need to.
+			 */
+			switch (userSelection)
+			{
+				case 1:
+					println("You have " + 3 + " remaining."); // TODO game.getRemainingMoves
+					break;
+				case 2:
+					printBoard();
+					break;
+				case 3:
+					printCaseFile();
+					break;
+				case 4:
+					promptMakeAccusation();
+					break;
+				default: // One of the caller's options was selected, pass it back to them.
+					selectedCallerOption = true; 
+					userSelection = userSelection - 4; // Give the caller the index from what they gave. 4 is the number of items we have added.
+			}
+		}
 
 		return userSelection;
+	}
+
+	private void promptMakeAccusation()
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	private void printCaseFile()
+	{
+		/*
+		 * The case file is provided to us by Suspect, Room, and Weapon cards.
+		 * We print out the cards that are in the global set but have not been
+		 * marked off the player's case file. 
+		 */
+		//TODO
+		
 	}
 
 	/**
@@ -253,21 +390,14 @@ public class TextUserInterface
 		return regex;
 	}
 
-	private Cell[][] createCells()
-	{
-		return new CellBuilder().getCells();
-	}
-
 	private List<Piece> createPlayerTokens()
 	{
 		List<Piece> players = new ArrayList<Piece>();
 
-		players.add(() -> print("S")); // Miss Scarlett: lower case s is Spanner
-		players.add(() -> print("M")); // Colonel Mustard
-		players.add(() -> print("W")); // Mrs. White
-		players.add(() -> print("G")); // Reverend Green
-		players.add(() -> print("P")); // Mrs. Peacock: lower case p is Professor Plum
-		players.add(() -> print("p")); // Professor Plum: upper case P is Mrs. Peacock
+		for (int player = 0; player < Game.MAX_HUMAN_PLAYERS; player++)
+		{
+			players.add(() -> {});
+		}
 
 		return players;
 	}
@@ -279,12 +409,10 @@ public class TextUserInterface
 	{
 		List<Piece> weapons = new ArrayList<Piece>();
 
-		weapons.add(() -> print("D")); // Dagger
-		weapons.add(() -> print("C")); // Candle stick
-		weapons.add(() -> print("R")); // Revolver: lower case r is rope
-		weapons.add(() -> print("r")); // Rope: upper case R is revolver
-		weapons.add(() -> print("L")); // Lead Pipe
-		weapons.add(() -> print("s")); // Spanner: upper case S is Miss Scarlett
+		for (int weapon = 0; weapon < Game.NUM_WEAPONS; weapon++)
+		{
+			weapons.add(() -> {});
+		}
 
 		return weapons;
 	}
@@ -568,6 +696,11 @@ public class TextUserInterface
 	private void printGameRules()
 	{
 		//TODO game rules
+	}
+
+	private void printCanonBackground()
+	{
+		// TODO Auto-generated method stub
 	}
 
 	private void printBlankLines(int lines)
