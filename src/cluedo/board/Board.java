@@ -5,7 +5,6 @@ import java.util.Map;
 
 import cluedo.exceptions.IllegalMethodCallException;
 import cluedo.exceptions.InvalidMoveException;
-import cluedo.game.CellBuilder;
 import cluedo.model.*;
 import cluedo.utility.Heading.Direction;
 
@@ -31,7 +30,7 @@ public class Board {
 	/**
 	 * Representation of the Board
 	 */
-	private Cell[][] cells = new Cell[WIDTH][HEIGHT];
+	private final Cell[][] cells;
 	
 	public Board() { 
 		CellBuilder cellBuilder = new CellBuilder();

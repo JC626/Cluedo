@@ -1,11 +1,9 @@
-package cluedo.game;
+package cluedo.board;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import cluedo.model.Cell;
-import cluedo.model.Piece;
 import cluedo.utility.Heading.Direction;
 
 /**
@@ -29,7 +27,7 @@ import cluedo.utility.Heading.Direction;
  */
 public class CellBuilder
 {
-	private Cell[][] cells;
+	private final Cell[][] cells;
 
 	public CellBuilder()
 	{
@@ -92,7 +90,7 @@ public class CellBuilder
 		}
 	}
 	
-	public Cell[][] getCells()
+	Cell[][] getCells()
 	{
 		return cells;
 	}
