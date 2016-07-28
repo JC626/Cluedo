@@ -5,11 +5,13 @@ package cluedo.exceptions;
  * cannot move to the new position
  *
  */
-public class InvalidMoveException extends Exception{
+public class InvalidMoveException extends Exception
+{
 
 	private static final long serialVersionUID = 1L;
 
-	public InvalidMoveException(String arg0) {
+	public InvalidMoveException(String arg0) 
+	{
 		super(arg0);
 	}
 

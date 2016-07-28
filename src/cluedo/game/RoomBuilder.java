@@ -17,7 +17,8 @@ import cluedo.model.Room;
  * cells are hardcoded in.
  *
  */
-public class RoomBuilder {
+public class RoomBuilder 
+{
 
 	private final Cell[][] cells;
 
@@ -91,7 +92,8 @@ public class RoomBuilder {
 	private int[] STUDY_EXIT = new int[] { 17, 20, 5, 1 };
 	
 			
-	public RoomBuilder(Cell[][] cells) {
+	public RoomBuilder(Cell[][] cells) 
+	{
 		this.cells = cells;
 		createRooms();
 		createCells(rooms.get(0),BALLROOM,BALLROOM_ENTRANCE,BALLROOM_EXIT);
@@ -104,21 +106,25 @@ public class RoomBuilder {
 		createCells(rooms.get(7),LOUNGE,LOUNGE_ENTRANCE,LOUNGE_EXIT);
 		createCells(rooms.get(8),STUDY,STUDY_ENTRANCE,STUDY_EXIT);
 	}
-	private void createRooms(){
+	private void createRooms()
+	{
 		for(int i = 0; i <Game.ROOM_NAMES.length;i++)
 		{
 			String roomName = Game.ROOM_NAMES[i];
 			rooms.add(new Room(roomName));
 		}
 	}
-	private void createCells(Room room, int[] roomArray, int[] entranceArray, int[] exitArray){
+	private void createCells(Room room, int[] roomArray, int[] entranceArray, int[] exitArray)
+	{
 		createRoomCells(room,roomArray);
 		createEntranceRoomCells(room,entranceArray);
 		createExitRoomCells(room,exitArray);
 	}
-	private void createRoomCells(Room room, int[] roomArray) {
+	private void createRoomCells(Room room, int[] roomArray) 
+	{
 		Set<Cell> roomSetCells = new HashSet<Cell>();
-		for(int i = 0; i < roomArray.length;i++){
+		for(int i = 0; i < roomArray.length;i++)
+		{
 			int x = i;
 			int y = i+1;
 			Cell cell = cells[x][y];
@@ -128,7 +134,8 @@ public class RoomBuilder {
 		roomCells.put(room, roomSetCells);
 	}
 
-	private void createEntranceRoomCells(Room room, int[] entranceArray) {
+	private void createEntranceRoomCells(Room room, int[] entranceArray) 
+	{
 		Set<Cell> entrances = new HashSet<Cell>();
 		for(int i =0; i< entranceArray.length;i+=2)
 		{
@@ -140,7 +147,8 @@ public class RoomBuilder {
 		entranceCells.put(room, entrances);
 	}
 
-	private void createExitRoomCells(Room room, int[] exitArray) {
+	private void createExitRoomCells(Room room, int[] exitArray) 
+	{
 		List<Cell> exits = new ArrayList<Cell>();
 		for(int i =0; i< exitArray.length;i+=2)
 		{
@@ -152,23 +160,27 @@ public class RoomBuilder {
 		exitCells.put(room, exits);
 	}
 
-	public Map<Room, Set<Cell>> getEntranceCells() {
+	public Map<Room, Set<Cell>> getEntranceCells() 
+	{
 		return entranceCells;
 	}
 
-	public Map<Room, Set<Cell>> getRoomCells() {
+	public Map<Room, Set<Cell>> getRoomCells() 
+	{
 		return roomCells;
 	}
 
-	public Map<Room, List<Cell>> getExitCells() {
+	public Map<Room, List<Cell>> getExitCells() 
+	{
 		return exitCells;
 	}
 
-	public Map<Cell, Room> getCellToRoom() {
+	public Map<Cell, Room> getCellToRoom() 
+	{
 		return cellToRoom;
 	}
-	public List<Room> getRooms() {
+	public List<Room> getRooms() 
+	{
 		return rooms;
 	}
-
 }

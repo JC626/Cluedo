@@ -29,7 +29,11 @@ public class Turn<E> implements Iterator<E>, Cloneable
     	ensureNotContainNullItem(list); // Turns may not contain null players.
     	
         this.list = list;
-        this.pos = pos;
+        if(pos < 0)
+        {
+        	throw new IllegalArgumentException("Starting position of iterator must be zero or greater");
+        }
+            this.pos = pos;
     }
 
 	public boolean hasNext()
