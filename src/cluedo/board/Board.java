@@ -11,13 +11,14 @@ import cluedo.utility.Heading.Direction;
 
 /**
  * The Board for the Cluedo game
+ * Keeps track of the location of Pieces in the game
  *
  */
 public class Board {
 	public static final int WIDTH = 24;
 	public static final int HEIGHT = 25;
 	
-	/**d
+	/**
 	 * A map of only the cells that contains a Piece on it.
 	 */
 	private Map<Cell, Piece> cellHasPiece;
@@ -31,15 +32,11 @@ public class Board {
 	 * Representation of the Board
 	 */
 	private Cell[][] cells = new Cell[WIDTH][HEIGHT];
-
-	// TODO Board constructor. Need Cell[][], List<Cell>, startingPos)
 	
-	public Board() { // Need Cells and Pieces
-						// Put all cells into HashMap?
+	public Board() { 
 		CellBuilder cellBuilder = new CellBuilder();
 		cells = cellBuilder.getCells();
 		cellHasPiece = new HashMap<Cell, Piece>();
-		// Put all pieces into the map with null cell?
 		pieceOnCell = new HashMap<Piece, Cell>();
 	}
 	

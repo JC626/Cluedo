@@ -95,7 +95,6 @@ public class Game {
 			7,24, 0,17, 9,0, 14,0, 23,6, 19,23
 	};
 
-	private boolean firstTimeMoving;
 	private int remainingMoves;
 	private Player currentPlayer;
 	/**
@@ -147,6 +146,7 @@ public class Game {
 	
 	private Board board;
 	private boolean gameOver;
+	private Set<Cell> playerPath;
 	
 	// Static initializer
 	{
@@ -159,13 +159,14 @@ public class Game {
 	}
 
 	// TODO Game class methods
-
+	//TODO track cells player moved on as cannot move back to the same square on the same turn
 	public Game(int numPlayers, List<Piece> playerTokens, List<Piece> weaponTokens,
 			List<Displayable> suspectCardFaces, List<Displayable> weaponCardFaces, List<Displayable> roomCardFaces) {
 		if (numPlayers < MIN_HUMAN_PLAYERS || numPlayers > MAX_HUMAN_PLAYERS) {
 			throw new IllegalArgumentException(
 					"Must have between: " + MIN_HUMAN_PLAYERS + " and " + MAX_HUMAN_PLAYERS + " human players");
 		}
+		board = new Board();
 		this.allPlayers = createPlayers(playerTokens);
 		this.activeHumanPlayers = createHumanPlayers(numPlayers);
 		turn = new Turn<Player>(activeHumanPlayers);
@@ -418,7 +419,8 @@ public class Game {
 	 * @return The cell that the player has moved to
 	 * @throws InvalidMoveException
 	 *             If the current player has no more moves remaining
-	 *             or reentered the room they exited on the same turn
+	 *             or reentered the room they exited in the same turn
+	 *             or move on a cell they already passed on the same turn
 	 * @throws IllegalMethodCallException
 	 *             If the game is over
 	 * @throws IllegalArgumentException
@@ -436,14 +438,7 @@ public class Game {
 		}
 		if (remainingMoves <= 0) 
 		{
-			if (firstTimeMoving) 
-			{
-				rollDice();
-				firstTimeMoving = false;
-			} else 
-			{
-				throw new InvalidMoveException("Cannot move as no moves left");
-			}
+			throw new InvalidMoveException("Cannot move as no moves left");
 		}
 		Cell newPos = board.move(currentPlayer.getPiece(), direction);
 		if(lastRoom != null && cellToRoom.containsKey(newPos))
@@ -454,6 +449,11 @@ public class Game {
 				throw new InvalidMoveException(currentPlayer.getName() + " cannot reenter the same room they exited");
 			}
 		}
+		if(playerPath.contains(newPos))
+		{
+			throw new InvalidMoveException("Cannot move to the same cell in the same turn");
+		}
+		playerPath.add(newPos);
 		remainingMoves--;
 		return newPos;
 	}
@@ -464,6 +464,9 @@ public class Game {
 			return false;
 		}
 		if (!isInRoom()) {
+			return false;
+		}
+		if (remainingMoves != 0) {
 			return false;
 		}
 		return true;
@@ -495,6 +498,7 @@ public class Game {
 	 *             If the arguments are null
 	 */
 	public Map<Player, Set<Card>> makeSuggestion(WeaponCard weaponCard, SuspectCard suspectCard) {
+		
 		if (gameOver) {
 			throw new IllegalMethodCallException("Game is over.");
 		}
@@ -514,7 +518,7 @@ public class Game {
 				break;
 			}
 		}
-		// TODO move the suspect and weapon pieces into the room
+		// TODO move the suspect and weapon pieces into the room. Set suspect to transferred (if they are a player)
 		/*
 		 * for(Player p : allPlayers) {
 		 * if(p.getName().equals(suspectCard.getName())) { //Put in the room
@@ -631,10 +635,14 @@ public class Game {
 		if (cell == null) {
 			throw new IllegalArgumentException("Argument cannot be null");
 		}
-		if (isInRoom()) {
+		if (!isInRoom()) {
 			throw new InvalidMoveException(currentPlayer.getName() + " is not in a room therefore cannot exit");
 		}
-		return null;
+		//Used secret passage
+		if(cellToRoom.containsKey(cell)){
+			remainingMoves = 0;
+		}
+		return cell;
 	}
 
 	public Player nextTurn() {
@@ -645,8 +653,9 @@ public class Game {
 			throw new HasRemainingMovesException(currentPlayer.getName() + "  must continue moving");
 		}
 		currentPlayer = turn.next();
-		firstTimeMoving = true;
 		lastRoom = playerToRoom.get(currentPlayer);
+		playerPath = new TreeSet<Cell>();
+		rollDice();
 		return currentPlayer;
 	}
 
