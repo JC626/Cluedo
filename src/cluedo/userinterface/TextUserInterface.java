@@ -34,6 +34,15 @@ public class TextUserInterface
 	private static final String menuFormat = "    [%d] %s";
 	private static final String userPrompt = "> ";
 	private static final String shortcutDisplayCommand = "shortcuts";
+	
+	private static final Character horizontalLine = 'W';//'\u2550';
+	private static final Character verticalLine = 'W';//'\u2551';
+	
+	private static final Character topLeftCorner = 'W';//'\u2554';
+	private static final Character topRightCorner = 'W';//'\u2557';
+	
+	private static final Character bottomLeftCorner = 'W';//'\u255A';
+	private static final Character bottomRightCorner = 'W';//'\u255D';
 
 	// Displayable characters:
 	private final String emptyCell = "-";
@@ -48,6 +57,23 @@ public class TextUserInterface
 
 	private Game game;
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	private void newGame()
 	{
 		int numberOfPlayers = promptMenuNumber("Select players: ", Game.MIN_HUMAN_PLAYERS, Game.MAX_PLAYERS, " players");
@@ -59,7 +85,7 @@ public class TextUserInterface
 		List<Displayable> weaponCards = createWeaponCards();
 		List<Displayable> roomCards = createRoomCards();
 
-		//game = new Game(numberOfPlayers, playerTokens, weaponTokens, suspectCards, weaponCards, roomCards);
+		game = new Game(numberOfPlayers, playerTokens, weaponTokens, suspectCards, weaponCards, roomCards);
 
 		runGame();
 	}
@@ -68,25 +94,19 @@ public class TextUserInterface
 	{
 		printCanonBackground();
 
-		while (true)//!game.getActivePlayers().isEmpty()) // FIXME change to .isGameOver()
+		while (!game.isGameOver())
 		{
-			Player currentPlayer = new Player("Name", new Piece()
-			{
-				@Override
-				public void display()
-				{
-				}
-			});	//game.nextTurn();
+			Player currentPlayer = game.nextTurn();
 
-			int moves = 4;//game.getRemainingMoves();
+			int moves = game.getRemainingMoves();
 
-			while (moves >= 0) // game.getRemainingMoves()
+			while (game.getRemainingMoves() >= 0) 
 			{
 
 				List<String> options = new ArrayList<String>();
 				List<String> regex = new ArrayList<String>();
 
-				if (false)//game.isInRoom()) 
+				if (game.isInRoom()) 
 				{
 					/*
 					 * If the current player is in a room, then they can do the following:
@@ -94,13 +114,19 @@ public class TextUserInterface
 					 * Make a suggestion
 					 * Exit the room (if they haven't just entered)
 					 */
-
-					//TODO if (game.canMakeSuggestion()) {
-					options.add("Make a suggestion");
-					regex.add("suggest||"); //} // The default action is to suggest
-
+					
 					options.add("Exit the " + game.getRoom(game.getPosition(currentPlayer.getPiece())).getName());
-					regex.add("exit|leave|go"); // TODO Make default if they've already made a suggestion
+					regex.add("exit|leave|go");
+
+					if (game.canMakeSuggestion())
+					{
+						options.add("Make a suggestion");
+						regex.add("suggest|"); // The default action is to suggest
+					}
+					else // The user cannot make a suggestion, so make leaving the default.
+					{
+						regex.add(regex.remove(0) + "|"); 
+					}
 				}
 				else
 				{
@@ -141,13 +167,158 @@ public class TextUserInterface
 
 	private void generateBoard()
 	{
-		for (int row = 0; row < drawingBuffer.length; row++)
+		Cell[][] board = game.getCells();
+		
+		for (int row = 0; row < board.length; row++)
 		{
-			for (int col = 0; col < drawingBuffer[row].length; col++)
+			for (int col = 0; col < board[row].length; col++)
 			{
-				drawingBuffer[row][col] = new Character('W');
+				addCellLayerDrawingBuffer(board[row][col]);
 			}
 		}
+		
+		//addPlayerLayerDrawingBuffer();
+		//addWeaponLayerDrawingBuffer();
+	}
+
+	private void addCellLayerDrawingBuffer(Cell cell)
+	{
+		// Each cell is 3*3, so we multiply the Cell location by 3 to avoid overwriting other Cell's walls.
+		int x = 3 * cell.getX();
+		int y = 3 * cell.getY();
+		
+		boolean north = cell.hasWall(Direction.North);
+		boolean south = cell.hasWall(Direction.South);
+		boolean east = cell.hasWall(Direction.East);
+		boolean west = cell.hasWall(Direction.West);
+
+		// Top row
+		drawingBuffer[x][y] = cellTopLeft(north, west);
+		drawingBuffer[x + 1][y] = cellTopCentre(north);
+		drawingBuffer[x + 2][y] = cellTopRight(north, east);
+		
+		// Middle row
+		drawingBuffer[x][y + 1] = cellMiddleLeft(west);
+		drawingBuffer[x + 1][y + 1] = cellMiddleCentre();
+		drawingBuffer[x + 2][y + 1] = cellMiddleRight(east);
+		
+		// Bottom row
+		drawingBuffer[x][y + 2] = cellBottomLeft(south, west);
+		drawingBuffer[x + 1][y + 2] = cellBottomCentre(south);
+		drawingBuffer[x + 2][y + 2] = cellBottomRight(east, south);
+	}
+
+	private Character cellBottomRight(boolean east, boolean south)
+	{
+		Character result = ' ';
+		if (south)
+		{
+			if (east) // Corner piece
+			{
+				result = bottomLeftCorner;
+			}
+			else // Horizontal piece 
+			{
+				result = horizontalLine;
+			}
+		}
+		else if (east) // Vertical piece
+		{
+			result = verticalLine;
+		} // Else an empty space.
+		
+		return result;
+	}
+
+	private Character cellBottomCentre(boolean south)
+	{
+		return (south) ? horizontalLine : ' ';
+	}
+
+	private Character cellBottomLeft(boolean south, boolean west)
+	{
+		Character result = ' ';
+		if (south)
+		{
+			if (west) // Corner piece
+			{
+				result = bottomLeftCorner;
+			}
+			else // Horizontal piece 
+			{
+				result = horizontalLine;
+			}
+		}
+		else if (west) // Vertical piece
+		{
+			result = verticalLine;
+		} // Else an empty space.
+		
+		return result;
+	}
+
+	private Character cellMiddleRight(boolean east)
+	{
+		return (east) ? verticalLine : ' ';
+	}
+
+	private Character cellMiddleCentre()
+	{
+		return ' '; // This will be overridden if there's a weapon or player there.
+	}
+
+	private Character cellMiddleLeft(boolean west)
+	{
+		return (west) ? verticalLine : ' ';
+	}
+
+	private Character cellTopRight(boolean north, boolean east)
+	{
+		Character result = ' ';
+		if (north)
+		{
+			if (east) // Corner piece
+			{
+				result = topRightCorner;
+			}
+			else // Horizontal piece 
+			{
+				result = horizontalLine;
+			}
+		}
+		else if (east) // Vertical piece
+		{
+			result = verticalLine;
+		} // Else an empty space.
+		
+		return result;
+	}
+
+	private Character cellTopCentre(boolean north)
+	{
+		return (north) ? horizontalLine : ' ';
+	}
+
+	private Character cellTopLeft(boolean north, boolean west)
+	{
+		Character result = ' ';
+		if (north)
+		{
+			if (west) // Corner piece
+			{
+				result = topLeftCorner;
+			}
+			else // Horizontal piece 
+			{
+				result = horizontalLine;
+			}
+		}
+		else if (west) // Vertical piece
+		{
+			result = verticalLine;
+		} // Else an empty space.
+		
+		return result;
 	}
 
 	/**
@@ -304,11 +475,8 @@ public class TextUserInterface
 		List<String> options = new ArrayList<String>();
 		List<String> regex = new ArrayList<String>();
 
-		
-
 		while (!selectedCallerOption)
 		{
-			
 			// Add our default options.
 			options.clear(); // Don't double up the options added from the caller.
 			options.add("Reprint remaining moves");
@@ -335,7 +503,7 @@ public class TextUserInterface
 			switch (userSelection)
 			{
 				case 1:
-					println("You have " + 3 + " remaining."); // TODO game.getRemainingMoves
+					println("You have " + game.getRemainingMoves() + " remaining.");
 					break;
 				case 2:
 					printBoard();
@@ -722,70 +890,4 @@ public class TextUserInterface
 		boolean printBoardAtStartTurn = true;
 		boolean verboseErrors = false; // Print out exception stack traces.
 	}
-
-	/*
-	 * private String calculateTopString(String wallDefinition)
-		{
-			String top = "";
-			if (wallDefinition.contains("N"))
-			{
-				top = cellWall + cellWall + cellWall;
-			}
-			else
-			{
-				if (wallDefinition.contains("W"))
-				{
-					top = top + cellWall;
-				}
-				else
-				{
-					top = top + emptyCell;
-				}
-
-				top = top + emptyCell; // There is no middle section, if there isn't North
-
-				if (wallDefinition.contains("E"))
-				{
-					top = top + cellWall;
-				}
-				else
-				{
-					top = top + emptyCell;
-				}
-			}
-			return top;
-		}
-
-		private String calculateBottomString(String wallDefinition)
-		{
-			String bottom = "";
-			if (wallDefinition.contains("S"))
-			{
-				bottom = cellWall + cellWall + cellWall;
-			}
-			else
-			{
-				if (wallDefinition.contains("W"))
-				{
-					bottom = bottom + cellWall;
-				}
-				else
-				{
-					bottom = bottom + emptyCell;
-				}
-
-				bottom = bottom + emptyCell; // There is no middle section, if there isn't South
-
-				if (wallDefinition.contains("E"))
-				{
-					bottom = bottom + cellWall;
-				}
-				else
-				{
-					bottom = bottom + emptyCell;
-				}
-			}
-			return bottom;
-		}
-	 */
 }
