@@ -27,7 +27,7 @@ public class CellTests
 	@Before
 	public void setupWalls()
 	{
-		validWalls = cluedo.utility.tests.Cell.setupRandomWalls();
+		validWalls = cluedo.utility.tests.Cell.getRandomWalls();
 	}
 	
 	/**

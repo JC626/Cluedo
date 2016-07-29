@@ -16,7 +16,7 @@ public class Cell
 		int x = random.nextInt(Board.WIDTH + 1);
 		int y = random.nextInt(Board.HEIGHT + 1);
 		
-		return new cluedo.model.Cell(x, y, setupRandomWalls())
+		return new cluedo.model.Cell(x, y, getRandomWalls())
 		{
 			@Override
 			public void display()
@@ -30,7 +30,7 @@ public class Cell
 	 * Randomly allocate 0 .. 4 walls to be used with a Cell.
 	 * Doing so randomly prevents bias (only having North as a wall, for example). 
 	 */
-	public static Direction[] setupRandomWalls()
+	public static Direction[] getRandomWalls()
 	{
 		Direction[] walls;
 		
