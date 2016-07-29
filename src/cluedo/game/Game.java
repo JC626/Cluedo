@@ -20,6 +20,7 @@ import cluedo.model.Player;
 import cluedo.model.Room;
 import cluedo.model.Weapon;
 import cluedo.model.cards.Card;
+import cluedo.model.cards.CaseFile;
 import cluedo.model.cards.RoomCard;
 import cluedo.model.cards.SuspectCard;
 import cluedo.model.cards.WeaponCard;
@@ -28,7 +29,10 @@ import cluedo.utility.Turn;
 
 //TODO Game description
 /**
- * The Cluedo game This dictates the rules of Cluedo 
+ * The Cluedo game.
+ * This dictates the rules of Cluedo 
+ * Players can move, enter and exit rooms,
+ * make a suggestion and make an accusation.
  * Creates all objects used in the game
  *
  */
@@ -40,25 +44,20 @@ public class Game
 	public static final int MAX_PLAYERS = 6;
 	public static final int NUM_WEAPONS = 6;
 	public static final int NUM_ROOMS = 9;
-	/**
-	 * A map of the suspect names mapped to the order the player is according to
-	 * the clockwise order of the player's starting position in the Cluedo game
-	 */
-	private static final Map<String, Integer> SUSPECT_NAMES = new HashMap<String, Integer>();
-	private static final String[] WEAPON_NAMES = new String[] { "Dagger", "Candlestick", "Revolver", "Rope",
-			"Lead Pipe", "Spanner" };
-
-	public static final String[] ROOM_NAMES = new String[] { "Ballroom", "Billiard Room", "Conservatory",
-			"Dining Room", "Hall", "Kitchen", "Library", "Lounge", "Study" };
-
+	
 	/**
 	 * Each player's starting position according to the order
 	 * specified in SUSPECT_NAMES
 	 */
 	private final int[] STARTINGPOSITION = new int[]{
 			7, 24, 0, 17, 9, 0, 14, 0, 23, 6, 19, 23 };
-
+	/**
+	 * Number of moves the player can move 
+	 */
 	private int remainingMoves;
+	/**
+	 * The cells the current player moved to during their turn
+	 */
 	private Set<Cell> playerPath;
 	private Player currentPlayer;
 	/**
@@ -70,20 +69,26 @@ public class Game
 	 * active players)
 	 */
 	private Turn<Player> allHumanIterator;
-
+	
+	/**
+	 * All the players in Cluedo (human and non-human)
+	 */
 	private final List<Player> allPlayers;
 	/**
 	 * All the human players in the game Does not include eliminated players
 	 * from the game.
 	 */
 	private List<Player> activeHumanPlayers;
-	private Map<Player, CaseFile> playerToCasefile;
-
+	/**
+	 * Every human player's casefile.
+	 * Includes all cards that may be part of the murder
+	 */
+	private Map<Player, CaseFile> playerToCasefile = new HashMap<Player,CaseFile>();
 	/**
 	 * The cards that each player has in their hand. Every player has different
 	 * cards to each other
 	 */
-	private Map<Player, Set<Card>> playerHand;
+	private Map<Player, Set<Card>> playerHand = new HashMap<Player,Set<Card>>();
 	/**
 	 * These are the cards leftover after evenly distributing the cards to all
 	 * the players. Does not contain the answer cards. Every player will be able
@@ -103,7 +108,7 @@ public class Game
 	private final List<RoomCard> roomCards;
 
 	//Rooms
-	private final Map<Room,Set<Cell>> roomCells; //excluding the entranceCells
+	private final Map<Room,Set<Cell>> roomCells; 
 	private final Map<Room,Set<Cell>> entranceCells;
 	private final Map<Room,List<Cell>> exitCells;
 	private final Map<Cell, Room> cellToRoom;
@@ -113,15 +118,20 @@ public class Game
 	 * The player is allowed to make a suggestion
 	 * in the room they were transferred to
 	 */
-	private Map<Player, Boolean> transferred;
-	private Map<Player, Room> playerToRoom;
-	private Room lastRoom; //lastRoom player entered in
+	private Map<Player, Boolean> transferred = new HashMap<Player,Boolean>();
+	private Map<Player, Room> playerToRoom = new HashMap<Player,Room>();
+	/**
+	 * The room the player is in. 
+	 * This is used to ensure the player doesn't enter
+	 * the room they exited on the same turn
+	 */
+	private Room lastRoom; 
 	private final List<Weapon> weapons;
 	private final List<Room> rooms;
-	private final Board board;
+	private final Board board = new Board();
 	private boolean gameOver;
 	
-	// Static initializer
+/*	// Static initializer
 	{
 		SUSPECT_NAMES.put("Miss Scarlett", 0);
 		SUSPECT_NAMES.put("Colonel Mustard", 1);
@@ -129,7 +139,7 @@ public class Game
 		SUSPECT_NAMES.put("Reverend Green", 3);
 		SUSPECT_NAMES.put("Mrs. Peacock", 4);
 		SUSPECT_NAMES.put("Professor Plum", 5);
-	}
+	}*/
 
 	public Game(int numPlayers, List<Piece> playerTokens, List<Piece> weaponTokens,
 			List<Displayable> suspectCardFaces, List<Displayable> weaponCardFaces, List<Displayable> roomCardFaces) 
@@ -139,17 +149,16 @@ public class Game
 			throw new IllegalArgumentException(
 					"Must have between: " + MIN_HUMAN_PLAYERS + " and " + MAX_HUMAN_PLAYERS + " human players");
 		}
-		board = new Board();
-		this.allPlayers = createPlayers(playerTokens);
-		this.activeHumanPlayers = createHumanPlayers(numPlayers);
+		allPlayers = GameBuilder.createPlayers(playerTokens);
+		activeHumanPlayers = GameBuilder.createHumanPlayers(numPlayers,allPlayers);
 		turn = new Turn<Player>(activeHumanPlayers); 
 		allHumanIterator = new Turn<Player>(activeHumanPlayers);
-		this.weapons = createWeapons(weaponTokens);
+		weapons = GameBuilder.createWeapons(weaponTokens);
 		// Cards
-		suspectCards = createSuspectCards(suspectCardFaces);
-		weaponCards = createWeaponCards(weaponCardFaces);
-		roomCards = createRoomCards(roomCardFaces);
-		answer = createCaseFiles(suspectCards, weaponCards, roomCards);
+		suspectCards = GameBuilder.createSuspectCards(suspectCardFaces);
+		weaponCards = GameBuilder.createWeaponCards(weaponCardFaces);
+		roomCards = GameBuilder.createRoomCards(roomCardFaces);
+		answer = GameBuilder.createCaseFiles(suspectCards, weaponCards, roomCards,playerToCasefile,activeHumanPlayers);
 		extraCards = distributeCards(suspectCards, weaponCards, roomCards);
 		//Room
 		RoomBuilder roomBuilder = new RoomBuilder(board.getCells());
@@ -158,199 +167,9 @@ public class Game
 		entranceCells = roomBuilder.getEntranceCells();
 		exitCells = roomBuilder.getExitCells();
 		rooms = roomBuilder.getRooms();
-		transferred = new HashMap<Player,Boolean>();
-		playerToRoom = new HashMap<Player,Room>();
 		setStartingPosition();
 	}
 	
-	/**
-	 * Create all the players in the Cluedo game
-	 * 
-	 * @param playerTokens
-	 * @return All the players in the Cluedo game
-	 */
-	private List<Player> createPlayers(List<Piece> playerTokens) 
-	{
-		List<Player> players = new ArrayList<Player>();
-		int i = 0;
-		for (String playerName : SUSPECT_NAMES.keySet()) 
-		{
-			assert i < MAX_PLAYERS : "Exceeded the total number of players";
-			Player p = new Player(playerName, playerTokens.get(i));
-			players.add(p);
-			i++;
-		}
-		return players;
-	}
-
-	/**
-	 * Select randomly the characters the human players will play as. The
-	 * starting character (and therefore player) is selected randomly. The order
-	 * of play is then based off the starting position of the other characters
-	 * in a clockwise order. This order is: Miss Scarlett, Colonel Mustard, Mrs.
-	 * White, Reverend Green, Mrs. Peacock, Professor Plum
-	 * 
-	 * @param numPlayers
-	 *            - The number of players playing Cluedo
-	 * @return The characters that the human players will play as
-	 */
-	private List<Player> createHumanPlayers(int numPlayers) 
-	{
-		assert allPlayers != null : "Must create all player objects first";
-		assert allPlayers.size() == MAX_PLAYERS : "Must contain all players in the game";
-		Set<Player> allRandomPlayers = new HashSet<Player>(allPlayers);
-		Player[] playerArr = new Player[MAX_HUMAN_PLAYERS];
-		//FIXME currently the game is starting on the 2nd player and not this starting player (due to nextTurn). To fix?
-		Player startingPlayer = null; 
-		// Generate random players
-		for (Player randPlayer : allRandomPlayers) 
-		{
-			if (numPlayers == 0) 
-			{
-				break;
-			}
-			if (startingPlayer == null) 
-			{
-				startingPlayer = randPlayer;
-				playerArr[0] = startingPlayer;
-			} 
-			else 
-			{
-				// Put added players in a clockwise order based off the starting
-				// player's position on the board
-				int startOrder = SUSPECT_NAMES.get(startingPlayer.getName());
-				int playerOrder = SUSPECT_NAMES.get(randPlayer.getName());
-				int index = playerOrder > startOrder ? playerOrder - startOrder : playerOrder + startOrder;
-				playerArr[index] = randPlayer;
-			}
-			numPlayers--;
-
-		}
-		List<Player> players = new ArrayList<Player>();
-		// Remove all null references in the array to put in the list
-		for (Player sortPlayer : playerArr) 
-		{
-			if (sortPlayer != null) 
-			{
-				players.add(sortPlayer);
-			}
-		}
-		return players;
-	}
-
-	/**
-	 * Create the weapons in the Cluedo Game
-	 * 
-	 * @param weaponTokens
-	 * @return All the weapons in the Cluedo Game
-	 */
-	private List<Weapon> createWeapons(List<Piece> weaponTokens) 
-	{
-		List<Weapon> weapons = new ArrayList<Weapon>();
-		for (int i = 0; i < NUM_WEAPONS; i++) 
-		{
-			Weapon w = new Weapon(WEAPON_NAMES[i], weaponTokens.get(i));
-			weapons.add(w);
-		}
-		return weapons;
-	}
-
-	/**
-	 * Create the weapon cards in the Cluedo Game
-	 * 
-	 * @param weaponCardFaces
-	 * @return All the weapon cards in the Cluedo Game
-	 */
-	private List<WeaponCard> createWeaponCards(List<Displayable> weaponCardFaces) 
-	{
-		List<WeaponCard> weaponCards = new ArrayList<WeaponCard>();
-		for (int i = 0; i < NUM_WEAPONS; i++)
-		{
-			WeaponCard card = new WeaponCard(WEAPON_NAMES[i], weaponCardFaces.get(i));
-			weaponCards.add(card);
-		}
-		return weaponCards;
-	}
-
-	/**
-	 * Create the suspect cards in the Cluedo Game
-	 * 
-	 * @param suspectCardFaces
-	 * @return All the suspect cards in the Cluedo Game
-	 */
-	private List<SuspectCard> createSuspectCards(List<Displayable> suspectCardFaces) 
-	{
-		List<SuspectCard> suspectCards = new ArrayList<SuspectCard>();
-		int i = 0;
-		for (String suspectName : SUSPECT_NAMES.keySet()) 
-		{
-			assert i < MAX_PLAYERS : "Exceeded the total number of suspects";
-			SuspectCard p = new SuspectCard(suspectName, suspectCardFaces.get(i));
-			suspectCards.add(p);
-			i++;
-		}
-		return suspectCards;
-	}
-
-	/**
-	 * Create the room cards in the Cluedo Game
-	 * 
-	 * @param roomCardFaces
-	 * @return All the room cards in the Cluedo Game
-	 */
-	private List<RoomCard> createRoomCards(List<Displayable> roomCardFaces) 
-	{
-		List<RoomCard> roomCards = new ArrayList<RoomCard>();
-		for (int i = 0; i < NUM_ROOMS; i++) 
-		{
-			RoomCard card = new RoomCard(ROOM_NAMES[i], roomCardFaces.get(i));
-			roomCards.add(card);
-		}
-		return roomCards;
-	}
-
-	/**
-	 * Creates a CaseFile for each human player and the answer CaseFile
-	 * 
-	 * @param suspectCards
-	 *            - all the suspect cards
-	 * @param weaponCards
-	 *            - all the weapon cards
-	 * @param roomCards
-	 *            - all the room cards
-	 * @return The CaseFile for the answer of the game
-	 */
-	private CaseFile createCaseFiles(List<SuspectCard> suspectCards, List<WeaponCard> weaponCards,
-			List<RoomCard> roomCards) 
-	{
-		for (Player player : activeHumanPlayers) 
-		{
-			playerToCasefile.put(player, new CaseFile(suspectCards, weaponCards, roomCards));
-		}
-		SuspectCard answerSuspect = null;
-		for (SuspectCard suspect : suspectCards) 
-		{
-			answerSuspect = suspect;
-			suspectCards.remove(suspect);
-			break;
-		}
-		WeaponCard answerWeapon = null;
-		for (WeaponCard weapon : weaponCards) 
-		{
-			answerWeapon = weapon;
-			weaponCards.remove(weapon);
-			break;
-		}
-		RoomCard answerRoom = null;
-		for (RoomCard room : roomCards) 
-		{
-			answerRoom = room;
-			roomCards.remove(room);
-			break;
-		}
-		return new CaseFile(answerSuspect, answerWeapon, answerRoom);
-	}
-
 	/**
 	 * Distribute the remaining cards (all the cards except the answer cards) to
 	 * the players. The cards that each player has is removed from their
@@ -408,9 +227,8 @@ public class Game
 	}
 	/**
 	 * For the start of the game.
-	 * Set the default starting positions
-	 * of the player's and randomly 
-	 * allocate weapons to one room each
+	 * Set the default starting positions of the player's 
+	 * and randomly allocate weapons to one room each
 	 */
 	private void setStartingPosition()
 	{
@@ -666,13 +484,15 @@ public class Game
 			throw new IllegalArgumentException("Only active players can make accusations");
 		}
 		CaseFile accusation = new CaseFile(suspectCard, weaponCard, roomCard);
+		// Game over, the player won!
 		if (accusation.equals(answer)) 
-		{// Game over, the player won!
+		{
 			gameOver = true;
 			return true;
-		} 
+		}
+		// Last player in the game failed.
 		else if (players.size() == 1) 
-		{// Last player in the game failed.
+		{
 			gameOver = true;
 			return false;
 		} 
@@ -681,8 +501,8 @@ public class Game
 			// Accusation failed, remove player from the game
 			players.remove(player);
 			int pos = turn.getPos();
-			int currentPlayerPos = SUSPECT_NAMES.get(currentPlayer.getName());
-			int removedPos = SUSPECT_NAMES.get(player.getName());
+			int currentPlayerPos = GameBuilder.SUSPECT_NAMES.get(currentPlayer.getName());
+			int removedPos = GameBuilder.SUSPECT_NAMES.get(player.getName());
 			if (removedPos <= currentPlayerPos) 
 			{
 				pos--;
@@ -744,7 +564,7 @@ public class Game
 	
 	/**
 	 * Switches to the next player. 
-	 * 
+	 * Also resets global values for the next player
 	 * @return the next player in the turn
 	 */
 	public Player nextTurn() 
@@ -1006,131 +826,6 @@ public class Game
 	 */
 	public boolean isGameOver() {
 		return gameOver;
-	}
-
-
-	/**
-	 * A CaseFile is either an answer case file, or a player’s case file,
-	 * although there is no technical distinction. 
-	 * For a player's CaseFile, it contains the cards that have not been eliminated
-	 * from the case and could therefore could still be part of the answer
-	 * Cards may be removed from a player's CaseFile throughout the game.
-	 * 
-	 */
-	private class CaseFile 
-	{
-		private List<SuspectCard> suspectCards;
-		private List<WeaponCard> weaponCards;
-		private List<RoomCard> roomCards;
-
-		public CaseFile(List<SuspectCard> suspectCards, List<WeaponCard> weaponCards, List<RoomCard> roomCards) 
-		{
-			if (suspectCards.size() == 0 || weaponCards.size() == 0 || roomCards.size() == 0) 
-			{
-				throw new IllegalArgumentException("CaseFile must have at least one of each type of card");
-			}
-			this.roomCards = roomCards;
-			this.suspectCards = suspectCards;
-			this.weaponCards = weaponCards;
-		}
-
-		public CaseFile(SuspectCard suspectC, WeaponCard weaponC, RoomCard roomC) 
-		{
-			if (suspectC == null || weaponC == null || roomC == null) 
-			{
-				throw new IllegalArgumentException("CaseFile must have at least one of each type of card");
-			}
-			suspectCards = new ArrayList<SuspectCard>();
-			suspectCards.add(suspectC);
-			weaponCards = new ArrayList<WeaponCard>();
-			weaponCards.add(weaponC);
-			roomCards = new ArrayList<RoomCard>();
-			roomCards.add(roomC);
-		}
-		/**
-		 * Remove the card from the casefile
-		 * @param card - The card to remove from the casefile
-		 */
-		public void removeCard(Card card) 
-		{
-			if (card instanceof SuspectCard) 
-			{
-				suspectCards.remove(card);
-			} else if (card instanceof RoomCard) 
-			{
-				roomCards.remove(card);
-			} else if (card instanceof WeaponCard) 
-			{
-				weaponCards.remove(card);
-			}
-		}
-
-		public List<SuspectCard> getSuspectCards() 
-		{
-			return suspectCards;
-		}
-
-		public List<WeaponCard> getWeaponCards() 
-		{
-			return weaponCards;
-		}
-
-		public List<RoomCard> getRoomCards() 
-		{
-			return roomCards;
-		}
-
-		@Override
-		public int hashCode() 
-		{
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + getOuterType().hashCode();
-			result = prime * result + ((roomCards == null) ? 0 : roomCards.hashCode());
-			result = prime * result + ((suspectCards == null) ? 0 : suspectCards.hashCode());
-			result = prime * result + ((weaponCards == null) ? 0 : weaponCards.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) 
-		{
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			CaseFile other = (CaseFile) obj;
-			if (!getOuterType().equals(other.getOuterType()))
-				return false;
-			if (roomCards == null) 
-			{
-				if (other.roomCards != null)
-					return false;
-			} 
-			else if (!roomCards.equals(other.roomCards))
-				return false;
-			if (suspectCards == null) 
-			{
-				if (other.suspectCards != null)
-					return false;
-			} 
-			else if (!suspectCards.equals(other.suspectCards))
-				return false;
-			if (weaponCards == null) 
-			{
-				if (other.weaponCards != null)
-					return false;
-			} 
-			else if (!weaponCards.equals(other.weaponCards))
-				return false;
-			return true;
-		}
-		private Game getOuterType() 
-		{
-			return Game.this;
-		}
 	}
 
 }
