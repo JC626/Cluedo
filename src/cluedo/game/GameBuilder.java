@@ -35,7 +35,7 @@ import cluedo.model.cards.WeaponCard;
 		 */
 	 public static final Map<String, Integer> SUSPECT_NAMES = new HashMap<String, Integer>();
 	// Static initializer
-		{
+	static{
 			SUSPECT_NAMES.put("Miss Scarlett", 0);
 			SUSPECT_NAMES.put("Colonel Mustard", 1);
 			SUSPECT_NAMES.put("Mrs. White", 2);
