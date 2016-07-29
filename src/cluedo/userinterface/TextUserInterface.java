@@ -587,19 +587,40 @@ public class TextUserInterface
 	private List<Displayable> createRoomCards()
 	{
 		// TODO Auto-generated method stub
-		return null;
+		List<Displayable> weapons = new ArrayList<Displayable>();
+
+		for (int weapon = 0; weapon < Game.NUM_WEAPONS; weapon++)
+		{
+			weapons.add(() -> {});
+		}
+
+		return weapons;
 	}
 
 	private List<Displayable> createWeaponCards()
 	{
 		// TODO Auto-generated method stub
-		return null;
+		List<Displayable> weapons = new ArrayList<Displayable>();
+
+		for (int weapon = 0; weapon < Game.NUM_WEAPONS; weapon++)
+		{
+			weapons.add(() -> {});
+		}
+
+		return weapons;
 	}
 
 	private List<Displayable> createSuspectCards()
 	{
 		// TODO Auto-generated method stub
-		return null;
+		List<Displayable> weapons = new ArrayList<Displayable>();
+
+		for (int weapon = 0; weapon < Game.NUM_WEAPONS; weapon++)
+		{
+			weapons.add(() -> {});
+		}
+
+		return weapons;
 	}
 
 
