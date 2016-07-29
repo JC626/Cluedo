@@ -589,7 +589,7 @@ public class TextUserInterface
 		// TODO Auto-generated method stub
 		List<Displayable> weapons = new ArrayList<Displayable>();
 
-		for (int weapon = 0; weapon < Game.NUM_WEAPONS; weapon++)
+		for (int weapon = 0; weapon < Game.NUM_ROOMS; weapon++)
 		{
 			weapons.add(() -> {});
 		}
@@ -615,7 +615,7 @@ public class TextUserInterface
 		// TODO Auto-generated method stub
 		List<Displayable> weapons = new ArrayList<Displayable>();
 
-		for (int weapon = 0; weapon < Game.NUM_WEAPONS; weapon++)
+		for (int weapon = 0; weapon < Game.MAX_PLAYERS; weapon++)
 		{
 			weapons.add(() -> {});
 		}
