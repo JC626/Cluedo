@@ -9,7 +9,7 @@ public class Cell
 {
 	private static Random random = new Random();
 	
-	public static cluedo.model.Cell setupRandomCell()
+	public static cluedo.model.Cell getRandomCell()
 	{
 		// nextInt method returns 0 .. bound with the bound being exclusive,
 		// but we want to include the width and height so we add one to each.
