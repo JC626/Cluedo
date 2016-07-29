@@ -110,7 +110,7 @@ import cluedo.model.cards.WeaponCard;
 				// player's position on the board
 				int startOrder = SUSPECT_NAMES.get(startingPlayer.getName());
 				int playerOrder = SUSPECT_NAMES.get(randPlayer.getName());
-				int index = playerOrder > startOrder ? playerOrder - startOrder : playerOrder + startOrder;
+				int index = playerOrder > startOrder ? playerOrder - startOrder : Game.MAX_HUMAN_PLAYERS + (playerOrder - startOrder);
 				playerArr[index] = randPlayer;
 			}
 			numPlayers--;
