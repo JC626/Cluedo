@@ -25,11 +25,11 @@ import cluedo.utility.Heading.Direction;
  * is to have the Cells access state via the UI.
  * 
  */
-public class CellBuilder
+class CellBuilder
 {
 	private final Cell[][] cells;
 
-	public CellBuilder()
+	CellBuilder()
 	{
 		/*
 		 * North, South, East, West are NSEW.

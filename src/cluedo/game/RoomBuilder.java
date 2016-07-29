@@ -17,7 +17,7 @@ import cluedo.model.Room;
  * cells are hardcoded in.
  *
  */
-public class RoomBuilder 
+class RoomBuilder 
 {
 
 	private final Cell[][] cells;
@@ -92,7 +92,7 @@ public class RoomBuilder
 	private int[] STUDY_EXIT = new int[] { 17, 20, 5, 1 };
 	
 			
-	public RoomBuilder(Cell[][] cells) 
+	RoomBuilder(Cell[][] cells) 
 	{
 		this.cells = cells;
 		createRooms();
@@ -108,9 +108,9 @@ public class RoomBuilder
 	}
 	private void createRooms()
 	{
-		for(int i = 0; i <Game.ROOM_NAMES.length;i++)
+		for(int i = 0; i <GameBuilder.ROOM_NAMES.length;i++)
 		{
-			String roomName = Game.ROOM_NAMES[i];
+			String roomName = GameBuilder.ROOM_NAMES[i];
 			rooms.add(new Room(roomName));
 		}
 	}
@@ -160,26 +160,26 @@ public class RoomBuilder
 		exitCells.put(room, exits);
 	}
 
-	public Map<Room, Set<Cell>> getEntranceCells() 
+	Map<Room, Set<Cell>> getEntranceCells() 
 	{
 		return entranceCells;
 	}
 
-	public Map<Room, Set<Cell>> getRoomCells() 
+	Map<Room, Set<Cell>> getRoomCells() 
 	{
 		return roomCells;
 	}
 
-	public Map<Room, List<Cell>> getExitCells() 
+	Map<Room, List<Cell>> getExitCells() 
 	{
 		return exitCells;
 	}
 
-	public Map<Cell, Room> getCellToRoom() 
+	Map<Cell, Room> getCellToRoom() 
 	{
 		return cellToRoom;
 	}
-	public List<Room> getRooms() 
+	List<Room> getRooms() 
 	{
 		return rooms;
 	}
