@@ -2,19 +2,34 @@ package cluedo.utility.tests;
 
 import java.util.Random;
 
-import org.junit.Before;
-
+import cluedo.board.Board;
 import cluedo.utility.Heading.Direction;
 
 public class Cell
 {
 	private static Random random = new Random();
 	
+	public static cluedo.model.Cell setupRandomCell()
+	{
+		// nextInt method returns 0 .. bound with the bound being exclusive,
+		// but we want to include the width and height so we add one to each.
+		int x = random.nextInt(Board.WIDTH + 1);
+		int y = random.nextInt(Board.HEIGHT + 1);
+		
+		return new cluedo.model.Cell(x, y, setupRandomWalls())
+		{
+			@Override
+			public void display()
+			{
+				System.out.println("TEST random valid cell");
+			}
+		};
+	}
+	
 	/**
 	 * Randomly allocate 0 .. 4 walls to be used with a Cell.
 	 * Doing so randomly prevents bias (only having North as a wall, for example). 
 	 */
-	@Before
 	public static Direction[] setupRandomWalls()
 	{
 		Direction[] walls;
