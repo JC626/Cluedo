@@ -87,7 +87,6 @@ public class CellTests
 			validWalls[wallIndex] = Direction.West;
 			wallIndex++;
 		}
-		System.out.println(Arrays.toString(validWalls));
 	}
 	
 	/**
