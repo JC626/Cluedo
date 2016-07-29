@@ -45,4 +45,20 @@ public class Room
 	{
 		return name;
 	}
+	
+	/**
+	 * Two rooms are considered equal iff their names are equal.
+	 */
+	public boolean equals(Object o)
+	{
+		boolean isEqual = false;
+		
+		if (o instanceof Room)
+		{
+			Room r = (Room) o;
+			isEqual = this.name.equals(r.name);
+		}
+		
+		return isEqual;
+	}
 }
