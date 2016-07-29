@@ -5,7 +5,6 @@ import java.util.Map;
 
 import cluedo.exceptions.IllegalMethodCallException;
 import cluedo.exceptions.InvalidMoveException;
-import cluedo.game.CellBuilder;
 import cluedo.model.*;
 import cluedo.utility.Heading.Direction;
 
@@ -14,7 +13,8 @@ import cluedo.utility.Heading.Direction;
  * Keeps track of the location of Pieces in the game
  *
  */
-public class Board {
+public class Board 
+{
 	public static final int WIDTH = 24;
 	public static final int HEIGHT = 25;
 	
@@ -31,9 +31,10 @@ public class Board {
 	/**
 	 * Representation of the Board
 	 */
-	private Cell[][] cells = new Cell[WIDTH][HEIGHT];
+	private final Cell[][] cells;
 	
-	public Board() { 
+	public Board() 
+	{ 
 		CellBuilder cellBuilder = new CellBuilder();
 		cells = cellBuilder.getCells();
 		cellHasPiece = new HashMap<Cell, Piece>();
@@ -60,7 +61,8 @@ public class Board {
 		{
 			throw new IllegalArgumentException("Arguments cannot be null");
 		}
-		if(!pieceOnCell.containsKey(piece)){
+		if(!pieceOnCell.containsKey(piece))
+		{
 			throw new IllegalMethodCallException("Cannot move the piece as it does not exist");
 		}
 		Cell onPiece = pieceOnCell.get(piece);
@@ -75,6 +77,11 @@ public class Board {
 		}
 		this.setPosition(piece, newPos);
 		return newPos;
+	}
+	
+	public boolean containsPiece(Cell cell)
+	{
+		return cellHasPiece.containsKey(cell);
 	}
 	
 	/**
@@ -115,6 +122,10 @@ public class Board {
 		{
 			throw new IllegalArgumentException("Arguments are null");
 		}
+		//Remove previous position
+		Cell previous = pieceOnCell.get(piece);
+		cellHasPiece.remove(previous);
+		//Put new position
 		cellHasPiece.put(cell,piece);
 		pieceOnCell.put(piece,cell);
 	}
@@ -147,6 +158,14 @@ public class Board {
 		Cell cell = cells[x][y];
 		cellHasPiece.put(cell,piece);
 		pieceOnCell.put(piece,cell);
+	}
+	
+	/**
+	 * @return The board representation (a 2D array of Cells)
+	 */
+	public Cell[][] getCells() 
+	{
+		return cells;
 	}
 	/**
 	 * Get the neighbouring cell in the specified direction
@@ -189,9 +208,5 @@ public class Board {
 			throw new IllegalArgumentException("Movement outside the board boundaries - internal error");
 		}
 		return cells[x][y];
-	}
-
-	public Cell[][] getCells() {
-		return cells;
 	}
 }

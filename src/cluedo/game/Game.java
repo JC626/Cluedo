@@ -6,12 +6,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.HashSet;
 
 import cluedo.board.Board;
 import cluedo.exceptions.HasRemainingMovesException;
 import cluedo.exceptions.IllegalMethodCallException;
 import cluedo.exceptions.InvalidMoveException;
+import cluedo.exceptions.NoAvailableExitException;
 import cluedo.model.Cell;
 import cluedo.model.Displayable;
 import cluedo.model.Piece;
@@ -27,11 +28,12 @@ import cluedo.utility.Turn;
 
 //TODO Game description
 /**
- * The Cluedo game This dictates the rules of Cluedo Creates all objects used in
- * the game
+ * The Cluedo game This dictates the rules of Cluedo 
+ * Creates all objects used in the game
  *
  */
-public class Game {
+public class Game 
+{
 	// Constants
 	public static final int MIN_HUMAN_PLAYERS = 3;
 	public static final int MAX_HUMAN_PLAYERS = 6;
@@ -46,56 +48,18 @@ public class Game {
 	private static final String[] WEAPON_NAMES = new String[] { "Dagger", "Candlestick", "Revolver", "Rope",
 			"Lead Pipe", "Spanner" };
 
-	private static final String[] ROOM_NAMES = new String[] { "Ballroom", "Billiard Room", "Conservatory",
+	public static final String[] ROOM_NAMES = new String[] { "Ballroom", "Billiard Room", "Conservatory",
 			"Dining Room", "Hall", "Kitchen", "Library", "Lounge", "Study" };
 
-	int[] KITCHEN = new int[] { 0, 1, 1, 1, 2, 1, 3, 1, 4, 1, 5, 1, 0, 2, 1, 2, 2, 2, 3, 2, 4, 2, 5, 2, 0, 3, 1, 3, 2,
-			3, 3, 3, 4, 3, 5, 3, 0, 4, 1, 4, 2, 4, 3, 4, 4, 4, 5, 4, 0, 5, 1, 5, 2, 5, 3, 5, 4, 5, 5, 5, 1, 6, 2, 6, 3,
-			6, 4, 6, 5, 6 };
-
-	int[] BALLROOM = new int[] { 10, 2, 11, 2, 12, 2, 13, 2, 8, 3, 9, 3, 10, 3, 11, 3, 12, 3, 13, 3, 14, 3, 15, 3, 8, 4,
-			9, 4, 10, 4, 11, 4, 12, 4, 13, 4, 14, 4, 15, 4, 8, 5, 9, 5, 10, 5, 11, 5, 12, 5, 13, 5, 14, 5, 15, 5, 8, 6,
-			9, 6, 10, 6, 11, 6, 12, 6, 13, 6, 14, 6, 15, 6, 8, 7, 9, 7, 10, 7, 11, 7, 12, 7, 13, 7, 14, 7, 15, 7 };
-
-	int[] CONSERVATORY = new int[] { 18, 1, 19, 1, 20, 1, 21, 1, 22, 1, 23, 1, 18, 2, 19, 2, 20, 2, 21, 2, 22, 2, 23, 2,
-			18, 3, 19, 3, 20, 3, 21, 3, 22, 3, 23, 3, 18, 4, 19, 4, 20, 4, 21, 4, 22, 4, 23, 4, 19, 5, 20, 5, 21, 5, 22,
-			5 };
-
-	int[] DINING_ROOM = new int[] { 0, 9, 1, 9, 2, 9, 3, 9, 4, 9, 0, 10, 1, 10, 2, 10, 3, 10, 4, 10, 5, 10, 6, 10, 7,
-			10, 0, 11, 1, 11, 2, 11, 3, 11, 4, 11, 5, 11, 6, 11, 7, 11, 0, 12, 1, 12, 2, 12, 3, 12, 4, 12, 5, 12, 6, 12,
-			7, 12, 0, 13, 1, 13, 2, 13, 3, 13, 4, 13, 5, 13, 6, 13, 7, 13, 0, 14, 1, 14, 2, 14, 3, 14, 4, 14, 5, 14, 6,
-			14, 7, 14, 0, 15, 1, 15, 2, 15, 3, 15, 4, 15, 5, 15, 6, 15, 7, 15 };
-
-	int[] BILLIARD_ROOM = new int[] { 18, 8, 19, 8, 20, 8, 21, 8, 22, 8, 23, 8, 18, 9, 19, 9, 20, 9, 21, 9, 22, 9, 23,
-			9, 18, 10, 19, 10, 20, 10, 21, 10, 22, 10, 23, 10, 18, 11, 19, 11, 20, 11, 21, 11, 22, 11, 23, 11, 18, 12,
-			19, 12, 20, 12, 21, 12, 22, 12, 23, 12 };
-
-	int[] LIBRARY = new int[] { 18, 14, 19, 14, 20, 14, 21, 14, 22, 14, 17, 15, 18, 15, 19, 15, 20, 15, 21, 15, 22, 15,
-			23, 15, 17, 16, 18, 16, 19, 16, 20, 16, 21, 16, 22, 16, 23, 16, 17, 17, 18, 17, 19, 17, 20, 17, 21, 17, 22,
-			17, 23, 17, 18, 18, 19, 18, 20, 18, 21, 18, 22, 18 };
-
-	int[] LOUNGE = new int[] { 0, 18, 1, 18, 2, 18, 3, 18, 4, 18, 5, 18, 6, 18, 0, 19, 1, 19, 2, 19, 3, 19, 4, 19, 5,
-			19, 6, 19, 0, 20, 1, 20, 2, 20, 3, 20, 4, 20, 5, 20, 6, 20, 0, 21, 1, 21, 2, 21, 3, 21, 4, 21, 5, 21, 6, 21,
-			0, 22, 1, 22, 2, 22, 3, 22, 4, 22, 5, 22, 6, 22, 0, 23, 1, 23, 2, 23, 3, 23, 4, 23, 5, 23, 6, 23, 0, 24, 1,
-			24, 2, 24, 3, 24, 4, 24, 5, 24 };
-
-	int[] HALL = new int[] { 9, 18, 10, 18, 11, 18, 12, 18, 13, 18, 14, 18, 9, 19, 10, 19, 11, 19, 12, 19, 13, 19, 14,
-			19, 9, 20, 10, 20, 11, 20, 12, 20, 13, 20, 14, 20, 9, 21, 10, 21, 11, 21, 12, 21, 13, 21, 14, 21, 9, 22, 10,
-			22, 11, 22, 12, 22, 13, 22, 14, 22, 9, 23, 10, 23, 11, 23, 12, 23, 13, 23, 14, 23, 9, 24, 10, 24, 11, 24,
-			12, 24, 13, 24, 14, 24 };
-
-	int[] STUDY = new int[] { 17, 21, 18, 21, 19, 21, 20, 21, 21, 21, 22, 21, 23, 21, 17, 22, 18, 22, 19, 22, 20, 22,
-			21, 22, 22, 22, 23, 22, 17, 23, 18, 23, 19, 23, 20, 23, 21, 23, 22, 23, 23, 23, 18, 24, 19, 24, 20, 24, 21,
-			24, 22, 24, 23, 24 };
 	/**
 	 * Each player's starting position according to the order
 	 * specified in SUSPECT_NAMES
 	 */
-	int[] STARTINGPOSITION = new int[]{
-			7,24, 0,17, 9,0, 14,0, 23,6, 19,23
-	};
+	private final int[] STARTINGPOSITION = new int[]{
+			7, 24, 0, 17, 9, 0, 14, 0, 23, 6, 19, 23 };
 
 	private int remainingMoves;
+	private Set<Cell> playerPath;
 	private Player currentPlayer;
 	/**
 	 * One round of the Cluedo game. Contains all the active players
@@ -107,7 +71,7 @@ public class Game {
 	 */
 	private Turn<Player> allHumanIterator;
 
-	private List<Player> allPlayers;
+	private final List<Player> allPlayers;
 	/**
 	 * All the human players in the game Does not include eliminated players
 	 * from the game.
@@ -125,7 +89,7 @@ public class Game {
 	 * the players. Does not contain the answer cards. Every player will be able
 	 * to view these cards. This Set may be empty
 	 */
-	private Set<Card> extraCards;
+	private List<Card> extraCards;
 	/**
 	 * Contains one of each type of card (SuspectCard, WeaponCard, RoomCard).
 	 * These are the cards that the player needs to guess correctly to win the
@@ -133,20 +97,29 @@ public class Game {
 	 */
 	private CaseFile answer;
 
-	List<SuspectCard> suspectCards;
-	List<WeaponCard> weaponCards;
-	List<RoomCard> roomCards;
+	//Cards
+	private final List<SuspectCard> suspectCards;
+	private final List<WeaponCard> weaponCards;
+	private final List<RoomCard> roomCards;
 
-	private Map<Cell, Room> cellToRoom;
-	private Map<Player, Boolean> isTransferred;
+	//Rooms
+	private final Map<Room,Set<Cell>> roomCells; //excluding the entranceCells
+	private final Map<Room,Set<Cell>> entranceCells;
+	private final Map<Room,List<Cell>> exitCells;
+	private final Map<Cell, Room> cellToRoom;
+	/**
+	 * This is when a player was transferred
+	 * to another room during a suggestion.
+	 * The player is allowed to make a suggestion
+	 * in the room they were transferred to
+	 */
+	private Map<Player, Boolean> transferred;
 	private Map<Player, Room> playerToRoom;
 	private Room lastRoom; //lastRoom player entered in
-	// FIXME Need weapons?
-	private Set<Weapon> weapons;
-	
-	private Board board;
+	private final List<Weapon> weapons;
+	private final List<Room> rooms;
+	private final Board board;
 	private boolean gameOver;
-	private Set<Cell> playerPath;
 	
 	// Static initializer
 	{
@@ -158,18 +131,18 @@ public class Game {
 		SUSPECT_NAMES.put("Professor Plum", 5);
 	}
 
-	// TODO Game class methods
-	//TODO track cells player moved on as cannot move back to the same square on the same turn
 	public Game(int numPlayers, List<Piece> playerTokens, List<Piece> weaponTokens,
-			List<Displayable> suspectCardFaces, List<Displayable> weaponCardFaces, List<Displayable> roomCardFaces) {
-		if (numPlayers < MIN_HUMAN_PLAYERS || numPlayers > MAX_HUMAN_PLAYERS) {
+			List<Displayable> suspectCardFaces, List<Displayable> weaponCardFaces, List<Displayable> roomCardFaces) 
+	{
+		if (numPlayers < MIN_HUMAN_PLAYERS || numPlayers > MAX_HUMAN_PLAYERS) 
+		{
 			throw new IllegalArgumentException(
 					"Must have between: " + MIN_HUMAN_PLAYERS + " and " + MAX_HUMAN_PLAYERS + " human players");
 		}
 		board = new Board();
 		this.allPlayers = createPlayers(playerTokens);
 		this.activeHumanPlayers = createHumanPlayers(numPlayers);
-		turn = new Turn<Player>(activeHumanPlayers);
+		turn = new Turn<Player>(activeHumanPlayers); 
 		allHumanIterator = new Turn<Player>(activeHumanPlayers);
 		this.weapons = createWeapons(weaponTokens);
 		// Cards
@@ -178,24 +151,30 @@ public class Game {
 		roomCards = createRoomCards(roomCardFaces);
 		answer = createCaseFiles(suspectCards, weaponCards, roomCards);
 		extraCards = distributeCards(suspectCards, weaponCards, roomCards);
-
-		isTransferred = new HashMap<Player, Boolean>();
-		playerToRoom = new HashMap<Player, Room>();
+		//Room
+		RoomBuilder roomBuilder = new RoomBuilder(board.getCells());
+		cellToRoom = roomBuilder.getCellToRoom();
+		roomCells = roomBuilder.getRoomCells();
+		entranceCells = roomBuilder.getEntranceCells();
+		exitCells = roomBuilder.getExitCells();
+		rooms = roomBuilder.getRooms();
+		transferred = new HashMap<Player,Boolean>();
+		playerToRoom = new HashMap<Player,Room>();
 		setStartingPosition();
-		// TODO StartingPositions of players
-		
 	}
-
+	
 	/**
 	 * Create all the players in the Cluedo game
 	 * 
 	 * @param playerTokens
 	 * @return All the players in the Cluedo game
 	 */
-	private List<Player> createPlayers(List<Piece> playerTokens) {
+	private List<Player> createPlayers(List<Piece> playerTokens) 
+	{
 		List<Player> players = new ArrayList<Player>();
 		int i = 0;
-		for (String playerName : SUSPECT_NAMES.keySet()) {
+		for (String playerName : SUSPECT_NAMES.keySet()) 
+		{
 			assert i < MAX_PLAYERS : "Exceeded the total number of players";
 			Player p = new Player(playerName, playerTokens.get(i));
 			players.add(p);
@@ -215,21 +194,28 @@ public class Game {
 	 *            - The number of players playing Cluedo
 	 * @return The characters that the human players will play as
 	 */
-	private List<Player> createHumanPlayers(int numPlayers) {
+	private List<Player> createHumanPlayers(int numPlayers) 
+	{
 		assert allPlayers != null : "Must create all player objects first";
 		assert allPlayers.size() == MAX_PLAYERS : "Must contain all players in the game";
-		Set<Player> allRandomPlayers = new TreeSet<Player>(allPlayers);
+		Set<Player> allRandomPlayers = new HashSet<Player>(allPlayers);
 		Player[] playerArr = new Player[MAX_HUMAN_PLAYERS];
-		Player startingPlayer = null;
+		//FIXME currently the game is starting on the 2nd player and not this starting player (due to nextTurn). To fix?
+		Player startingPlayer = null; 
 		// Generate random players
-		for (Player randPlayer : allRandomPlayers) {
-			if (numPlayers == 0) {
+		for (Player randPlayer : allRandomPlayers) 
+		{
+			if (numPlayers == 0) 
+			{
 				break;
 			}
-			if (startingPlayer == null) {
+			if (startingPlayer == null) 
+			{
 				startingPlayer = randPlayer;
 				playerArr[0] = startingPlayer;
-			} else {
+			} 
+			else 
+			{
 				// Put added players in a clockwise order based off the starting
 				// player's position on the board
 				int startOrder = SUSPECT_NAMES.get(startingPlayer.getName());
@@ -242,8 +228,10 @@ public class Game {
 		}
 		List<Player> players = new ArrayList<Player>();
 		// Remove all null references in the array to put in the list
-		for (Player sortPlayer : playerArr) {
-			if (sortPlayer != null) {
+		for (Player sortPlayer : playerArr) 
+		{
+			if (sortPlayer != null) 
+			{
 				players.add(sortPlayer);
 			}
 		}
@@ -256,9 +244,11 @@ public class Game {
 	 * @param weaponTokens
 	 * @return All the weapons in the Cluedo Game
 	 */
-	private Set<Weapon> createWeapons(List<Piece> weaponTokens) {
-		Set<Weapon> weapons = new TreeSet<Weapon>();
-		for (int i = 0; i < NUM_WEAPONS; i++) {
+	private List<Weapon> createWeapons(List<Piece> weaponTokens) 
+	{
+		List<Weapon> weapons = new ArrayList<Weapon>();
+		for (int i = 0; i < NUM_WEAPONS; i++) 
+		{
 			Weapon w = new Weapon(WEAPON_NAMES[i], weaponTokens.get(i));
 			weapons.add(w);
 		}
@@ -271,9 +261,11 @@ public class Game {
 	 * @param weaponCardFaces
 	 * @return All the weapon cards in the Cluedo Game
 	 */
-	private List<WeaponCard> createWeaponCards(List<Displayable> weaponCardFaces) {
+	private List<WeaponCard> createWeaponCards(List<Displayable> weaponCardFaces) 
+	{
 		List<WeaponCard> weaponCards = new ArrayList<WeaponCard>();
-		for (int i = 0; i < NUM_WEAPONS; i++) {
+		for (int i = 0; i < NUM_WEAPONS; i++)
+		{
 			WeaponCard card = new WeaponCard(WEAPON_NAMES[i], weaponCardFaces.get(i));
 			weaponCards.add(card);
 		}
@@ -286,10 +278,12 @@ public class Game {
 	 * @param suspectCardFaces
 	 * @return All the suspect cards in the Cluedo Game
 	 */
-	private List<SuspectCard> createSuspectCards(List<Displayable> suspectCardFaces) {
+	private List<SuspectCard> createSuspectCards(List<Displayable> suspectCardFaces) 
+	{
 		List<SuspectCard> suspectCards = new ArrayList<SuspectCard>();
 		int i = 0;
-		for (String suspectName : SUSPECT_NAMES.keySet()) {
+		for (String suspectName : SUSPECT_NAMES.keySet()) 
+		{
 			assert i < MAX_PLAYERS : "Exceeded the total number of suspects";
 			SuspectCard p = new SuspectCard(suspectName, suspectCardFaces.get(i));
 			suspectCards.add(p);
@@ -304,9 +298,11 @@ public class Game {
 	 * @param roomCardFaces
 	 * @return All the room cards in the Cluedo Game
 	 */
-	private List<RoomCard> createRoomCards(List<Displayable> roomCardFaces) {
+	private List<RoomCard> createRoomCards(List<Displayable> roomCardFaces) 
+	{
 		List<RoomCard> roomCards = new ArrayList<RoomCard>();
-		for (int i = 0; i < NUM_ROOMS; i++) {
+		for (int i = 0; i < NUM_ROOMS; i++) 
+		{
 			RoomCard card = new RoomCard(ROOM_NAMES[i], roomCardFaces.get(i));
 			roomCards.add(card);
 		}
@@ -325,24 +321,29 @@ public class Game {
 	 * @return The CaseFile for the answer of the game
 	 */
 	private CaseFile createCaseFiles(List<SuspectCard> suspectCards, List<WeaponCard> weaponCards,
-			List<RoomCard> roomCards) {
-		for (Player player : activeHumanPlayers) {
+			List<RoomCard> roomCards) 
+	{
+		for (Player player : activeHumanPlayers) 
+		{
 			playerToCasefile.put(player, new CaseFile(suspectCards, weaponCards, roomCards));
 		}
 		SuspectCard answerSuspect = null;
-		for (SuspectCard suspect : suspectCards) {
+		for (SuspectCard suspect : suspectCards) 
+		{
 			answerSuspect = suspect;
 			suspectCards.remove(suspect);
 			break;
 		}
 		WeaponCard answerWeapon = null;
-		for (WeaponCard weapon : weaponCards) {
+		for (WeaponCard weapon : weaponCards) 
+		{
 			answerWeapon = weapon;
 			weaponCards.remove(weapon);
 			break;
 		}
 		RoomCard answerRoom = null;
-		for (RoomCard room : roomCards) {
+		for (RoomCard room : roomCards) 
+		{
 			answerRoom = room;
 			roomCards.remove(room);
 			break;
@@ -363,10 +364,11 @@ public class Game {
 	 *            - all the room cards
 	 * @return The cards that were leftover after evenly distributing the cards.
 	 */
-	private Set<Card> distributeCards(List<SuspectCard> suspectCards, List<WeaponCard> weaponCards,
-			List<RoomCard> roomCards) {
-		Set<Card> extra = new TreeSet<Card>();
-		Set<Card> allCards = new TreeSet<Card>();
+	private List<Card> distributeCards(List<SuspectCard> suspectCards, List<WeaponCard> weaponCards,
+			List<RoomCard> roomCards) 
+	{
+		List<Card> extra = new ArrayList<Card>();
+		Set<Card> allCards = new HashSet<Card>();
 		allCards.addAll(suspectCards);
 		allCards.addAll(weaponCards);
 		allCards.addAll(roomCards);
@@ -374,30 +376,44 @@ public class Game {
 		int numExtra = allCards.size() % numPlayers;
 		//Number of cards each player will get
 		int numCards = (allCards.size() - numExtra) / numPlayers; 
-		Set<Card> cardsForPlayer = new TreeSet<Card>();
+		Set<Card> cardsForPlayer = new HashSet<Card>();
 		for (Card card : allCards) {
 			// All cards evenly distributed, put the rest of the cards in extra
-			if (numPlayers == 0) {
+			if (numPlayers == 0) 
+			{
 				extra.add(card);
+				//Remove extra card from each player's casefile
+				for(Player p: getActivePlayers())
+				{
+					 playerToCasefile.get(p).removeCard(card);
+				}
 				continue;
 			}
-			// Remove the card from the player's CaseFile
+			// Remove the card from one of the player's CaseFile
 			Player player = activeHumanPlayers.get(numPlayers - 1);
 			CaseFile caseFile = playerToCasefile.get(player);
 			caseFile.removeCard(card);
 			cardsForPlayer.add(card);
 			numCards--;
-			if (numCards == 0) {
+			if (numCards == 0) 
+			{
 				// Put the cards in for a human player
 				playerHand.put(player, cardsForPlayer);
 				// Go to the next player
 				numPlayers--;
-				cardsForPlayer = new TreeSet<Card>();
+				cardsForPlayer = new HashSet<Card>();
 			}
 		}
 		return extra;
 	}
-	private void setStartingPosition(){
+	/**
+	 * For the start of the game.
+	 * Set the default starting positions
+	 * of the player's and randomly 
+	 * allocate weapons to one room each
+	 */
+	private void setStartingPosition()
+	{
 		int playerCount = 0;
 		for(int i = 0; i < STARTINGPOSITION.length;i+=2)
 		{
@@ -406,7 +422,18 @@ public class Game {
 			board.setPosition(allPlayers.get(playerCount).getPiece(), x, y);
 			playerCount++;
 		}
-		//TODO Set startingPosition for weapons. Need roomCells
+		Set<Room> randRooms = new HashSet<Room>(rooms);
+		int i = 0;
+		for(Room room : randRooms)
+		{
+			if(i >= NUM_WEAPONS)
+			{
+				break;
+			}
+			Piece piece = weapons.get(i).getPiece();
+			this.putInRoom(piece, room);
+			i++;
+		}
 	}
 
 	/**
@@ -440,33 +467,57 @@ public class Game {
 		{
 			throw new InvalidMoveException("Cannot move as no moves left");
 		}
+		
 		Cell newPos = board.move(currentPlayer.getPiece(), direction);
-		if(lastRoom != null && cellToRoom.containsKey(newPos))
+		
+		//TODO .equals() for room class
+		if(lastRoom != null && lastRoom.equals(cellToRoom.get(newPos)))
 		{
-			Room room = cellToRoom.get(newPos);
-			if(room.getName().equals(lastRoom.getName()))
-			{
-				throw new InvalidMoveException(currentPlayer.getName() + " cannot reenter the same room they exited");
-			}
+			throw new InvalidMoveException(currentPlayer.getName() + " cannot reenter the same room they exited");
 		}
 		if(playerPath.contains(newPos))
 		{
 			throw new InvalidMoveException("Cannot move to the same cell in the same turn");
+		}
+		if(cellToRoom.containsKey(newPos))
+		{
+			Room room = cellToRoom.get(newPos);
+			//Reallocate the player to a cell in the room
+			this.putInRoom(currentPlayer.getPiece(), room);
+			playerToRoom.put(currentPlayer, room);
 		}
 		playerPath.add(newPos);
 		remainingMoves--;
 		return newPos;
 	}
 	
-	//TODO canMakeSuggestionMethod
-	public boolean canMakeSuggestion(){
-		if (gameOver) {
+	/**
+	 * Checks whether the player can actually make a suggestion
+	 * The player must be in a room to make a suggestion and 
+	 * can also make a suggestion if they 
+	 * were transferred into that room
+	 * @return whether the player can make a suggestion
+	 */
+	public boolean canMakeSuggestion()
+	{
+		if (gameOver) 
+		{
 			return false;
 		}
-		if (!isInRoom()) {
+		if (!isInRoom()) 
+		{
 			return false;
 		}
-		if (remainingMoves != 0) {
+		if (remainingMoves != 0) 
+		{
+			return false;
+		}
+		/*
+		 * A player that has transferred (due to another player's suggestion)
+		 * can make a suggestion
+		 */
+		if(!transferred.get(currentPlayer))
+		{
 			return false;
 		}
 		return true;
@@ -484,6 +535,9 @@ public class Game {
 	 * suggestion ends when one or none of the players can disprove the
 	 * suggestion
 	 * 
+	 * The suspected murder weapon and suspect are transferred to the 
+	 * current player's room
+	 * 
 	 * @param weaponCard
 	 *            that is suggested is part of the murder (in the answer
 	 *            CaseFile)
@@ -497,53 +551,71 @@ public class Game {
 	 * @throws IllegalArgumentException
 	 *             If the arguments are null
 	 */
-	public Map<Player, Set<Card>> makeSuggestion(WeaponCard weaponCard, SuspectCard suspectCard) {
-		
-		if (gameOver) {
+	public Map<Player, Set<Card>> makeSuggestion(WeaponCard weaponCard, SuspectCard suspectCard) 
+	{
+		if (gameOver) 
+		{
 			throw new IllegalMethodCallException("Game is over.");
 		}
-		if (weaponCard == null || suspectCard == null) {
+		if (weaponCard == null || suspectCard == null) 
+		{
 			throw new IllegalArgumentException("Arguments cannot be null");
 		}
-		if (!isInRoom()) {
+		if (!isInRoom()) 
+		{
 			throw new IllegalMethodCallException(
 					currentPlayer.getName() + " cannot make a suggestion as they are not in a room");
 		}
 		// Get the roomCard for the room the current player is in
 		RoomCard roomCard = null;
-		String roomName = playerToRoom.get(currentPlayer).getName();
-		for (RoomCard card : roomCards) {
-			if (card.getName().equals(roomName)) {
+		String roomName = getCurrentRoom().getName();
+		for (RoomCard card : roomCards) 
+		{
+			if (card.getName().equals(roomName)) 
+			{
 				roomCard = card;
 				break;
 			}
 		}
-		// TODO move the suspect and weapon pieces into the room. Set suspect to transferred (if they are a player)
-		/*
-		 * for(Player p : allPlayers) {
-		 * if(p.getName().equals(suspectCard.getName())) { //Put in the room
-		 * break; } } for(Weapon w : weapons) {
-		 * if(w.getName().equals(weaponCard.getName())) { //Put in the room
-		 * break; } }
-		 */
-
+		//Transfer the suspected murder weapon and suspect to the current player's room
+		for(Player p : allPlayers) 
+		{
+			if(p.getName().equals(suspectCard.getName())) 
+			{ //Put in the room
+				this.putInRoom(p.getPiece(),getCurrentRoom());
+				break; 
+				} 
+			} 
+		for(Weapon w : weapons) 
+		{
+			if(w.getName().equals(weaponCard.getName())) 
+			{ 
+				this.putInRoom(w.getPiece(),getCurrentRoom());
+				break; 
+			} 
+		}
 		// Iterate through each human player to try and disprove the suggestion
 		allHumanIterator = new Turn<Player>(allHumanIterator.getList(), turn.getPos());
 		Player player = allHumanIterator.next();
 		Map<Player, Set<Card>> disprover = new HashMap<Player, Set<Card>>();
 
-		while (player != currentPlayer) {
+		while (player != currentPlayer) 
+		{
 			Set<Card> cards = playerHand.get(player);
-			if (cards.contains(roomCard)) {
+			if (cards.contains(roomCard)) 
+			{
 				cards.add(roomCard);
 			}
-			if (cards.contains(weaponCard)) {
+			if (cards.contains(weaponCard)) 
+			{
 				cards.add(weaponCard);
 			}
-			if (cards.contains(suspectCard)) {
+			if (cards.contains(suspectCard)) 
+			{
 				cards.add(suspectCard);
 			}
-			if (!cards.isEmpty()) {
+			if (!cards.isEmpty()) 
+			{
 				disprover.put(player, cards);
 				return disprover;
 			}
@@ -574,37 +646,49 @@ public class Game {
 	 *             If the player making the accusation does not exist or is not
 	 *             an active player Also if the arguments are null
 	 */
-	public boolean makeAccusation(Player player, WeaponCard weaponCard, RoomCard roomCard, SuspectCard suspectCard) {
-		if (gameOver) {
+	public boolean makeAccusation(Player player, WeaponCard weaponCard, RoomCard roomCard, SuspectCard suspectCard) 
+	{
+		if (gameOver) 
+		{
 			throw new IllegalMethodCallException("Game is over.");
 		}
-		if (player == null || weaponCard == null || roomCard == null || suspectCard == null) {
+		if (player == null || weaponCard == null || roomCard == null || suspectCard == null)
+		{
 			throw new IllegalArgumentException("Arguments cannot be null");
 		}
 		List<Player> players = getActivePlayers();
-		if (players.isEmpty()) {
+		if (players.isEmpty()) 
+		{
 			throw new IllegalMethodCallException("No players playing");
 		}
-		if (!players.contains(player)) {
+		if (!players.contains(player)) 
+		{
 			throw new IllegalArgumentException("Only active players can make accusations");
 		}
 		CaseFile accusation = new CaseFile(suspectCard, weaponCard, roomCard);
-		if (accusation.equals(answer)) {// Game over, the player won!
+		if (accusation.equals(answer)) 
+		{// Game over, the player won!
 			gameOver = true;
 			return true;
-		} else if (players.size() == 1) {// Last player in the game failed.
+		} 
+		else if (players.size() == 1) 
+		{// Last player in the game failed.
 			gameOver = true;
 			return false;
-		} else {
+		} 
+		else 
+		{
 			// Accusation failed, remove player from the game
 			players.remove(player);
 			int pos = turn.getPos();
 			int currentPlayerPos = SUSPECT_NAMES.get(currentPlayer.getName());
 			int removedPos = SUSPECT_NAMES.get(player.getName());
-			if (removedPos <= currentPlayerPos) {
+			if (removedPos <= currentPlayerPos) 
+			{
 				pos--;
 				// Current player failed the accusation
-				if (removedPos == currentPlayerPos) {
+				if (removedPos == currentPlayerPos) 
+				{
 					// Current player has no more moves as they are eliminated
 					remainingMoves = 0;
 					// Go to next player if it was the current player who failed
@@ -623,46 +707,98 @@ public class Game {
 	 * 
 	 * @return true if the current player is in a room, false otherwise
 	 */
-	public boolean isInRoom() {
-		return playerToRoom.get(currentPlayer) != null;
+	public boolean isInRoom() 
+	{
+		return playerToRoom.get(currentPlayer) != null; 
 	}
 
-	// TODO implement Game - takeExit.
-	public Cell takeExit(Cell cell) throws InvalidMoveException {
-		if (gameOver) {
+	//TODO takeExit description. Unsure why we're returning a Cell? Maybe boolean and rename to canTakeExit?
+	public Cell takeExit(Cell cell) throws InvalidMoveException
+	{
+		if (gameOver) 
+		{
 			throw new IllegalMethodCallException("Game is over.");
 		}
-		if (cell == null) {
+		if (cell == null)
+		{
 			throw new IllegalArgumentException("Argument cannot be null");
 		}
-		if (!isInRoom()) {
+		if (!isInRoom()) 
+		{
 			throw new InvalidMoveException(currentPlayer.getName() + " is not in a room therefore cannot exit");
 		}
 		//Used secret passage
-		if(cellToRoom.containsKey(cell)){
+		if(cellToRoom.containsKey(cell))
+		{
 			remainingMoves = 0;
+			Room newRoom = cellToRoom.get(cell);
+			playerToRoom.put(currentPlayer, newRoom);
+			putInRoom(currentPlayer.getPiece(), newRoom);
+		}
+		else
+		{
+			board.setPosition(currentPlayer.getPiece(), cell);
 		}
 		return cell;
 	}
-
-	public Player nextTurn() {
-		if (gameOver) {
+	
+	/**
+	 * Switches to the next player. 
+	 * 
+	 * @return the next player in the turn
+	 */
+	public Player nextTurn() 
+	{
+		if (gameOver) 
+		{
 			throw new IllegalMethodCallException("Game is over.");
 		}
-		if (remainingMoves != 0) {
+		if (remainingMoves != 0) 
+		{
 			throw new HasRemainingMovesException(currentPlayer.getName() + "  must continue moving");
 		}
+		if(currentPlayer != null)
+		{
+			transferred.put(currentPlayer,false);
+		}
 		currentPlayer = turn.next();
-		lastRoom = playerToRoom.get(currentPlayer);
-		playerPath = new TreeSet<Cell>();
+		//Reset for the next player
+		lastRoom = getCurrentRoom();
+		playerPath = new HashSet<Cell>();
 		rollDice();
 		return currentPlayer;
 	}
 
-	// TODO method in Game class to allocate a piece into one of the room cells
-	// Need map of Room -> Cell room cells. Also need Room -> Cell exit cells
-	private void putInRoom(Piece piece, Room room) {
-
+	/**
+	 * Puts the piece into a free cell in the room
+	 * This is to ensure that the piece does not 
+	 * appear to block the entrance (cell inside the room
+	 * after the door) of the room so that other player's
+	 * can enter the room
+	 * @param piece - Piece to put in the room
+	 * @param room - The room to put the piece in
+	 */
+	private void putInRoom(Piece piece, Room room) 
+	{
+		for(Cell cell :roomCells.get(room))
+		{
+			/*
+			 * Do not put a piece on one of the entrance cells as 
+			 * it would look like the piece is blocking the room
+			 * entrance
+			 */
+			if(!entranceCells.get(room).contains(cell))
+			{
+				/*
+				 * Put the piece on one of the roomCells if it 
+				 * has no other pieces on it
+				 */
+				if(!board.containsPiece(cell))
+				{
+					board.setPosition(piece, cell);
+				}
+			}
+		}
 	}
 
 	/**
@@ -671,10 +807,12 @@ public class Game {
 	 * is between 2 to 12
 	 * 
 	 * @throws IllegalMethodCallException
-	 *             If the game is over
+	 * If the game is over
 	 */
-	private void rollDice() {
-		if (gameOver) {
+	private void rollDice() 
+	{
+		if (gameOver) 
+		{
 			throw new IllegalMethodCallException("Game is over.");
 		}
 		assert remainingMoves == 0 : "Last player must not have any remaining moves ";
@@ -689,30 +827,55 @@ public class Game {
 	 * @return The human players still playing the Cluedo game (have not been
 	 *         eliminated)
 	 */
-	public List<Player> getActivePlayers() {
+	public List<Player> getActivePlayers() 
+	{
 		return Collections.unmodifiableList(activeHumanPlayers);
 	}
 
-	// TODO implement Game - getAvailable exits
-	public List<Cell> getAvailableExits() throws InvalidMoveException {
-		if (gameOver) {
+	/**
+	 * Gets the available exits for the room that the current player is in
+	 * This includes the secret passage in the corner rooms
+	 * @return The available exits for the room the current player is in
+	 * @throws InvalidMoveException
+	 * If the player is not in a room
+	 * @throws IllegalMethodCallException
+	 * If the game is over
+	 * @throws NoAvailableExitException
+	 * If all exits out of the room are blocked, the player is stuck in the room
+	 */
+	public List<Cell> getAvailableExits() throws InvalidMoveException, NoAvailableExitException 
+	{
+		if (gameOver) 
+		{
 			throw new IllegalMethodCallException("Game is over.");
 		}
 		// Check if player is in a room
-		if (!isInRoom()) {
+		if (!isInRoom()) 
+		{
 			throw new InvalidMoveException("Cannot move out of a room when the player is not in a room");
 		}
 		// Get all the cells in the room
-		List<Cell> availableExitCells = new ArrayList<Cell>();
+		Room room = getCurrentRoom();
+		List<Cell> exits = exitCells.get(room);
 		/*
 		 * Iterate through all the cells and add to the list if the exit isn't
 		 * blocked;
 		 */
-		/*
-		 * if(availableExitCells.isEmpty()) { throw new
-		 * NoAvailableExitException(""); }
-		 */
-		return Collections.unmodifiableList(availableExitCells);
+		List<Cell> availableExits = new ArrayList<Cell>();
+		for(Cell cell : exits)
+		{
+			if(!board.containsPiece(cell))
+			{
+				availableExits.add(cell);
+			}
+		}
+		
+		 if(availableExits.isEmpty()) 
+		 { 
+			 throw new NoAvailableExitException(currentPlayer.getName() + " cannot exit the room as all exits are blocked"); 
+		 }
+		 
+		return Collections.unmodifiableList(availableExits);
 	}
 
 	/**
@@ -720,7 +883,8 @@ public class Game {
 	 * 
 	 * @return Remaining moves the current player can make
 	 */
-	public int getRemainingMoves() {
+	public int getRemainingMoves() 
+	{
 		assert remainingMoves >= 0 : "Cannot have negative remaining moves";
 		return remainingMoves;
 	}
@@ -730,13 +894,13 @@ public class Game {
 	 * Convenience method for the UI for example to print out whether a player
 	 * entered a room
 	 * 
-	 * @param cell
-	 *            - A room cell
+	 * @param cell - A room cell
 	 * @return The room the cell is in
 	 * @throws IllegalArgumentException
-	 *             If the cell is not in a room or argument is null
+	 * If the cell is not in a room or argument is null
 	 */
-	public Room getRoom(Cell cell) {
+	public Room getRoom(Cell cell) 
+	{
 		if (cell == null) {
 			throw new IllegalArgumentException("Arguments cannot be null");
 		}
@@ -745,7 +909,21 @@ public class Game {
 		}
 		return cellToRoom.get(cell);
 	}
-
+	/**
+	 * @return the room the current player is in
+	 * @throws IllegalMethodCallException 
+	 * If the current player is not in a room
+	 */
+	public Room getCurrentRoom()
+	{
+		Room room = playerToRoom.get(currentPlayer);
+		if(room == null)
+		{
+			throw new IllegalMethodCallException(currentPlayer.getName() + " is not in a room");
+		}
+		return room;
+	}
+	
 	// TODO do description for Game - getPosition
 	/**
 	 * Used by the UI to read the state of pieces in the game
@@ -753,38 +931,46 @@ public class Game {
 	 * @param piece
 	 * @return The cell the piece is in
 	 * @throws IllegalArgumentException
-	 *             If the piece does not exist or argument is null
+	 * If the piece does not exist or argument is null
 	 */
-	public Cell getPosition(Piece piece) {
-		if (piece == null) {
+	public Cell getPosition(Piece piece) 
+	{
+		if (piece == null) 
+		{
 			throw new IllegalArgumentException("Arguments cannot be null");
 		}
 		return board.getPosition(piece);
 	}
 
-	// TODO getRooms Game
-	public List<Room> getRooms() {
-		return null;
+	/**
+	 * @return All the rooms in the Cluedo game
+	 */
+	public List<Room> getRooms() 
+	{
+		return Collections.unmodifiableList(rooms);
 	}
 
 	/**
 	 * @return All the weapons in the Cluedo game
 	 */
-	public Set<Weapon> getWeapons() {
-		return Collections.unmodifiableSet(weapons);
+	public List<Weapon> getWeapons() 
+	{
+		return Collections.unmodifiableList(weapons);
 	}
 
 	/**
 	 * @return The cards not distributed to players or in the answer.
 	 */
-	public Set<Card> getExtraCards() {
-		return Collections.unmodifiableSet(extraCards);
+	public List<Card> getExtraCards() 
+	{
+		return Collections.unmodifiableList(extraCards);
 	}
 
 	/**
 	 * @return The weapon cards in the current player's CaseFile
 	 */
-	public List<WeaponCard> getPlayerWeaponCards() {
+	public List<WeaponCard> getPlayerWeaponCards() 
+	{
 		CaseFile casefile = playerToCasefile.get(currentPlayer);
 		return Collections.unmodifiableList(casefile.getWeaponCards());
 	}
@@ -792,7 +978,8 @@ public class Game {
 	/**
 	 * @return The room cards in the current player's CaseFile
 	 */
-	public List<RoomCard> getPlayerRoomCards() {
+	public List<RoomCard> getPlayerRoomCards() 
+	{
 		CaseFile casefile = playerToCasefile.get(currentPlayer);
 		return Collections.unmodifiableList(casefile.getRoomCards());
 	}
@@ -800,20 +987,28 @@ public class Game {
 	/**
 	 * @return The suspect cards in the current player's CaseFile
 	 */
-	public List<SuspectCard> getPlayerSuspectCards() {
+	public List<SuspectCard> getPlayerSuspectCards() 
+	{
 		CaseFile casefile = playerToCasefile.get(currentPlayer);
 		return Collections.unmodifiableList(casefile.getSuspectCards());
 	}
 	
-	public Cell[][] getCells(){
+	/**
+	 * @return All the cells in the board 
+	 */
+	public Cell[][] getCells()
+	{
 		return board.getCells();
 	}
-
+	
+	/**
+	 * @return true if the game is over (finished) false if the game is still going
+	 */
 	public boolean isGameOver() {
 		return gameOver;
 	}
 
-	//TODO change cards to a list
+
 	/**
 	 * A CaseFile is either an answer case file, or a player’s case file,
 	 * although there is no technical distinction. 
@@ -822,13 +1017,16 @@ public class Game {
 	 * Cards may be removed from a player's CaseFile throughout the game.
 	 * 
 	 */
-	private class CaseFile {
+	private class CaseFile 
+	{
 		private List<SuspectCard> suspectCards;
 		private List<WeaponCard> weaponCards;
 		private List<RoomCard> roomCards;
 
-		public CaseFile(List<SuspectCard> suspectCards, List<WeaponCard> weaponCards, List<RoomCard> roomCards) {
-			if (suspectCards.size() == 0 || weaponCards.size() == 0 || roomCards.size() == 0) {
+		public CaseFile(List<SuspectCard> suspectCards, List<WeaponCard> weaponCards, List<RoomCard> roomCards) 
+		{
+			if (suspectCards.size() == 0 || weaponCards.size() == 0 || roomCards.size() == 0) 
+			{
 				throw new IllegalArgumentException("CaseFile must have at least one of each type of card");
 			}
 			this.roomCards = roomCards;
@@ -836,8 +1034,10 @@ public class Game {
 			this.weaponCards = weaponCards;
 		}
 
-		public CaseFile(SuspectCard suspectC, WeaponCard weaponC, RoomCard roomC) {
-			if (suspectC == null || weaponC == null || roomC == null) {
+		public CaseFile(SuspectCard suspectC, WeaponCard weaponC, RoomCard roomC) 
+		{
+			if (suspectC == null || weaponC == null || roomC == null) 
+			{
 				throw new IllegalArgumentException("CaseFile must have at least one of each type of card");
 			}
 			suspectCards = new ArrayList<SuspectCard>();
@@ -847,37 +1047,42 @@ public class Game {
 			roomCards = new ArrayList<RoomCard>();
 			roomCards.add(roomC);
 		}
-
 		/**
 		 * Remove the card from the casefile
-		 * 
-		 * @param card
-		 *            - The card to remove from the casefile
+		 * @param card - The card to remove from the casefile
 		 */
-		public void removeCard(Card card) {
-			if (card instanceof SuspectCard) {
+		public void removeCard(Card card) 
+		{
+			if (card instanceof SuspectCard) 
+			{
 				suspectCards.remove(card);
-			} else if (card instanceof RoomCard) {
+			} else if (card instanceof RoomCard) 
+			{
 				roomCards.remove(card);
-			} else if (card instanceof WeaponCard) {
+			} else if (card instanceof WeaponCard) 
+			{
 				weaponCards.remove(card);
 			}
 		}
 
-		public List<SuspectCard> getSuspectCards() {
+		public List<SuspectCard> getSuspectCards() 
+		{
 			return suspectCards;
 		}
 
-		public List<WeaponCard> getWeaponCards() {
+		public List<WeaponCard> getWeaponCards() 
+		{
 			return weaponCards;
 		}
 
-		public List<RoomCard> getRoomCards() {
+		public List<RoomCard> getRoomCards() 
+		{
 			return roomCards;
 		}
 
 		@Override
-		public int hashCode() {
+		public int hashCode() 
+		{
 			final int prime = 31;
 			int result = 1;
 			result = prime * result + getOuterType().hashCode();
@@ -888,7 +1093,8 @@ public class Game {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(Object obj) 
+		{
 			if (this == obj)
 				return true;
 			if (obj == null)
@@ -898,28 +1104,33 @@ public class Game {
 			CaseFile other = (CaseFile) obj;
 			if (!getOuterType().equals(other.getOuterType()))
 				return false;
-			if (roomCards == null) {
+			if (roomCards == null) 
+			{
 				if (other.roomCards != null)
 					return false;
-			} else if (!roomCards.equals(other.roomCards))
+			} 
+			else if (!roomCards.equals(other.roomCards))
 				return false;
-			if (suspectCards == null) {
+			if (suspectCards == null) 
+			{
 				if (other.suspectCards != null)
 					return false;
-			} else if (!suspectCards.equals(other.suspectCards))
+			} 
+			else if (!suspectCards.equals(other.suspectCards))
 				return false;
-			if (weaponCards == null) {
+			if (weaponCards == null) 
+			{
 				if (other.weaponCards != null)
 					return false;
-			} else if (!weaponCards.equals(other.weaponCards))
+			} 
+			else if (!weaponCards.equals(other.weaponCards))
 				return false;
 			return true;
 		}
-
-		private Game getOuterType() {
+		private Game getOuterType() 
+		{
 			return Game.this;
 		}
-
 	}
 
 }
