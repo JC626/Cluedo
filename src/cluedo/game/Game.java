@@ -128,7 +128,7 @@ public class Game
 	private Room lastRoom; 
 	private final List<Weapon> weapons;
 	private final List<Room> rooms;
-	private final Board board = new Board();
+	private final Board board;
 	private boolean gameOver;
 	
 /*	// Static initializer
@@ -149,6 +149,8 @@ public class Game
 			throw new IllegalArgumentException(
 					"Must have between: " + MIN_HUMAN_PLAYERS + " and " + MAX_HUMAN_PLAYERS + " human players");
 		}
+		CellBuilder cellBuilder = new CellBuilder();
+		board = new Board(cellBuilder.getCells());
 		allPlayers = GameBuilder.createPlayers(playerTokens);
 		activeHumanPlayers = GameBuilder.createHumanPlayers(numPlayers,allPlayers);
 		turn = new Turn<Player>(activeHumanPlayers); 

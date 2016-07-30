@@ -33,10 +33,9 @@ public class Board
 	 */
 	private final Cell[][] cells;
 	
-	public Board() 
+	public Board(Cell[][] cells) 
 	{ 
-		CellBuilder cellBuilder = new CellBuilder();
-		cells = cellBuilder.getCells();
+		this.cells = cells;
 		cellHasPiece = new HashMap<Cell, Piece>();
 		pieceOnCell = new HashMap<Piece, Cell>();
 	}
