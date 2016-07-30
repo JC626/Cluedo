@@ -170,15 +170,15 @@ public class TextUserInterface
 	{
 		Cell[][] board = game.getCells();
 
-		for (int y = 0; y < board.length; y++)
+		for (int x = 0; x < board.length; x++)
 		{
-			for (int x = 0; x < board[y].length; x++)
+			for (int y = 0; y < board[x].length; y++)
 			{
-				addCellLayerDrawingBuffer(board[y][x]);
+				addCellLayerDrawingBuffer(board[x][y]);
 			}
 		}
 
-		addPlayerLayerDrawingBuffer();
+		//addPlayerLayerDrawingBuffer();
 		//addWeaponLayerDrawingBuffer();
 	}
 
