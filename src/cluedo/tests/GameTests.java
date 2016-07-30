@@ -111,9 +111,7 @@ public class GameTests {
 		Player startPlayer = game.nextTurn();
 		assertNotNull("Should not be given null startPlayer",startPlayer);
 		int startOrderNum = SUSPECT_NAMES.get(startPlayer.getName());
-		Field remainingMoves = Game.class.getDeclaredField("remainingMoves");
-		remainingMoves.setAccessible(true);
-		remainingMoves.set(game, 0);
+		resetRemainingMoves();
 		Player currentPlayer = null;
 		while(currentPlayer != startPlayer)
 		{
@@ -121,13 +119,26 @@ public class GameTests {
 			if(startOrderNum >= Game.MAX_HUMAN_PLAYERS){
 				startOrderNum = 0;
 			}
-			remainingMoves.set(game, 0);
+			resetRemainingMoves();
 			currentPlayer = game.nextTurn();
 			if(SUSPECT_NAMES.get(currentPlayer.getName()) != startOrderNum)
 			{
 				fail("Player order not enforced");
 			}
 		}
+	}
+	/**
+	 * Using reflection to set remainingMoves to zero each time
+	 * @throws SecurityException 
+	 * @throws NoSuchFieldException 
+	 * @throws IllegalAccessException 
+	 * @throws IllegalArgumentException 
+	 */
+	private void resetRemainingMoves() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
+	{
+		Field remainingMoves = Game.class.getDeclaredField("remainingMoves");
+		remainingMoves.setAccessible(true);
+		remainingMoves.set(game, 0);
 	}
 
 }

@@ -153,7 +153,7 @@ public class Game
 		board = new Board(cellBuilder.getCells());
 		allPlayers = GameBuilder.createPlayers(playerTokens);
 		activeHumanPlayers = GameBuilder.createHumanPlayers(numPlayers,allPlayers);
-		turn = new Turn<Player>(activeHumanPlayers,MAX_HUMAN_PLAYERS); //Ensure turn starts on the first player
+		turn = new Turn<Player>(activeHumanPlayers,MAX_HUMAN_PLAYERS-1); //Ensure turn starts on the first player
 		allHumanIterator = new Turn<Player>(activeHumanPlayers);
 		weapons = GameBuilder.createWeapons(weaponTokens);
 		// Cards
