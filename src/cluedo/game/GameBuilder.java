@@ -3,11 +3,8 @@ package cluedo.game;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 
 import cluedo.model.Displayable;
 import cluedo.model.Piece;
@@ -92,7 +89,6 @@ import cluedo.model.cards.WeaponCard;
 		List<Player> allRandomPlayers = new ArrayList<Player>(allPlayers);
 		Collections.shuffle(allRandomPlayers);
 		Player[] playerArr = new Player[Game.MAX_HUMAN_PLAYERS];
-		//FIXME currently the game is starting on the 2nd player and not this starting player (due to nextTurn). To fix?
 		Player startingPlayer = null; 
 		// Generate random players
 		for (Player randPlayer : allRandomPlayers) 
