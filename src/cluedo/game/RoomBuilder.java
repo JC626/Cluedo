@@ -127,7 +127,7 @@ class RoomBuilder
 		{
 			int x = roomArray[i];
 			int y = roomArray[i+1];
-			Cell cell = cells[y][x];
+			Cell cell = cells[x][y];
 			cellToRoom.put(cell,room);
 			roomSetCells.add(cell);
 		}
@@ -141,7 +141,7 @@ class RoomBuilder
 		{
 			int x = entranceArray[i];
 			int y = entranceArray[i+1];
-			Cell cell = cells[y][x];
+			Cell cell = cells[x][y];
 			entrances.add(cell);
 		}
 		entranceCells.put(room, entrances);
@@ -154,7 +154,7 @@ class RoomBuilder
 		{
 			int x = exitArray[i];
 			int y = exitArray[i+1];
-			Cell cell = cells[y][x];
+			Cell cell = cells[x][y];
 			exits.add(cell);
 		}
 		exitCells.put(room, exits);

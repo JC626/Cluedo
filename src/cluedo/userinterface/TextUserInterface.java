@@ -155,11 +155,12 @@ public class TextUserInterface
 	{
 		generateBoard();
 
-		for (int row = 0; row < drawingBuffer.length; row++)
+		for (int y = 0; y < drawingBuffer[0].length; y++)
 		{
-			for (int col = 0; col < drawingBuffer[row].length; col++)
+			for (int x = 0; x < drawingBuffer.length; x++)
 			{
-				print(drawingBuffer[row][col].toString());
+			
+				print(drawingBuffer[x][y].toString());
 			}
 			println();
 		}
