@@ -59,6 +59,11 @@ public class Game
 	 * The cells the current player moved to during their turn
 	 */
 	private Set<Cell> playerPath;
+	/**
+	 * Used to check that a player has made a suggestion as
+	 * they can only make one suggestion per turn
+	 */
+	private boolean hasMadeSuggestion;
 	private Player currentPlayer;
 	/**
 	 * One round of the Cluedo game. Contains all the active players
@@ -303,9 +308,13 @@ public class Game
 			//Reallocate the player to a cell in the room
 			this.putInRoom(currentPlayer.getPiece(), room);
 			playerToRoom.put(currentPlayer, room);
+			remainingMoves = 0;
 		}
-		playerPath.add(newPos);
-		remainingMoves--;
+		else
+		{
+			playerPath.add(newPos);
+			remainingMoves--;
+		}
 		return newPos;
 	}
 	
@@ -313,7 +322,8 @@ public class Game
 	 * Checks whether the player can actually make a suggestion
 	 * The player must be in a room to make a suggestion and 
 	 * can also make a suggestion if they 
-	 * were transferred into that room
+	 * were transferred into that room.
+	 * A suggestion can only be made once per turn
 	 * @return whether the player can make a suggestion
 	 */
 	public boolean canMakeSuggestion()
@@ -335,6 +345,10 @@ public class Game
 		 * can make a suggestion
 		 */
 		if(!transferred.get(currentPlayer))
+		{
+			return false;
+		}
+		if(hasMadeSuggestion)
 		{
 			return false;
 		}
@@ -438,6 +452,7 @@ public class Game
 				return disprover;
 			}
 		}
+		hasMadeSuggestion = true;
 		return new HashMap<Player, Set<Card>>();
 	}
 
@@ -597,6 +612,7 @@ public class Game
 			lastRoom = getCurrentRoom();
 		}
 		playerPath = new HashSet<Cell>();
+		hasMadeSuggestion = false;
 		rollDice();
 		return currentPlayer;
 	}
@@ -671,6 +687,13 @@ public class Game
 	public List<Player> getAllPlayers() 
 	{
 		return Collections.unmodifiableList(allPlayers);
+	}
+
+	/**
+	 * @return The player whose turn it is in the Cluedo game
+	 */
+	public Player getCurrentPlayer() {
+		return currentPlayer;
 	}
 
 	/**
