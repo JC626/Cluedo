@@ -43,8 +43,39 @@ public class BoardTests
 	 */
 	public void setupBoard()
 	{
-		board = new Board();
+		board = new Board(createBoard());
 		board.setPosition(validPiece, validCell);
+	}
+
+	private Cell[][] createBoard()
+	{
+		Cell[][] cells = new Cell[Board.WIDTH][Board.HEIGHT];
+
+		for (int y = 0; y < cells[0].length; y++)
+		{
+			for (int x = 0; x < cells.length; x++)
+			{
+				if (x == validCell.getX() && y == validCell.getY())
+				{
+					cells[x][y] = validCell;					
+				}
+				else
+				{
+					cells[x][y] = new Cell(x, y)
+					{
+						@Override
+						public void display()
+						{
+							// An empty Cell, doesn't do anything.
+						}
+					};
+				}
+			}
+		}
+
+
+
+		return cells;
 	}
 
 	/**
@@ -111,8 +142,8 @@ public class BoardTests
 
 		System.out.println(invalidDirection);
 		System.out.println(validCell.getX() + ", " + validCell.getY() + ": " + validCell.hasWall(invalidDirection));
-		
-		
+
+
 		board.setPosition(other, validCell);
 		board.move(validPiece, invalidDirection);
 	}*/
