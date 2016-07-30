@@ -78,17 +78,14 @@ class CellBuilder
 			};
 
 		cells = new Cell[map[0].length][map.length];
-		
-		//System.out.println(cells.length); // Cols
-		//System.out.println(cells[0].length); // Rows
 
-		for (int col = 0; col < cells.length; col++)
+		for (int x = 0; x < cells.length; x++)
 		{
-			for (int row = 0; row < cells[0].length; row++)
+			for (int y = 0; y < cells[0].length; y++)
 			{
-				String s = map[row][col].toUpperCase();
+				String s = map[y][x].toUpperCase();
 				
-				cells[col][row] = new CellImpl(col, row, wallsFromString(s));
+				cells[x][y] = new CellImpl(x, y, wallsFromString(s));
 			}
 		}
 	}
