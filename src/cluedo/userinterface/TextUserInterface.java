@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import cluedo.board.Board;
-import cluedo.exceptions.IllegalMethodCallException;
 import cluedo.game.Game;
 
 import cluedo.model.Cell;
@@ -52,13 +51,8 @@ public class TextUserInterface
 	private static final Character bottomLeftCorner = 'W';//'\u255A';
 	private static final Character bottomRightCorner = 'W';//'\u255D';
 
-	// Displayable characters:
-	private final String emptyCell = "-";
-	private final String cellWall = "W";
-
 	private final GameOptions gameOptions = new GameOptions();
 	private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-	private final Map<Cell, Piece> tokens = new HashMap<Cell, Piece>();
 
 	// The size of the buffer is the number of Cells, multiplied by the size of each cell (3 by 3).
 	private final Character[][] drawingBuffer = new Character[3 * Board.WIDTH][3 * Board.HEIGHT]; // The drawing buffer, which will be modified in layers based in game state.
@@ -332,7 +326,7 @@ public class TextUserInterface
 		{
 			if (east) // Corner piece
 			{
-				result = bottomLeftCorner;
+				result = bottomRightCorner;
 			}
 			else // Horizontal piece 
 			{
@@ -765,23 +759,6 @@ public class TextUserInterface
 
 	}
 
-	/**
-	 * executeMenu expects a list of regexs. This is one method of providing a valid list.
-	 * @param size The size of the list of regexs. If size is 0 or negative, an empty list is returned.
-	 * @return An list of empty regexs, the size of num.
-	 */
-	private List<String> makeEmptyRegex(int size)
-	{
-		List<String> regex = new ArrayList<String>();
-
-		for (int i = 0; i < size; i++)
-		{
-			regex.add("");
-		}
-
-		return regex;
-	}
-
 	private List<Piece> createEmptyPiece(int count)
 	{
 		List<Piece> pieces = new ArrayList<Piece>();
@@ -865,16 +842,6 @@ public class TextUserInterface
 	{
 		println("");
 	}
-
-
-	public static void main(String[] args)
-	{
-		TextUserInterface t = new TextUserInterface();
-		t.mainMenu();
-
-		System.out.println("Thank you for playing!");
-	}
-
 
 	public void mainMenu()
 	{
@@ -1137,5 +1104,13 @@ public class TextUserInterface
 	{
 		boolean printBoardAtStartTurn = true;
 		boolean verboseErrors = false; // Print out exception stack traces.
+	}
+	
+	public static void main(String[] args)
+	{
+		TextUserInterface t = new TextUserInterface();
+		t.mainMenu();
+
+		System.out.println("Thank you for playing!");
 	}
 }
