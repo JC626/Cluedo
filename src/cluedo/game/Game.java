@@ -130,16 +130,6 @@ public class Game
 	private final List<Room> rooms;
 	private final Board board;
 	private boolean gameOver;
-	
-/*	// Static initializer
-	{
-		SUSPECT_NAMES.put("Miss Scarlett", 0);
-		SUSPECT_NAMES.put("Colonel Mustard", 1);
-		SUSPECT_NAMES.put("Mrs. White", 2);
-		SUSPECT_NAMES.put("Reverend Green", 3);
-		SUSPECT_NAMES.put("Mrs. Peacock", 4);
-		SUSPECT_NAMES.put("Professor Plum", 5);
-	}*/
 
 	public Game(int numPlayers, List<Piece> playerTokens, List<Piece> weaponTokens,
 			List<Displayable> suspectCardFaces, List<Displayable> weaponCardFaces, List<Displayable> roomCardFaces) 
@@ -195,9 +185,10 @@ public class Game
 		allCards.addAll(roomCards);
 		Collections.shuffle(allCards);
 		int numPlayers = activeHumanPlayers.size();
-		int numExtra = (allCards.size()-2) % numPlayers;
+		//Minus 3 from allCards size as want to remove the answer cards
+		int numExtra = (allCards.size()- 3) % numPlayers;
 		//Number of cards each player will get
-		int numCards = (allCards.size() - numExtra -2) / numPlayers; 
+		int numCards = (allCards.size() - numExtra - 3) / numPlayers; 
 		int countCards = 0;
 		Set<Card> cardsForPlayer = new HashSet<Card>();
 		for (Card card : allCards) {
@@ -236,7 +227,7 @@ public class Game
 	}
 	/**
 	 * For the start of the game.
-	 * Set the default starting positions of the player's 
+	 * Set the default starting positions of the players 
 	 * and randomly allocate weapons to one room each
 	 */
 	private void setStartingPosition()
@@ -483,7 +474,7 @@ public class Game
 		{
 			throw new IllegalArgumentException("Arguments cannot be null");
 		}
-		List<Player> players = getActivePlayers();
+		List<Player> players = activeHumanPlayers;
 		if (players.isEmpty()) 
 		{
 			throw new IllegalMethodCallException("No players playing");
@@ -650,8 +641,8 @@ public class Game
 			throw new IllegalMethodCallException("Game is over.");
 		}
 		assert remainingMoves == 0 : "Last player must not have any remaining moves ";
-		int d1 = (int) (Math.random() * 7 + 1);
-		int d2 = (int) (Math.random() * 7 + 1);
+		int d1 = (int) (Math.random() * 7 + 2);
+		int d2 = (int) (Math.random() * 7 + 2);
 		remainingMoves = d1 + d2;
 	}
 
