@@ -153,7 +153,7 @@ public class Game
 		board = new Board(cellBuilder.getCells());
 		allPlayers = GameBuilder.createPlayers(playerTokens);
 		activeHumanPlayers = GameBuilder.createHumanPlayers(numPlayers,allPlayers);
-		turn = new Turn<Player>(activeHumanPlayers); 
+		turn = new Turn<Player>(activeHumanPlayers,MAX_HUMAN_PLAYERS-1); //Ensure turn starts on the first player
 		allHumanIterator = new Turn<Player>(activeHumanPlayers);
 		weapons = GameBuilder.createWeapons(weaponTokens);
 		// Cards
@@ -656,6 +656,14 @@ public class Game
 	public List<Player> getActivePlayers() 
 	{
 		return Collections.unmodifiableList(activeHumanPlayers);
+	}
+
+	/**
+	 * @return All the players (human and non-human) in the Cluedo game
+	 */
+	public List<Player> getAllPlayers() 
+	{
+		return Collections.unmodifiableList(allPlayers);
 	}
 
 	/**
