@@ -170,11 +170,11 @@ public class TextUserInterface
 	{
 		Cell[][] board = game.getCells();
 		
-		for (int row = 0; row < board.length; row++)
+		for (int y = 0; y < board.length; y++)
 		{
-			for (int col = 0; col < board[row].length; col++)
+			for (int x = 0; x < board[y].length; x++)
 			{
-				addCellLayerDrawingBuffer(board[row][col]);
+				addCellLayerDrawingBuffer(board[y][x]);
 			}
 		}
 		
