@@ -136,7 +136,32 @@ public class TextUserInterface
 					 * Move
 					 */
 					options.add("Move");
-					regex.add("n*s*e*w*"); // Allow the user to press any number of NSEW to direct their character.
+					regex.add(  // Allow the user to press any number of NSEW in any combination to direct their character.
+							// Yes, this is ugly, but it's clearer than the regex required to match any combination of any of these characters.
+							"n*e*s*w*"+ "|" + 
+							"n*e*w*s*"+ "|" + 
+							"n*s*e*w*"+ "|" + 
+							"n*s*w*e*"+ "|" + 
+							"n*w*e*s*"+ "|" + 
+							"n*w*s*e*"+ "|" + 
+							"e*n*w*s*"+ "|" + 
+							"e*n*s*w*"+ "|" + 
+							"e*s*w*n*"+ "|" + 
+							"e*s*n*w*"+ "|" + 
+							"e*w*s*n*"+ "|" + 
+							"e*w*n*s*"+ "|" + 
+							"s*n*e*w*"+ "|" + 
+							"s*n*w*e*"+ "|" + 
+							"s*e*n*w*"+ "|" + 
+							"s*e*w*n*"+ "|" + 
+							"s*w*n*e*"+ "|" + 
+							"s*w*e*n*"+ "|" + 
+							"w*n*s*e*"+ "|" + 
+							"w*n*e*s*"+ "|" + 
+							"w*e*s*n*"+ "|" + 
+							"w*e*n*s*"+ "|" + 
+							"w*s*e*n*"+ "|" + 
+							"w*s*n*e*");
 				}
 
 				if (gameOptions.printBoardAtStartTurn)
