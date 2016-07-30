@@ -8,15 +8,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import cluedo.board.Board;
+import cluedo.exceptions.IllegalMethodCallException;
 import cluedo.game.Game;
 
 import cluedo.model.Cell;
 import cluedo.model.Displayable;
 import cluedo.model.Piece;
 import cluedo.model.Player;
+import cluedo.model.Weapon;
+import cluedo.model.cards.Card;
+import cluedo.model.cards.RoomCard;
+import cluedo.model.cards.SuspectCard;
+import cluedo.model.cards.WeaponCard;
 import cluedo.utility.Heading.Direction;
 
 /**
@@ -58,29 +65,12 @@ public class TextUserInterface
 
 	private Game game;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	private void newGame()
 	{
 		int numberOfPlayers = promptMenuNumber("Select players: ", Game.MIN_HUMAN_PLAYERS, Game.MAX_PLAYERS, " players");
 
-		List<Piece> weaponTokens = createWeaponTokens();
-		List<Piece> playerTokens = createPlayerTokens();
+		List<Piece> weaponTokens = createEmptyPiece(Game.NUM_WEAPONS);
+		List<Piece> playerTokens = createEmptyPiece(Game.MAX_PLAYERS);
 
 		List<Displayable> suspectCards = createSuspectCards();
 		List<Displayable> weaponCards = createWeaponCards();
@@ -97,58 +87,66 @@ public class TextUserInterface
 
 		while (!game.isGameOver())
 		{
-			Player currentPlayer = game.nextTurn();
+			int userSelection;
 
-			int moves = game.getRemainingMoves();
 
-			while (game.getRemainingMoves() >= 0) 
+			List<String> options = new ArrayList<String>();
+			List<String> regex = new ArrayList<String>();
+
+			if (game.isInRoom()) 
 			{
+				/*
+				 * If the current player is in a room, then they can do the following:
+				 * 
+				 * Make a suggestion
+				 * Exit the room (if they haven't just entered)
+				 */
 
-				List<String> options = new ArrayList<String>();
-				List<String> regex = new ArrayList<String>();
+				options.add("Exit the " + game.getRoom(game.getPosition(game.getCurrentPlayer().getPiece())).getName());
+				regex.add("exit|leave|go");
 
-				if (game.isInRoom()) 
+				if (game.canMakeSuggestion())
 				{
-					/*
-					 * If the current player is in a room, then they can do the following:
-					 * 
-					 * Make a suggestion
-					 * Exit the room (if they haven't just entered)
-					 */
-
-					options.add("Exit the " + game.getRoom(game.getPosition(currentPlayer.getPiece())).getName());
-					regex.add("exit|leave|go");
-
-					if (game.canMakeSuggestion())
-					{
-						options.add("Make a suggestion");
-						regex.add("suggest|"); // The default action is to suggest
-					}
-					else // The user cannot make a suggestion, so make leaving the default.
-					{
-						regex.add(regex.remove(0) + "|"); 
-					}
+					options.add("Make a suggestion");
+					regex.add("suggest|"); // The default action is to suggest
 				}
-				else
+				else // The user cannot make a suggestion, so make leaving the default.
 				{
-					/*
-					 * The player can:
-					 * 
-					 * Move
-					 */
-					options.add("Move");
-					regex.add("(n|s|e|w)+");
+					regex.add(regex.remove(0) + "|"); 
 				}
-
-				if (gameOptions.printBoardAtStartTurn)
-				{
-					printBoard();
-				}
-
-				executeDefaultMenu(currentPlayer.getName(), options, regex);
-
-				continuePromptMenu();
 			}
+			else
+			{
+				/*
+				 * The player can:
+				 * 
+				 * Move
+				 */
+				options.add("Move");
+				regex.add("(n|s|e|w)+");
+			}
+
+			if (gameOptions.printBoardAtStartTurn)
+			{
+				printBoard();
+			}
+
+			userSelection = executeDefaultMenu(game.getCurrentPlayer().getName(), options, regex);
+
+			System.out.println("Moves: " + game.getRemainingMoves());
+			System.out.println("Player: " + game.getCurrentPlayer());
+
+			/*switch(userSelection)
+				{
+					case 1:
+
+						//...
+					default: 
+						// 0 or currently unsupported option, continue on.
+				}*/
+
+			continuePromptMenu();
+
 		}
 	}
 
@@ -179,7 +177,7 @@ public class TextUserInterface
 		}
 
 		addPlayerLayerDrawingBuffer();
-		//addWeaponLayerDrawingBuffer();
+		addWeaponLayerDrawingBuffer();
 	}
 
 	private void addPlayerLayerDrawingBuffer()
@@ -194,15 +192,71 @@ public class TextUserInterface
 				for (Player p : players)
 				{
 					Cell playerLocation = game.getPosition(p.getPiece());
-					
+
 					if (board[x][y].equals(playerLocation)) // Draw the Piece in this Cell
 					{
+						// Cells are 3x3 and we need +1 to get to the middle of the Cell 
 						drawingBuffer[(3 * x) + 1][(3 * y) + 1] = getPlayerDisplayable(p);
 					}
 				}
 
 			}
 		}
+	}
+
+	private void addWeaponLayerDrawingBuffer()
+	{
+		Cell[][] board = game.getCells();
+		List<Weapon> weapons = game.getWeapons();
+
+		for (int x = 0; x < board.length; x++)
+		{
+			for (int y = 0; y < board[x].length; y++)
+			{
+				for (Weapon w : weapons)
+				{
+					Cell weaponLocation = game.getPosition(w.getPiece());
+
+					if (board[x][y].equals(weaponLocation)) // Draw the Piece in this Cell
+					{
+						// Cells are 3x3 and we need +1 to get to the middle of the Cell 
+						drawingBuffer[(3 * x) + 1][(3 * y) + 1] = getWeaponDisplayable(w);
+					}
+				}
+
+			}
+		}
+	}
+
+	private Character getWeaponDisplayable(Weapon w)
+	{
+		Character weaponDisplayable = ' ';
+
+		switch (w.getName())
+		{
+			case "Dagger":
+				weaponDisplayable = 'D';
+				break;
+			case "Candlestick":
+				weaponDisplayable = 'c';
+				break;
+			case "Revolver":
+				weaponDisplayable = 'R';
+				break;
+			case "Rope":
+				weaponDisplayable = 'r';
+				break;
+			case "Lead Pipe":
+				weaponDisplayable = 'L';
+				break;
+			case "Spanner":
+				weaponDisplayable = 's';
+				break;
+			default:
+				// Player not recognised, don't draw them.
+		}
+
+		return weaponDisplayable;
 	}
 
 	/**
@@ -216,7 +270,7 @@ public class TextUserInterface
 	private Character getPlayerDisplayable(Player p)
 	{
 		Character playerDisplayable = ' ';
-		
+
 		switch (p.getName())
 		{
 			case "Miss Scarlett":
@@ -240,7 +294,7 @@ public class TextUserInterface
 			default:
 				// Player not recognised, don't draw them
 		}
-		
+
 		return playerDisplayable;
 	}
 
@@ -548,6 +602,9 @@ public class TextUserInterface
 			options.addAll(menuOptions); // Add all of the caller provided menu options.
 			regex.addAll(regexOptions); // And their associated regexs.
 
+			options.add("End turn");
+			regex.add("done|next");
+
 			userSelection = executeMenu(menuTitle, options, regex);
 
 			/*
@@ -562,11 +619,18 @@ public class TextUserInterface
 					printBoard();
 					break;
 				case 3:
-					printCaseFile();
+					promptReviewEvidence();
 					break;
 				case 4:
-					promptMakeAccusation();
-					break;
+					if (promptMakeAccusation())
+					{
+						// The user made an accusation, either the game is over or they're out.
+						// Regardless, their turn is over.
+					}
+					else
+					{
+						break;
+					}
 				default: // One of the caller's options was selected, pass it back to them.
 					selectedCallerOption = true; 
 					userSelection = userSelection - 4; // Give the caller the index from what they gave. 4 is the number of items we have added.
@@ -575,14 +639,122 @@ public class TextUserInterface
 
 		return userSelection;
 	}
-
-	private void promptMakeAccusation()
+	
+	private void promptMakeSuggestion()
 	{
-		// TODO Auto-generated method stub
+		SuspectCard murderer = (SuspectCard) promptCard("I suggest the crime was committed in the " + game.getCurrentRoom().getName() + " by ...", game.getSuspectCards());
+		WeaponCard murderWeapon = (WeaponCard) promptCard("with the ...", game.getWeaponCards());
+		
+		String verificationQuestion = String.format("You're suggesting %s committed the crime in the %s with the %s??", murderer.getName(), game.getCurrentRoom().getName(), murderWeapon.getName());
 
+		if (!promptMenuBoolean(verificationQuestion, "That's correct", "Actually, I'll take another look at the evidence"))
+		{
+			return; // The user decided not to go through with the suggestion.
+		}
+		
+		Map<Player, Set<Card>> disproved = game.makeSuggestion(murderWeapon, murderer);
+		
+		if (!disproved.isEmpty())
+		{
+			// Given that disproved is not empty, these two variables will be initialised.
+			Player disprovingPlayer = null;
+			Set<Card> disprovingHandSet = null;
+			
+			List<Card> disprovingHandList = new ArrayList<Card>();
+			
+			for (Player p : disproved.keySet())
+			{
+				disprovingPlayer = p;
+				disprovingHandSet = disproved.get(p);
+				break;
+			}
+			
+			for (Card c : disprovingHandSet)
+			{
+				disprovingHandList.add(c);
+			}
+			
+			String question = String.format("%s choose a card to reveal to %s:", disprovingPlayer.getName(), game.getCurrentPlayer().getName());
+			promptCard(question, disprovingHandList);
+		}
+		else
+		{
+			println("No one could disprove your suggestion!");
+		}
 	}
 
-	private void printCaseFile()
+	/**
+	 * Note that, if the player goes through with the accusation, true is returned whether or not the accusation was correct.
+	 * @return True if the player went through with the accusation, false otherwise.
+	 */
+	private boolean promptMakeAccusation()
+	{
+		Player accusingPlayer = promptAccusingPlayer();
+
+		// Note that the call order here is important, the prompts depend on the order:
+		// Suspect, Room, Weapon
+		SuspectCard murderer = (SuspectCard) promptCard("I accuse ...", game.getSuspectCards());
+		RoomCard murderRoom = (RoomCard) promptCard("of committing the crime in the ...", game.getRoomCards());
+		WeaponCard murderWeapon = (WeaponCard) promptCard("with the ...", game.getWeaponCards());
+
+		String verificationQuestion = String.format("Are you sure you want to accuse %s of killing John Boddy in the %s with the %s?", murderer.getName(), murderRoom.getName(), murderWeapon.getName());
+
+		if (!promptMenuBoolean(verificationQuestion, "I'm sure", "On second thought..."))
+		{
+			return false; // The user decided not to go through with the accusation.
+		}
+
+		boolean accusationCorrect = game.makeAccusation(accusingPlayer, murderWeapon, murderRoom, murderer);
+
+		if (accusationCorrect)
+		{
+			println("Congratulations on finding the murderer, " + accusingPlayer.getName() + "!");
+		}
+		else
+		{
+			println(accusingPlayer.getName() + ", you've made a very serious accusation and are incorrect. You will no longer be able to participate in this investigation.");
+		}
+
+		return true;
+	}
+
+	private Card promptCard(String question, List<Card> cards)
+	{
+		int userSelection;
+		List<String> options = new ArrayList<String>();
+
+		for (Card c : cards)
+		{
+			options.add(c.getName());
+		}
+
+		userSelection = executeMenu(question, options, new ArrayList<String>());
+
+		return cards.get(userSelection - 1);
+	}
+
+	private Player promptActivePlayer(String question)
+	{
+		int userSelection;
+		List<String> options = new ArrayList<String>();
+
+		for (Player p : game.getActivePlayers())
+		{
+			options.add(p.getName());
+		}
+
+		userSelection = executeMenu(question, options, new ArrayList<String>());
+
+		return game.getActivePlayers().get(userSelection - 1);
+	}
+	
+	private Player promptAccusingPlayer()
+	{
+		String question = "Who is making the accusation?";
+		return promptActivePlayer(question);
+	}
+
+	private void promptReviewEvidence()
 	{
 		/*
 		 * The case file is provided to us by Suspect, Room, and Weapon cards.
@@ -610,40 +782,23 @@ public class TextUserInterface
 		return regex;
 	}
 
-	private List<Piece> createPlayerTokens()
+	private List<Piece> createEmptyPiece(int count)
 	{
-		List<Piece> players = new ArrayList<Piece>();
+		List<Piece> pieces = new ArrayList<Piece>();
 
-		for (int player = 0; player < Game.MAX_HUMAN_PLAYERS; player++)
+		for (int piece = 0; piece < count; piece++)
 		{
 			Piece p = new Piece(){
 				public void display(){
-					
+
 				}
 			};
-			players.add(p);
+			pieces.add(p);
 		}
 
-		return players;
+		return pieces;
 	}
-
-	private List<Piece> createWeaponTokens()
-	{
-		List<Piece> weapons = new ArrayList<Piece>();
-
-		for (int weapon = 0; weapon < Game.NUM_WEAPONS; weapon++)
-		{
-			Piece p = new Piece(){
-				public void display(){
-					
-				}
-			};
-			weapons.add(p);
-		}
-
-		return weapons;
-	}
-
+	
 	private List<Displayable> createRoomCards()
 	{
 		List<Displayable> roomCards = new ArrayList<Displayable>();
@@ -652,7 +807,7 @@ public class TextUserInterface
 		{
 			Displayable dis = new Displayable(){
 				public void display(){
-					
+
 				}
 			};
 			roomCards.add(dis);
@@ -669,7 +824,7 @@ public class TextUserInterface
 		{
 			Displayable dis = new Displayable(){
 				public void display(){
-					
+
 				}
 			};
 			weaponCards.add(dis);
@@ -686,7 +841,7 @@ public class TextUserInterface
 		{
 			Displayable dis = new Displayable(){
 				public void display(){
-					
+
 				}
 			};
 			suspectCards.add(dis);
@@ -762,7 +917,7 @@ public class TextUserInterface
 					setOptions();
 					break;
 				case 4:
-					// Done, exit; note the lack of a break here.
+					// Done, exit; we don't break here to execute the default.
 				default:
 					endGame = true;
 			}
