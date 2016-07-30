@@ -50,7 +50,7 @@ public class Game
 	 * specified in SUSPECT_NAMES
 	 */
 	private final int[] STARTINGPOSITION = new int[]{
-			7, 24, 0, 17, 9, 0, 14, 0, 23, 6, 19, 23 };
+			7, 24, 0, 17, 9, 0, 14, 0, 23, 6, 23, 19 };
 	/**
 	 * Number of moves the player can move 
 	 */

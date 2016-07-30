@@ -32,8 +32,7 @@ import cluedo.model.cards.WeaponCard;
 		 * the clockwise order of the player's starting position in the Cluedo game
 		 */
 	 public static final String[] SUSPECT_NAMES = new String[]{ "Miss Scarlett","Colonel Mustard",
-			 "Mrs. White","Reverend Green","Mrs. Peacock","Professor Plum"
-	 };
+			 "Mrs. White","Reverend Green","Mrs. Peacock","Professor Plum"};
 	 public static final Map<String, Integer> SUSPECT_ORDER = new HashMap<String, Integer>();
 	// Static initializer
 	static{

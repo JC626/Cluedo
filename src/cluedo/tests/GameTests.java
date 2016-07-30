@@ -25,17 +25,19 @@ public class GameTests {
 
 	private Game game;
 	private final int[] STARTINGPOSITION = new int[]{
-			7, 24, 0, 17, 9, 0, 14, 0, 23, 6, 19, 23 };
-	private Map<String, Integer> SUSPECT_NAMES;
+			7, 24, 0, 17, 9, 0, 14, 0, 23, 6, 23, 19};
+	private final String[] SUSPECT_NAMES = new String[]{ "Miss Scarlett","Colonel Mustard",
+			 "Mrs. White","Reverend Green","Mrs. Peacock","Professor Plum"};
+	private Map<String, Integer> SUSPECT_ORDER;
 		// Static initializer
-	 public void setupSuspectNames(){
-		 SUSPECT_NAMES = new HashMap<String, Integer>();
-		 SUSPECT_NAMES.put("Miss Scarlett", 0);
-		 SUSPECT_NAMES.put("Colonel Mustard", 1);
-		 SUSPECT_NAMES.put("Mrs. White", 2);
-		 SUSPECT_NAMES.put("Reverend Green", 3);
-		 SUSPECT_NAMES.put("Mrs. Peacock", 4);
-		 SUSPECT_NAMES.put("Professor Plum", 5);
+	 public void setupSuspectOrder(){
+		 SUSPECT_ORDER = new HashMap<String, Integer>();
+		 SUSPECT_ORDER.put("Miss Scarlett", 0);
+		 SUSPECT_ORDER.put("Colonel Mustard", 1);
+		 SUSPECT_ORDER.put("Mrs. White", 2);
+		 SUSPECT_ORDER.put("Reverend Green", 3);
+		 SUSPECT_ORDER.put("Mrs. Peacock", 4);
+		 SUSPECT_ORDER.put("Professor Plum", 5);
 	 }
 	
 	@Before
@@ -45,7 +47,7 @@ public class GameTests {
 	}
 	public void setupGame()
 	{
-		setupSuspectNames();
+		setupSuspectOrder();
 		List<Piece> playerTokens = createPlayerTokens();
 		List<Piece> weaponTokens = createWeaponTokens();
 		List<Displayable> suspectCardFaces = createSuspectCards();
@@ -156,7 +158,7 @@ public class GameTests {
 	{
 		Player startPlayer = game.nextTurn();
 		assertNotNull("Should not be given null startPlayer",startPlayer);
-		int startOrderNum = SUSPECT_NAMES.get(startPlayer.getName());
+		int startOrderNum = SUSPECT_ORDER.get(startPlayer.getName());
 		resetRemainingMoves();
 		Player currentPlayer = null;
 		while(currentPlayer != startPlayer)
@@ -168,7 +170,7 @@ public class GameTests {
 			}
 			resetRemainingMoves();
 			currentPlayer = game.nextTurn();
-			if(SUSPECT_NAMES.get(currentPlayer.getName()) != startOrderNum)
+			if(SUSPECT_ORDER.get(currentPlayer.getName()) != startOrderNum)
 			{
 				fail("Player order not enforced");
 			}
@@ -209,6 +211,7 @@ public class GameTests {
 			int x = STARTINGPOSITION[i];
 			int y = STARTINGPOSITION[i+1];
 			Player player = players.get(pCount);
+			assertEquals("Player should match order",player.getName(), SUSPECT_NAMES[pCount]);
 			Cell cell = game.getPosition(player.getPiece());
 			assertEquals(cell, cells[x][y]);
 			pCount++;
