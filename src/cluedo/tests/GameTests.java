@@ -20,6 +20,10 @@ import cluedo.model.Piece;
 import cluedo.model.Player;
 import cluedo.model.Room;
 import cluedo.model.Weapon;
+import cluedo.model.cards.Card;
+import cluedo.model.cards.RoomCard;
+import cluedo.model.cards.SuspectCard;
+import cluedo.model.cards.WeaponCard;
 
 public class GameTests {
 
@@ -29,7 +33,11 @@ public class GameTests {
 	private final String[] SUSPECT_NAMES = new String[]{ "Miss Scarlett","Colonel Mustard",
 			 "Mrs. White","Reverend Green","Mrs. Peacock","Professor Plum"};
 	private Map<String, Integer> SUSPECT_ORDER;
-		// Static initializer
+	private List<Piece> playerTokens;
+	private List<Piece> weaponTokens;
+	private List<Displayable> suspectCardFaces;
+	private List<Displayable> weaponCardFaces;
+	private List<Displayable> roomCardFaces;
 	 public void setupSuspectOrder(){
 		 SUSPECT_ORDER = new HashMap<String, Integer>();
 		 SUSPECT_ORDER.put("Miss Scarlett", 0);
@@ -43,17 +51,17 @@ public class GameTests {
 	@Before
 	public void setup()
 	{
-	 setupGame();
-	}
-	public void setupGame()
-	{
 		setupSuspectOrder();
-		List<Piece> playerTokens = createPlayerTokens();
-		List<Piece> weaponTokens = createWeaponTokens();
-		List<Displayable> suspectCardFaces = createSuspectCards();
-		List<Displayable> weaponCardFaces = createWeaponCards();
-		List<Displayable> roomCardFaces = createRoomCards();
-		game = new Game(6,playerTokens,weaponTokens,suspectCardFaces,weaponCardFaces,roomCardFaces);
+		playerTokens = createPlayerTokens();
+		weaponTokens = createWeaponTokens();
+		suspectCardFaces = createSuspectCards();
+		weaponCardFaces = createWeaponCards();
+		roomCardFaces = createRoomCards();
+	 	setupGame(6);
+	}
+	public void setupGame(int numPlayers)
+	{
+		game = new Game(numPlayers,playerTokens,weaponTokens,suspectCardFaces,weaponCardFaces,roomCardFaces);
 	}
 	private List<Piece> createPlayerTokens()
 	{
@@ -146,36 +154,18 @@ public class GameTests {
 	 * @throws IllegalAccessException 
 	 * @throws IllegalArgumentException 
 	 */
-	private void resetRemainingMoves() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
+	private void resetRemainingMoves()
 	{
-		Field remainingMoves = Game.class.getDeclaredField("remainingMoves");
-		remainingMoves.setAccessible(true);
-		remainingMoves.set(game, 0);
-	}
-
-	@Test
-	public void testPlayerOrder() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
-	{
-		Player startPlayer = game.nextTurn();
-		assertNotNull("Should not be given null startPlayer",startPlayer);
-		int startOrderNum = SUSPECT_ORDER.get(startPlayer.getName());
-		resetRemainingMoves();
-		Player currentPlayer = null;
-		while(currentPlayer != startPlayer)
-		{
-			startOrderNum++;
-			if(startOrderNum >= Game.MAX_HUMAN_PLAYERS)
-			{
-				startOrderNum = 0;
-			}
-			resetRemainingMoves();
-			currentPlayer = game.nextTurn();
-			if(SUSPECT_ORDER.get(currentPlayer.getName()) != startOrderNum)
-			{
-				fail("Player order not enforced");
-			}
+		Field remainingMoves = null;
+		try {
+			remainingMoves = Game.class.getDeclaredField("remainingMoves");
+			remainingMoves.setAccessible(true);
+			remainingMoves.set(game, 0);
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
 		}
 	}
+
 	@Test
 	public void testStartingPositionWeaponsInDifferentRooms()
 	{
@@ -217,5 +207,77 @@ public class GameTests {
 			pCount++;
 		}
 	} 
+	@Test
+	public void testPlayerOrder() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
+	{
+		//6 players
+		Player startPlayer = game.nextTurn();
+		assertNotNull("Should not be given null startPlayer",startPlayer);
+		int startOrderNum = SUSPECT_ORDER.get(startPlayer.getName());
+		resetRemainingMoves();
+		Player currentPlayer = null;
+		while(currentPlayer != startPlayer)
+		{
+			startOrderNum++;
+			if(startOrderNum >= Game.MAX_HUMAN_PLAYERS)
+			{
+				startOrderNum = 0;
+			}
+			resetRemainingMoves();
+			currentPlayer = game.nextTurn();
+			if(SUSPECT_ORDER.get(currentPlayer.getName()) != startOrderNum)
+			{
+				fail("Player order not enforced");
+			}
 
+		}
+	}
+	@Test 
+	public void invalidNumberPlayers()
+	{
+		try{
+			game = new Game(2,playerTokens,weaponTokens,suspectCardFaces,weaponCardFaces,roomCardFaces);
+		}
+		catch(IllegalArgumentException e){}
+		try{
+			game = new Game(7,playerTokens,weaponTokens,suspectCardFaces,weaponCardFaces,roomCardFaces);
+		}
+		catch(IllegalArgumentException e){}
+	}
+	
+	@Test
+	public void testPlayerHand()
+	{
+		Player startPlayer = null;
+		Player currentPlayer = nextPlayer();
+		Set<Card> allCards = new HashSet<Card>();
+		while(currentPlayer != startPlayer)
+		{
+			if(startPlayer == null)
+			{
+				startPlayer = currentPlayer;
+			}
+			List<RoomCard> roomCards = game.getPlayerRoomCards();
+			List<SuspectCard> suspectCards = game.getPlayerSuspectCards();
+			List<WeaponCard> weaponCards = game.getPlayerWeaponCards();
+			allCards.addAll(roomCards);
+			allCards.addAll(suspectCards);
+			allCards.addAll(weaponCards);
+			int sizeAllTogether = roomCards.size()+ suspectCards.size() + weaponCards.size();
+			assertEquals("RoomSize " + roomCards.size() +  "SuspectSize " + suspectCards.size() + "WeaponSize " +  weaponCards.size(), 18, sizeAllTogether);
+			currentPlayer = nextPlayer();
+		}
+		int numCards =  game.NUM_WEAPONS + game.NUM_ROOMS + game.MAX_PLAYERS;
+		assertEquals(numCards,allCards.size());
+	}
+	@Test
+	public void testExtraCards()
+	{
+		
+	}
+	private Player nextPlayer()
+	{
+		resetRemainingMoves();
+		return game.nextTurn();
+	}
 }

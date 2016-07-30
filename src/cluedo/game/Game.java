@@ -189,17 +189,23 @@ public class Game
 			List<RoomCard> roomCards) 
 	{
 		List<Card> extra = new ArrayList<Card>();
-		Set<Card> allCards = new HashSet<Card>();
+		List<Card> allCards = new ArrayList<Card>();
 		allCards.addAll(suspectCards);
 		allCards.addAll(weaponCards);
 		allCards.addAll(roomCards);
+		Collections.shuffle(allCards);
 		int numPlayers = activeHumanPlayers.size();
 		int numExtra = allCards.size() % numPlayers;
 		//Number of cards each player will get
 		int numCards = (allCards.size() - numExtra) / numPlayers; 
+		int countCards = 0;
 		Set<Card> cardsForPlayer = new HashSet<Card>();
 		for (Card card : allCards) {
 			// All cards evenly distributed, put the rest of the cards in extra
+			if(answer.containsCard(card))
+			{
+				continue;
+			}
 			if (numPlayers == 0) 
 			{
 				extra.add(card);
@@ -215,14 +221,16 @@ public class Game
 			CaseFile caseFile = playerToCasefile.get(player);
 			caseFile.removeCard(card);
 			cardsForPlayer.add(card);
-			numCards--;
-			if (numCards == 0) 
+			countCards++;
+			if (countCards == numCards) 
 			{
+				int size = caseFile.getRoomCards().size() + caseFile.getSuspectCards().size() + caseFile.getWeaponCards().size();
 				// Put the cards in for a human player
 				playerHand.put(player, cardsForPlayer);
 				// Go to the next player
 				numPlayers--;
 				cardsForPlayer = new HashSet<Card>();
+				countCards = 0;
 			}
 		}
 		return extra;
@@ -291,7 +299,6 @@ public class Game
 		
 		Cell newPos = board.move(currentPlayer.getPiece(), direction);
 		
-		//TODO .equals() for room class
 		if(lastRoom != null && lastRoom.equals(cellToRoom.get(newPos)))
 		{
 			throw new InvalidMoveException(currentPlayer.getName() + " cannot reenter the same room they exited");
@@ -486,9 +493,10 @@ public class Game
 		{
 			throw new IllegalArgumentException("Only active players can make accusations");
 		}
-		CaseFile accusation = new CaseFile(suspectCard, weaponCard, roomCard);
+		//CaseFile accusation = new CaseFile(suspectCard, weaponCard, roomCard);
 		// Game over, the player won!
-		if (accusation.equals(answer)) 
+		if (answer.containsRoomCard(roomCard) && answer.containsSuspectCard(suspectCard)
+				&& answer.containsWeaponCard(weaponCard)) 
 		{
 			gameOver = true;
 			return true;

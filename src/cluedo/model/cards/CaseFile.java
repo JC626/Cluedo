@@ -24,9 +24,9 @@ public class CaseFile
 		{
 			throw new IllegalArgumentException("CaseFile must have at least one of each type of card");
 		}
-		this.roomCards = roomCards;
-		this.suspectCards = suspectCards;
-		this.weaponCards = weaponCards;
+		this.roomCards = new ArrayList<RoomCard>(roomCards);
+		this.suspectCards = new ArrayList<SuspectCard>(suspectCards);
+		this.weaponCards = new ArrayList<WeaponCard>(weaponCards);
 	}
 
 	public CaseFile(SuspectCard suspectC, WeaponCard weaponC, RoomCard roomC) 
@@ -51,10 +51,12 @@ public class CaseFile
 		if (card instanceof SuspectCard) 
 		{
 			suspectCards.remove(card);
-		} else if (card instanceof RoomCard) 
+		} 
+		else if (card instanceof RoomCard) 
 		{
 			roomCards.remove(card);
-		} else if (card instanceof WeaponCard) 
+		} 
+		else if (card instanceof WeaponCard) 
 		{
 			weaponCards.remove(card);
 		}
@@ -74,50 +76,33 @@ public class CaseFile
 	{
 		return roomCards;
 	}
-
-	@Override
-	public int hashCode() 
+	public boolean containsCard(Card card)
 	{
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((roomCards == null) ? 0 : roomCards.hashCode());
-		result = prime * result + ((suspectCards == null) ? 0 : suspectCards.hashCode());
-		result = prime * result + ((weaponCards == null) ? 0 : weaponCards.hashCode());
-		return result;
+		if (card instanceof SuspectCard) 
+		{
+			return suspectCards.contains(card);
+		} 
+		else if (card instanceof RoomCard) 
+		{
+			return roomCards.contains(card);
+		} 
+		else if (card instanceof WeaponCard) 
+		{
+			return weaponCards.contains(card);
+		}
+		return false;
 	}
-
-	@Override
-	public boolean equals(Object obj) 
+	public boolean containsSuspectCard(SuspectCard card)
 	{
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		CaseFile other = (CaseFile) obj;
-		if (roomCards == null)
-		{
-			if (other.roomCards != null)
-				return false;
-		} 
-		else if (!roomCards.equals(other.roomCards))
-			return false;
-		if (suspectCards == null) 
-		{
-			if (other.suspectCards != null)
-				return false;
-		} 
-		else if (!suspectCards.equals(other.suspectCards))
-			return false;
-		if (weaponCards == null) 
-		{
-			if (other.weaponCards != null)
-				return false;
-		} 
-		else if (!weaponCards.equals(other.weaponCards))
-			return false;
-		return true;
+		return suspectCards.contains(card);
+	}
+	public boolean containsWeaponCard(WeaponCard card)
+	{
+		return weaponCards.contains(card);
+	}
+	public boolean containsRoomCard(RoomCard card)
+	{
+		return roomCards.contains(card);
 	}
 
 	

@@ -172,7 +172,7 @@ import cluedo.model.cards.WeaponCard;
 	{
 		List<SuspectCard> suspectCards = new ArrayList<SuspectCard>();
 		int i = 0;
-		for (String suspectName : SUSPECT_ORDER.keySet()) 
+		for (String suspectName : SUSPECT_NAMES) 
 		{
 			assert i < Game.MAX_PLAYERS : "Exceeded the total number of suspects";
 			SuspectCard p = new SuspectCard(suspectName, suspectCardFaces.get(i));
@@ -201,7 +201,7 @@ import cluedo.model.cards.WeaponCard;
 
 	/**
 	 * Creates a CaseFile for each human player and the answer CaseFile
-	 * 
+	 *
 	 * @param suspectCards
 	 *            - all the suspect cards
 	 * @param weaponCards
@@ -220,24 +220,27 @@ import cluedo.model.cards.WeaponCard;
 			playerToCasefile.put(player, new CaseFile(suspectCards, weaponCards, roomCards));
 		}
 		SuspectCard answerSuspect = null;
-		for (SuspectCard suspect : suspectCards) 
+		List<SuspectCard> suspects = new ArrayList<SuspectCard>(suspectCards);
+		Collections.shuffle(suspects);
+		for (SuspectCard suspect : suspects) 
 		{
 			answerSuspect = suspect;
-			suspectCards.remove(suspect);
 			break;
 		}
 		WeaponCard answerWeapon = null;
-		for (WeaponCard weapon : weaponCards) 
+		List<WeaponCard> weapons = new ArrayList<WeaponCard>(weaponCards);
+		Collections.shuffle(weapons);
+		for (WeaponCard weapon : weapons) 
 		{
 			answerWeapon = weapon;
-			weaponCards.remove(weapon);
 			break;
 		}
 		RoomCard answerRoom = null;
-		for (RoomCard room : roomCards) 
+		List<RoomCard> rooms = new ArrayList<RoomCard>(roomCards);
+		Collections.shuffle(rooms);
+		for (RoomCard room : rooms) 
 		{
 			answerRoom = room;
-			roomCards.remove(room);
 			break;
 		}
 		return new CaseFile(answerSuspect, answerWeapon, answerRoom);
