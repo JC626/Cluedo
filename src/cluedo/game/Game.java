@@ -240,7 +240,8 @@ public class Game
 			board.setPosition(allPlayers.get(playerCount).getPiece(), x, y);
 			playerCount++;
 		}
-		Set<Room> randRooms = new HashSet<Room>(rooms);
+		List<Room> randRooms = new ArrayList<Room>(rooms);
+		Collections.shuffle(randRooms);
 		int i = 0;
 		for(Room room : randRooms)
 		{

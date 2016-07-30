@@ -1,6 +1,7 @@
 package cluedo.game;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -88,7 +89,8 @@ import cluedo.model.cards.WeaponCard;
 	{
 		assert allPlayers != null : "Must create all player objects first";
 		assert allPlayers.size() == Game.MAX_PLAYERS : "Must contain all players in the game";
-		Set<Player> allRandomPlayers = new HashSet<Player>(allPlayers);
+		List<Player> allRandomPlayers = new ArrayList<Player>(allPlayers);
+		Collections.shuffle(allRandomPlayers);
 		Player[] playerArr = new Player[Game.MAX_HUMAN_PLAYERS];
 		//FIXME currently the game is starting on the 2nd player and not this starting player (due to nextTurn). To fix?
 		Player startingPlayer = null; 
