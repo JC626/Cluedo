@@ -155,7 +155,7 @@ public class Board
 		{
 			throw new IllegalArgumentException("Coordinates out of the board's boundaries");
 		}
-		Cell cell = cells[x][y];
+		Cell cell = cells[y][x];
 		cellHasPiece.put(cell,piece);
 		pieceOnCell.put(piece,cell);
 	}
@@ -207,6 +207,6 @@ public class Board
 		{
 			throw new IllegalArgumentException("Movement outside the board boundaries - internal error");
 		}
-		return cells[x][y];
+		return cells[y][x];
 	}
 }

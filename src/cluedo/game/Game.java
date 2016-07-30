@@ -583,7 +583,10 @@ public class Game
 		}
 		currentPlayer = turn.next();
 		//Reset for the next player
-		lastRoom = getCurrentRoom();
+		if(lastRoom != null)
+		{
+			lastRoom = getCurrentRoom();
+		}
 		playerPath = new HashSet<Cell>();
 		rollDice();
 		return currentPlayer;

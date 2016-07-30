@@ -123,11 +123,11 @@ class RoomBuilder
 	private void createRoomCells(Room room, int[] roomArray) 
 	{
 		Set<Cell> roomSetCells = new HashSet<Cell>();
-		for(int i = 0; i < roomArray.length;i++)
+		for(int i = 0; i < roomArray.length;i+=2)
 		{
-			int x = i;
-			int y = i+1;
-			Cell cell = cells[x][y];
+			int x = roomArray[i];
+			int y = roomArray[i+1];
+			Cell cell = cells[y][x];
 			cellToRoom.put(cell,room);
 			roomSetCells.add(cell);
 		}
@@ -139,9 +139,9 @@ class RoomBuilder
 		Set<Cell> entrances = new HashSet<Cell>();
 		for(int i =0; i< entranceArray.length;i+=2)
 		{
-			int x = i;
-			int y = i+1;
-			Cell cell = cells[x][y];
+			int x = entranceArray[i];
+			int y = entranceArray[i+1];
+			Cell cell = cells[y][x];
 			entrances.add(cell);
 		}
 		entranceCells.put(room, entrances);
@@ -152,9 +152,9 @@ class RoomBuilder
 		List<Cell> exits = new ArrayList<Cell>();
 		for(int i =0; i< exitArray.length;i+=2)
 		{
-			int x = i;
-			int y = i+1;
-			Cell cell = cells[x][y];
+			int x = exitArray[i];
+			int y = exitArray[i+1];
+			Cell cell = cells[y][x];
 			exits.add(cell);
 		}
 		exitCells.put(room, exits);
