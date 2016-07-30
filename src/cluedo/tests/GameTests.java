@@ -24,6 +24,8 @@ import cluedo.model.Weapon;
 public class GameTests {
 
 	private Game game;
+	private final int[] STARTINGPOSITION = new int[]{
+			7, 24, 0, 17, 9, 0, 14, 0, 23, 6, 19, 23 };
 	private Map<String, Integer> SUSPECT_NAMES;
 		// Static initializer
 	 public void setupSuspectNames(){
@@ -135,6 +137,20 @@ public class GameTests {
 
 		return suspectCards;
 	}
+	/**
+	 * Using reflection to set remainingMoves to zero each time
+	 * @throws SecurityException 
+	 * @throws NoSuchFieldException 
+	 * @throws IllegalAccessException 
+	 * @throws IllegalArgumentException 
+	 */
+	private void resetRemainingMoves() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
+	{
+		Field remainingMoves = Game.class.getDeclaredField("remainingMoves");
+		remainingMoves.setAccessible(true);
+		remainingMoves.set(game, 0);
+	}
+
 	@Test
 	public void testPlayerOrder() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
 	{
@@ -159,21 +175,17 @@ public class GameTests {
 		}
 	}
 	@Test
-	public void testStartingWeaponsInDifferentRooms()
+	public void testStartingPositionWeaponsInDifferentRooms()
 	{
 		Set<Room> rooms = new HashSet<Room>();
 		List<Weapon> weapons = game.getWeapons();
 		for(Weapon w : weapons)
 		{
-			System.out.println(w.getPiece());
 			Cell cell = game.getPosition(w.getPiece());
-			System.out.println(cell.getX() + " " + cell.getY());
 			assertNotNull("Weapon piece must be on a cell",cell);
 			try
 			{
 				Room room = game.getRoom(cell);
-				System.out.println(room.getName());
-				System.out.println(w.getName());
 				if(rooms.contains(room))
 				{
 					fail("Cannot have a weapon in the same room as another weapon");
@@ -186,18 +198,21 @@ public class GameTests {
 			}
 		}
 	}
-	/**
-	 * Using reflection to set remainingMoves to zero each time
-	 * @throws SecurityException 
-	 * @throws NoSuchFieldException 
-	 * @throws IllegalAccessException 
-	 * @throws IllegalArgumentException 
-	 */
-	private void resetRemainingMoves() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
+	@Test 
+	public void testStartingPlayerPosition()
 	{
-		Field remainingMoves = Game.class.getDeclaredField("remainingMoves");
-		remainingMoves.setAccessible(true);
-		remainingMoves.set(game, 0);
-	}
+		List<Player> players = game.getAllPlayers();
+		Cell[][] cells = game.getCells();
+		int pCount = 0;
+		for(int i = 0; i < STARTINGPOSITION.length;i+=2)
+		{
+			int x = STARTINGPOSITION[i];
+			int y = STARTINGPOSITION[i+1];
+			Player player = players.get(pCount);
+			Cell cell = game.getPosition(player.getPiece());
+			assertEquals(cell, cells[x][y]);
+			pCount++;
+		}
+	} 
 
 }
