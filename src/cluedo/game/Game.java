@@ -837,7 +837,7 @@ public class Game
 	/**
 	 * @return All suspect cards
 	 */
-	public List<SuspectCard> getSuspectCards() 
+	public List<Card> getSuspectCards() 
 	{
 		return Collections.unmodifiableList(suspectCards);
 	}
@@ -845,7 +845,7 @@ public class Game
 	/**
 	 * @return All weapon cards
 	 */
-	public List<WeaponCard> getWeaponCards() 
+	public List<Card> getWeaponCards() 
 	{
 		return Collections.unmodifiableList(weaponCards);
 	}
@@ -853,7 +853,7 @@ public class Game
 	/**
 	 * @return All room cards
 	 */
-	public List<RoomCard> getRoomCards() {
+	public List<Card> getRoomCards() {
 		
 		return Collections.unmodifiableList(roomCards);
 	}
