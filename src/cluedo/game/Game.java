@@ -659,6 +659,14 @@ public class Game
 	}
 
 	/**
+	 * @return All the players (human and non-human) in the Cluedo game
+	 */
+	public List<Player> getAllPlayers() 
+	{
+		return Collections.unmodifiableList(allPlayers);
+	}
+
+	/**
 	 * Gets the available exits for the room that the current player is in
 	 * This includes the secret passage in the corner rooms
 	 * @return The available exits for the room the current player is in
