@@ -13,6 +13,10 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
+import cluedo.exceptions.HasRemainingMovesException;
+import cluedo.exceptions.IllegalMethodCallException;
+import cluedo.exceptions.InvalidMoveException;
+import cluedo.exceptions.NoAvailableExitException;
 import cluedo.game.Game;
 import cluedo.model.Cell;
 import cluedo.model.Displayable;
@@ -24,6 +28,7 @@ import cluedo.model.cards.Card;
 import cluedo.model.cards.RoomCard;
 import cluedo.model.cards.SuspectCard;
 import cluedo.model.cards.WeaponCard;
+import cluedo.utility.Heading.Direction;
 
 public class GameTests {
 
@@ -165,6 +170,20 @@ public class GameTests {
 			e.printStackTrace();
 		}
 	}
+	/**
+	 * Use reflection to set gameOver to true
+	 */
+	private void causeGameOver()
+	{
+		Field gameOver = null;
+		try {
+			gameOver = Game.class.getDeclaredField("gameOver");
+			gameOver.setAccessible(true);
+			gameOver.set(game, true);
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+	}
 
 	private Player nextPlayer()
 	{
@@ -229,8 +248,8 @@ public class GameTests {
 			{
 				startOrderNum = 0;
 			}
-			resetRemainingMoves();
-			currentPlayer = game.nextTurn();
+			currentPlayer = nextPlayer();
+			assertFalse(game.isInRoom());
 			if(SUSPECT_ORDER.get(currentPlayer.getName()) != startOrderNum)
 			{
 				fail("Player order not enforced");
@@ -242,11 +261,13 @@ public class GameTests {
 	public void invalidNumberPlayers()
 	{
 		try{
-			game = new Game(2,playerTokens,weaponTokens,suspectCardFaces,weaponCardFaces,roomCardFaces);
+			game = new Game(Game.MIN_HUMAN_PLAYERS-1,playerTokens,weaponTokens,suspectCardFaces,weaponCardFaces,roomCardFaces);
+			fail("Cannot have less than " + Game.MIN_HUMAN_PLAYERS + " players");
 		}
 		catch(IllegalArgumentException e){}
 		try{
-			game = new Game(7,playerTokens,weaponTokens,suspectCardFaces,weaponCardFaces,roomCardFaces);
+			game = new Game(Game.MAX_PLAYERS+1,playerTokens,weaponTokens,suspectCardFaces,weaponCardFaces,roomCardFaces);
+			fail("Cannot have over " + Game.MAX_PLAYERS + " players");
 		}
 		catch(IllegalArgumentException e){}
 	}
@@ -283,6 +304,72 @@ public class GameTests {
 		assertEquals(3,game.getExtraCards().size());
 		setupGame(4);
 		assertEquals(2,game.getExtraCards().size());
+	}
+	
+	@Test (expected = HasRemainingMovesException.class)
+	public void invalidHasRemainingMoves()
+	{
+		game.nextTurn();
+		assert game.getRemainingMoves() >= 2 && game.getRemainingMoves() <=12 : "remainingMoves should be between 2 and 12" + game.getRemainingMoves();
+		game.nextTurn();
+	}
+	@Test
+	public void invalidGameOver() throws InvalidMoveException, NoAvailableExitException
+	{
+		Player currentPlayer = game.nextTurn();
+		assertFalse(game.isGameOver());
+		causeGameOver();
+		assertTrue(game.isGameOver());
+		try
+		{
+			game.nextTurn();
+			fail("Cannot continue playing when the game is over");
+		}
+		catch(IllegalMethodCallException e){}
+		try
+		{
+			game.move(Direction.East);
+			fail("Cannot continue playing when the game is over");
+		}
+		catch(IllegalMethodCallException e){}
+		
+		WeaponCard weaponCard = (WeaponCard)game.getWeaponCards().get(0);
+		SuspectCard suspectCard = (SuspectCard) game.getSuspectCards().get(0);
+		RoomCard roomCard = (RoomCard) game.getRoomCards().get(0);
+		
+		try
+		{
+			assertFalse(game.canMakeSuggestion());
+			game.makeSuggestion(weaponCard,suspectCard);
+			fail("Cannot continue playing when the game is over");
+		}
+		catch(IllegalMethodCallException e){}
+		
+		try
+		{
+			game.makeAccusation(currentPlayer,weaponCard,roomCard,suspectCard);
+			fail("Cannot continue playing when the game is over");
 
+		}
+		catch(IllegalMethodCallException e){}
+		try
+		{
+			assertFalse(game.canMakeSuggestion());
+			game.makeSuggestion(weaponCard,suspectCard);
+			fail("Cannot continue playing when the game is over");
+		}
+		catch(IllegalMethodCallException e){}
+		try
+		{
+			game.takeExit(game.getPosition(playerTokens.get(0)));
+			fail("Cannot continue playing when the game is over");
+		}
+		catch(IllegalMethodCallException e){}
+		try
+		{
+			game.getAvailableExits();
+			fail("Cannot continue playing when the game is over");
+		}
+		catch(IllegalMethodCallException e){}
 	}
 }

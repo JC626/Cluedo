@@ -641,8 +641,8 @@ public class Game
 			throw new IllegalMethodCallException("Game is over.");
 		}
 		assert remainingMoves == 0 : "Last player must not have any remaining moves ";
-		int d1 = (int) (Math.random() * 7 + 2);
-		int d2 = (int) (Math.random() * 7 + 2);
+		int d1 = (int) (Math.random() * 6 + 1);
+		int d2 = (int) (Math.random() * 6 + 1);
 		remainingMoves = d1 + d2;
 	}
 
