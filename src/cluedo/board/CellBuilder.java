@@ -77,15 +77,14 @@ class CellBuilder
 					{ "SW00", "S000", "S000", "S000", "S000", "SE00", "0000", "ESWA", "0000", "0000", "SW00", "S000", "S000", "SE00", "0000", "0000", "ESW0", "0000", "SW00", "S000", "S000", "S000", "S000", "SE00" },
 			};
 
-		cells = new Cell[map[0].length][map.length];
+		cells = new Cell[map.length][map[0].length];
 
 		for (int row = 0; row < map.length; row++)
 		{
 			for (int col = 0; col < map[row].length; col++)
 			{
 				String s = map[row][col].toUpperCase();
-
-				cells[row][col] = new CellImpl(row, col, wallsFromString(s));
+				cells[row][col] = new CellImpl(col, row, wallsFromString(s));
 			}
 		}
 	}

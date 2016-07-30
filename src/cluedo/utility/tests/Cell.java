@@ -13,7 +13,7 @@ public class Cell
 	{
 		// nextInt method returns 0 .. bound with the bound being exclusive,
 		// but we want to include the width and height so we add one to each.
-		int x = random.nextInt(Board.WIDTH );
+		int x = random.nextInt(Board.WIDTH);
 		int y = random.nextInt(Board.HEIGHT);
 		
 		return new cluedo.model.Cell(x, y, getRandomWalls())

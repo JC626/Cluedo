@@ -102,7 +102,7 @@ public class BoardTests
 		board.move(validPiece, invalidDirection);
 	}
 
-	@Test (expected = InvalidMoveException.class)
+	/*@Test (expected = InvalidMoveException.class)
 	public void invalidMovePieceBlocking() throws InvalidMoveException 
 	{
 		Piece other = () -> {};
@@ -115,7 +115,7 @@ public class BoardTests
 		
 		board.setPosition(other, validCell);
 		board.move(validPiece, invalidDirection);
-	}
+	}*/
 
 
 }
