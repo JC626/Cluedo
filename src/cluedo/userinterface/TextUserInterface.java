@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import cluedo.board.Board;
 import cluedo.game.Game;
+
 import cluedo.model.Cell;
 import cluedo.model.Displayable;
 import cluedo.model.Piece;
@@ -34,13 +35,13 @@ public class TextUserInterface
 	private static final String menuFormat = "    [%d] %s";
 	private static final String userPrompt = "> ";
 	private static final String shortcutDisplayCommand = "shortcuts";
-	
+
 	private static final Character horizontalLine = 'W';//'\u2550';
 	private static final Character verticalLine = 'W';//'\u2551';
-	
+
 	private static final Character topLeftCorner = 'W';//'\u2554';
 	private static final Character topRightCorner = 'W';//'\u2557';
-	
+
 	private static final Character bottomLeftCorner = 'W';//'\u255A';
 	private static final Character bottomRightCorner = 'W';//'\u255D';
 
@@ -57,23 +58,23 @@ public class TextUserInterface
 
 	private Game game;
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	private void newGame()
 	{
 		int numberOfPlayers = promptMenuNumber("Select players: ", Game.MIN_HUMAN_PLAYERS, Game.MAX_PLAYERS, " players");
@@ -114,7 +115,7 @@ public class TextUserInterface
 					 * Make a suggestion
 					 * Exit the room (if they haven't just entered)
 					 */
-					
+
 					options.add("Exit the " + game.getRoom(game.getPosition(currentPlayer.getPiece())).getName());
 					regex.add("exit|leave|go");
 
@@ -136,32 +137,7 @@ public class TextUserInterface
 					 * Move
 					 */
 					options.add("Move");
-					regex.add(  // Allow the user to press any number of NSEW in any combination to direct their character.
-							// Yes, this is ugly, but it's clearer than the regex required to match any combination of any of these characters.
-							"n*e*s*w*"+ "|" + 
-							"n*e*w*s*"+ "|" + 
-							"n*s*e*w*"+ "|" + 
-							"n*s*w*e*"+ "|" + 
-							"n*w*e*s*"+ "|" + 
-							"n*w*s*e*"+ "|" + 
-							"e*n*w*s*"+ "|" + 
-							"e*n*s*w*"+ "|" + 
-							"e*s*w*n*"+ "|" + 
-							"e*s*n*w*"+ "|" + 
-							"e*w*s*n*"+ "|" + 
-							"e*w*n*s*"+ "|" + 
-							"s*n*e*w*"+ "|" + 
-							"s*n*w*e*"+ "|" + 
-							"s*e*n*w*"+ "|" + 
-							"s*e*w*n*"+ "|" + 
-							"s*w*n*e*"+ "|" + 
-							"s*w*e*n*"+ "|" + 
-							"w*n*s*e*"+ "|" + 
-							"w*n*e*s*"+ "|" + 
-							"w*e*s*n*"+ "|" + 
-							"w*e*n*s*"+ "|" + 
-							"w*s*e*n*"+ "|" + 
-							"w*s*n*e*");
+					regex.add("(n|s|e|w)+");
 				}
 
 				if (gameOptions.printBoardAtStartTurn)
@@ -184,7 +160,6 @@ public class TextUserInterface
 		{
 			for (int x = 0; x < drawingBuffer.length; x++)
 			{
-			
 				print(drawingBuffer[x][y].toString());
 			}
 			println();
@@ -194,17 +169,79 @@ public class TextUserInterface
 	private void generateBoard()
 	{
 		Cell[][] board = game.getCells();
-		
-		for (int y = 0; y < board.length; y++)
+
+		for (int x = 0; x < board.length; x++)
 		{
-			for (int x = 0; x < board[y].length; x++)
+			for (int y = 0; y < board[x].length; y++)
 			{
-				addCellLayerDrawingBuffer(board[y][x]);
+				addCellLayerDrawingBuffer(board[x][y]);
 			}
 		}
-		
-		//addPlayerLayerDrawingBuffer();
+
+		addPlayerLayerDrawingBuffer();
 		//addWeaponLayerDrawingBuffer();
+	}
+
+	private void addPlayerLayerDrawingBuffer()
+	{
+		Cell[][] board = game.getCells();
+		List<Player> players = game.getAllPlayers();
+
+		for (int x = 0; x < board.length; x++)
+		{
+			for (int y = 0; y < board[x].length; y++)
+			{
+				for (Player p : players)
+				{
+					Cell playerLocation = game.getPosition(p.getPiece());
+					
+					if (board[x][y].equals(playerLocation)) // Draw the Piece in this Cell
+					{
+						drawingBuffer[(3 * x) + 1][(3 * y) + 1] = getPlayerDisplayable(p);
+					}
+				}
+
+			}
+		}
+	}
+
+	/**
+	 * As GameBuilder is non public and doesn't provide
+	 * the names in a public and fixed manner we need to
+	 * hard code the names here. If the names or order changes
+	 * then this method will need to change too.
+	 * @param p The player whose character we need to represent.
+	 * @return The character representing p.
+	 */
+	private Character getPlayerDisplayable(Player p)
+	{
+		Character playerDisplayable = ' ';
+		
+		switch (p.getName())
+		{
+			case "Miss Scarlett":
+				playerDisplayable = 'S';
+				break;
+			case "Colonel Mustard":
+				playerDisplayable = 'C';
+				break;
+			case "Mrs. White":
+				playerDisplayable = 'w';
+				break;
+			case "Reverend Green":
+				playerDisplayable = 'G';
+				break;
+			case "Mrs. Peacock":
+				playerDisplayable = 'p';
+				break;
+			case "Professor Plum":
+				playerDisplayable = 'P';
+				break;
+			default:
+				// Player not recognised, don't draw them
+		}
+		
+		return playerDisplayable;
 	}
 
 	private void addCellLayerDrawingBuffer(Cell cell)
@@ -212,7 +249,7 @@ public class TextUserInterface
 		// Each cell is 3*3, so we multiply the Cell location by 3 to avoid overwriting other Cell's walls.
 		int x = 3 * cell.getX();
 		int y = 3 * cell.getY();
-		
+
 		boolean north = cell.hasWall(Direction.North);
 		boolean south = cell.hasWall(Direction.South);
 		boolean east = cell.hasWall(Direction.East);
@@ -222,12 +259,12 @@ public class TextUserInterface
 		drawingBuffer[x][y] = cellTopLeft(north, west);
 		drawingBuffer[x + 1][y] = cellTopCentre(north);
 		drawingBuffer[x + 2][y] = cellTopRight(north, east);
-		
+
 		// Middle row
 		drawingBuffer[x][y + 1] = cellMiddleLeft(west);
 		drawingBuffer[x + 1][y + 1] = cellMiddleCentre();
 		drawingBuffer[x + 2][y + 1] = cellMiddleRight(east);
-		
+
 		// Bottom row
 		drawingBuffer[x][y + 2] = cellBottomLeft(south, west);
 		drawingBuffer[x + 1][y + 2] = cellBottomCentre(south);
@@ -252,7 +289,7 @@ public class TextUserInterface
 		{
 			result = verticalLine;
 		} // Else an empty space.
-		
+
 		return result;
 	}
 
@@ -279,7 +316,7 @@ public class TextUserInterface
 		{
 			result = verticalLine;
 		} // Else an empty space.
-		
+
 		return result;
 	}
 
@@ -316,7 +353,7 @@ public class TextUserInterface
 		{
 			result = verticalLine;
 		} // Else an empty space.
-		
+
 		return result;
 	}
 
@@ -343,7 +380,7 @@ public class TextUserInterface
 		{
 			result = verticalLine;
 		} // Else an empty space.
-		
+
 		return result;
 	}
 
@@ -373,8 +410,6 @@ public class TextUserInterface
 		// Get the user input, and loop until we have something valid.
 		do
 		{
-			int IOExceptionAttempts = 0; // We should tell the user what's going on in a friendly manner even if they have verboseErrors turned off.
-
 			try
 			{
 
@@ -404,20 +439,12 @@ public class TextUserInterface
 			}
 			catch (IOException e)
 			{
-				IOExceptionAttempts++;
 				if (gameOptions.verboseErrors)
 				{
 					e.printStackTrace();
 				}
 				println();
 				print("Sorry, I couldn't hear you. Could you please repeat that?");
-
-				if (IOExceptionAttempts >= 3) // FIXME 3 was chosen arbitrarily. 
-				{
-					print(" (IO exception)");
-				}
-
-				println();
 			}
 		} while (userSelection == userSelectionSentinel);
 
@@ -522,7 +549,7 @@ public class TextUserInterface
 			regex.addAll(regexOptions); // And their associated regexs.
 
 			userSelection = executeMenu(menuTitle, options, regex);
-			
+
 			/*
 			 * We deal with options 1 to 4, so the calling function doesn't need to.
 			 */
@@ -563,7 +590,7 @@ public class TextUserInterface
 		 * marked off the player's case file. 
 		 */
 		//TODO
-		
+
 	}
 
 	/**
@@ -589,22 +616,29 @@ public class TextUserInterface
 
 		for (int player = 0; player < Game.MAX_HUMAN_PLAYERS; player++)
 		{
-			players.add(() -> {});
+			Piece p = new Piece(){
+				public void display(){
+					
+				}
+			};
+			players.add(p);
 		}
 
 		return players;
 	}
 
-	/**
-	 * The values returned here are based on order of the values in Game.
-	 */
 	private List<Piece> createWeaponTokens()
 	{
 		List<Piece> weapons = new ArrayList<Piece>();
 
 		for (int weapon = 0; weapon < Game.NUM_WEAPONS; weapon++)
 		{
-			weapons.add(() -> {});
+			Piece p = new Piece(){
+				public void display(){
+					
+				}
+			};
+			weapons.add(p);
 		}
 
 		return weapons;
@@ -612,41 +646,53 @@ public class TextUserInterface
 
 	private List<Displayable> createRoomCards()
 	{
-		// TODO Auto-generated method stub
-		List<Displayable> weapons = new ArrayList<Displayable>();
+		List<Displayable> roomCards = new ArrayList<Displayable>();
 
-		for (int weapon = 0; weapon < Game.NUM_ROOMS; weapon++)
+		for (int room = 0; room < Game.NUM_ROOMS; room++)
 		{
-			weapons.add(() -> {});
+			Displayable dis = new Displayable(){
+				public void display(){
+					
+				}
+			};
+			roomCards.add(dis);
 		}
 
-		return weapons;
+		return roomCards;
 	}
 
 	private List<Displayable> createWeaponCards()
 	{
-		// TODO Auto-generated method stub
-		List<Displayable> weapons = new ArrayList<Displayable>();
+		List<Displayable> weaponCards = new ArrayList<Displayable>();
 
 		for (int weapon = 0; weapon < Game.NUM_WEAPONS; weapon++)
 		{
-			weapons.add(() -> {});
+			Displayable dis = new Displayable(){
+				public void display(){
+					
+				}
+			};
+			weaponCards.add(dis);
 		}
 
-		return weapons;
+		return weaponCards;
 	}
 
 	private List<Displayable> createSuspectCards()
 	{
-		// TODO Auto-generated method stub
-		List<Displayable> weapons = new ArrayList<Displayable>();
+		List<Displayable> suspectCards = new ArrayList<Displayable>();
 
-		for (int weapon = 0; weapon < Game.MAX_PLAYERS; weapon++)
+		for (int suspect = 0; suspect < Game.MAX_PLAYERS; suspect++)
 		{
-			weapons.add(() -> {});
+			Displayable dis = new Displayable(){
+				public void display(){
+					
+				}
+			};
+			suspectCards.add(dis);
 		}
 
-		return weapons;
+		return suspectCards;
 	}
 
 
