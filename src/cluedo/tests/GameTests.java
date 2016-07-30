@@ -5,16 +5,21 @@ import static org.junit.Assert.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import cluedo.game.Game;
+import cluedo.model.Cell;
 import cluedo.model.Displayable;
 import cluedo.model.Piece;
 import cluedo.model.Player;
+import cluedo.model.Room;
+import cluedo.model.Weapon;
 
 public class GameTests {
 
@@ -52,7 +57,12 @@ public class GameTests {
 
 		for (int player = 0; player < Game.MAX_HUMAN_PLAYERS; player++)
 		{
-			players.add(() -> {});
+			Piece p = new Piece(){
+				public void display(){
+					
+				}
+			};
+			players.add(p);
 		}
 
 		return players;
@@ -64,7 +74,12 @@ public class GameTests {
 
 		for (int weapon = 0; weapon < Game.NUM_WEAPONS; weapon++)
 		{
-			weapons.add(() -> {});
+			Piece p = new Piece(){
+				public void display(){
+					
+				}
+			};
+			weapons.add(p);
 		}
 
 		return weapons;
@@ -72,38 +87,53 @@ public class GameTests {
 
 	private List<Displayable> createRoomCards()
 	{
-		List<Displayable> weapons = new ArrayList<Displayable>();
+		List<Displayable> roomCards = new ArrayList<Displayable>();
 
-		for (int weapon = 0; weapon < Game.NUM_ROOMS; weapon++)
+		for (int room = 0; room < Game.NUM_ROOMS; room++)
 		{
-			weapons.add(() -> {});
+			Displayable dis = new Displayable(){
+				public void display(){
+					
+				}
+			};
+			roomCards.add(dis);
 		}
 
-		return weapons;
+		return roomCards;
 	}
 
 	private List<Displayable> createWeaponCards()
 	{
-		List<Displayable> weapons = new ArrayList<Displayable>();
+		List<Displayable> weaponCards = new ArrayList<Displayable>();
 
 		for (int weapon = 0; weapon < Game.NUM_WEAPONS; weapon++)
 		{
-			weapons.add(() -> {});
+			Displayable dis = new Displayable(){
+				public void display(){
+					
+				}
+			};
+			weaponCards.add(dis);
 		}
 
-		return weapons;
+		return weaponCards;
 	}
 
 	private List<Displayable> createSuspectCards()
 	{
-		List<Displayable> weapons = new ArrayList<Displayable>();
+		List<Displayable> suspectCards = new ArrayList<Displayable>();
 
-		for (int weapon = 0; weapon < Game.MAX_PLAYERS; weapon++)
+		for (int suspect = 0; suspect < Game.MAX_PLAYERS; suspect++)
 		{
-			weapons.add(() -> {});
+			Displayable dis = new Displayable(){
+				public void display(){
+					
+				}
+			};
+			suspectCards.add(dis);
 		}
 
-		return weapons;
+		return suspectCards;
 	}
 	@Test
 	public void testPlayerOrder() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
@@ -116,7 +146,8 @@ public class GameTests {
 		while(currentPlayer != startPlayer)
 		{
 			startOrderNum++;
-			if(startOrderNum >= Game.MAX_HUMAN_PLAYERS){
+			if(startOrderNum >= Game.MAX_HUMAN_PLAYERS)
+			{
 				startOrderNum = 0;
 			}
 			resetRemainingMoves();
@@ -124,6 +155,34 @@ public class GameTests {
 			if(SUSPECT_NAMES.get(currentPlayer.getName()) != startOrderNum)
 			{
 				fail("Player order not enforced");
+			}
+		}
+	}
+	@Test
+	public void testStartingWeaponsInDifferentRooms()
+	{
+		Set<Room> rooms = new HashSet<Room>();
+		List<Weapon> weapons = game.getWeapons();
+		for(Weapon w : weapons)
+		{
+			System.out.println(w.getPiece());
+			Cell cell = game.getPosition(w.getPiece());
+			System.out.println(cell.getX() + " " + cell.getY());
+			assertNotNull("Weapon piece must be on a cell",cell);
+			try
+			{
+				Room room = game.getRoom(cell);
+				System.out.println(room.getName());
+				System.out.println(w.getName());
+				if(rooms.contains(room))
+				{
+					fail("Cannot have a weapon in the same room as another weapon");
+				}
+				rooms.add(room);
+			}
+			catch(IllegalArgumentException e)
+			{
+				fail("Weapon piece must be in a room");
 			}
 		}
 	}
