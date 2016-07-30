@@ -106,7 +106,6 @@ public class Board
 	 * Sets the piece to the specified cell position
 	 * 
 	 * Used for setting:
-	 * Starting position for pieces
      * Secret passage usage
      * Suggestions to move weapons and Pieces (if needed)
      * Entering/exiting rooms
@@ -122,6 +121,13 @@ public class Board
 		{
 			throw new IllegalArgumentException("Arguments are null");
 		}
+		//Check if the cell is in the array;
+		int x = cell.getX();
+		int y = cell.getY();
+		if(cells[x][y] != cell)
+		{
+			throw new IllegalArgumentException("Cell is not a cell on the board");
+		}
 		//Remove previous position
 		Cell previous = pieceOnCell.get(piece);
 		cellHasPiece.remove(previous);
@@ -130,14 +136,10 @@ public class Board
 		pieceOnCell.put(piece,cell);
 	}
 	/**
-	 * /**
 	 * Sets the piece to the specified cell position
-	 * 
+	 * Gets the cell based on the x and y position
 	 * Used for setting:
-	 * Starting position for pieces
-     * Secret passage usage
-     * Suggestions to move weapons and Pieces (if needed)
-     * Entering/exiting rooms
+	 * Starting position of pieces
 	 *
 	 * @param piece
 	 * @param x
@@ -155,6 +157,10 @@ public class Board
 		{
 			throw new IllegalArgumentException("Coordinates out of the board's boundaries");
 		}
+		//Remove previous position
+		Cell previous = pieceOnCell.get(piece);
+		cellHasPiece.remove(previous);
+		//Put new position
 		Cell cell = cells[x][y];
 		cellHasPiece.put(cell,piece);
 		pieceOnCell.put(piece,cell);
@@ -186,6 +192,10 @@ public class Board
 		}
 		int x = cell.getX();
 		int y = cell.getY();
+		if(x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT)
+		{
+			throw new IllegalArgumentException("Cell is outside the board's boundaries");
+		}
 		switch(direction)
 		{
 		case North:
