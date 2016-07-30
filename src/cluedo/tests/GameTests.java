@@ -13,6 +13,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
+import cluedo.board.Board;
 import cluedo.exceptions.HasRemainingMovesException;
 import cluedo.exceptions.IllegalMethodCallException;
 import cluedo.exceptions.InvalidMoveException;
@@ -28,6 +29,7 @@ import cluedo.model.cards.Card;
 import cluedo.model.cards.RoomCard;
 import cluedo.model.cards.SuspectCard;
 import cluedo.model.cards.WeaponCard;
+import cluedo.utility.Heading;
 import cluedo.utility.Heading.Direction;
 
 public class GameTests {
@@ -236,7 +238,7 @@ public class GameTests {
 	public void testPlayerOrder() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
 	{
 		//6 players
-		Player startPlayer = game.nextTurn();
+		Player startPlayer = game.getCurrentPlayer();
 		assertNotNull("Should not be given null startPlayer",startPlayer);
 		int startOrderNum = SUSPECT_ORDER.get(startPlayer.getName());
 		resetRemainingMoves();
@@ -276,7 +278,7 @@ public class GameTests {
 	public void testPlayerHand()
 	{
 		Player startPlayer = null;
-		Player currentPlayer = nextPlayer();
+		Player currentPlayer = game.getCurrentPlayer();
 		Set<Card> allCards = new HashSet<Card>();
 		while(currentPlayer != startPlayer)
 		{
@@ -309,14 +311,14 @@ public class GameTests {
 	@Test (expected = HasRemainingMovesException.class)
 	public void invalidHasRemainingMoves()
 	{
-		game.nextTurn();
 		assert game.getRemainingMoves() >= 2 && game.getRemainingMoves() <=12 : "remainingMoves should be between 2 and 12" + game.getRemainingMoves();
 		game.nextTurn();
+		assert game.getRemainingMoves() >= 2 && game.getRemainingMoves() <=12 : "remainingMoves should be between 2 and 12" + game.getRemainingMoves();
 	}
 	@Test
 	public void invalidGameOver() throws InvalidMoveException, NoAvailableExitException
 	{
-		Player currentPlayer = game.nextTurn();
+		Player currentPlayer = game.getCurrentPlayer();
 		assertFalse(game.isGameOver());
 		causeGameOver();
 		assertTrue(game.isGameOver());
@@ -371,5 +373,49 @@ public class GameTests {
 			fail("Cannot continue playing when the game is over");
 		}
 		catch(IllegalMethodCallException e){}
+	}
+	
+	@Test
+	public void testValidMove()
+	{
+		Player currentPlayer = game.getCurrentPlayer();
+		int remainingMoves = game.getRemainingMoves();
+		Cell pos = game.getPosition(currentPlayer.getPiece());
+		int x = pos.getX();
+		int y = pos.getY();
+		Direction dir = Direction.West;
+		if(x == 0)
+		{
+			dir = Direction.East;
+		}
+		else if(y == 0)
+		{
+			dir = Direction.South;
+		}
+		else if(y == Board.HEIGHT-1)
+		{
+			dir = Direction.North;
+		}
+		try {
+			Cell cell = game.move(dir);
+			switch(dir)
+			{
+			case North:
+				assertEquals(y-1,cell.getY());
+				break;
+			case South:
+				assertEquals(y+1,cell.getY());
+				break;
+			case East:
+				assertEquals(x+1,cell.getX());
+				break;
+			case West:
+				assertEquals(x-1,cell.getX());
+				break;
+			}
+		} catch (InvalidMoveException e) {
+			fail("Could not move " + e.getMessage());
+		}
+		assertEquals(remainingMoves-1, game.getRemainingMoves());
 	}
 }

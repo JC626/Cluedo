@@ -165,6 +165,7 @@ public class Game
 		exitCells = roomBuilder.getExitCells();
 		rooms = roomBuilder.getRooms();
 		setStartingPosition();
+		nextTurn();
 	}
 	
 	/**
