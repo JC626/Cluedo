@@ -507,6 +507,14 @@ public class Game
 			if (removedPos <= currentPlayerPos) 
 			{
 				pos--;
+				/*
+				 * Rare case that first player wants to make an
+				 * accusation on the first round
+				 */
+				if(pos < 0)
+				{
+					pos = players.size() -1;
+				}
 				// Current player failed the accusation
 				if (removedPos == currentPlayerPos) 
 				{
