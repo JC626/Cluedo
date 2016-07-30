@@ -504,8 +504,8 @@ public class Game
 			// Accusation failed, remove player from the game
 			players.remove(player);
 			int pos = turn.getPos();
-			int currentPlayerPos = GameBuilder.SUSPECT_NAMES.get(currentPlayer.getName());
-			int removedPos = GameBuilder.SUSPECT_NAMES.get(player.getName());
+			int currentPlayerPos = GameBuilder.SUSPECT_ORDER.get(currentPlayer.getName());
+			int removedPos = GameBuilder.SUSPECT_ORDER.get(player.getName());
 			if (removedPos <= currentPlayerPos) 
 			{
 				pos--;

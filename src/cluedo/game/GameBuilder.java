@@ -31,15 +31,18 @@ import cluedo.model.cards.WeaponCard;
 		 * A map of the suspect names mapped to the order the player is according to
 		 * the clockwise order of the player's starting position in the Cluedo game
 		 */
-	 public static final Map<String, Integer> SUSPECT_NAMES = new HashMap<String, Integer>();
+	 public static final String[] SUSPECT_NAMES = new String[]{ "Miss Scarlett","Colonel Mustard",
+			 "Mrs. White","Reverend Green","Mrs. Peacock","Professor Plum"
+	 };
+	 public static final Map<String, Integer> SUSPECT_ORDER = new HashMap<String, Integer>();
 	// Static initializer
 	static{
-			SUSPECT_NAMES.put("Miss Scarlett", 0);
-			SUSPECT_NAMES.put("Colonel Mustard", 1);
-			SUSPECT_NAMES.put("Mrs. White", 2);
-			SUSPECT_NAMES.put("Reverend Green", 3);
-			SUSPECT_NAMES.put("Mrs. Peacock", 4);
-			SUSPECT_NAMES.put("Professor Plum", 5);
+			SUSPECT_ORDER.put("Miss Scarlett", 0);
+			SUSPECT_ORDER.put("Colonel Mustard", 1);
+			SUSPECT_ORDER.put("Mrs. White", 2);
+			SUSPECT_ORDER.put("Reverend Green", 3);
+			SUSPECT_ORDER.put("Mrs. Peacock", 4);
+			SUSPECT_ORDER.put("Professor Plum", 5);
 	}
 	
 	private static final String[] WEAPON_NAMES = new String[] { "Dagger", "Candlestick", "Revolver", "Rope",
@@ -60,7 +63,7 @@ import cluedo.model.cards.WeaponCard;
 	{
 		List<Player> players = new ArrayList<Player>();
 		int i = 0;
-		for (String playerName : SUSPECT_NAMES.keySet()) 
+		for (String playerName : SUSPECT_NAMES) 
 		{
 			assert i < Game.MAX_PLAYERS : "Exceeded the total number of players";
 			Player p = new Player(playerName, playerTokens.get(i));
@@ -106,8 +109,8 @@ import cluedo.model.cards.WeaponCard;
 			{
 				// Put added players in a clockwise order based off the starting
 				// player's position on the board
-				int startOrder = SUSPECT_NAMES.get(startingPlayer.getName());
-				int playerOrder = SUSPECT_NAMES.get(randPlayer.getName());
+				int startOrder = SUSPECT_ORDER.get(startingPlayer.getName());
+				int playerOrder = SUSPECT_ORDER.get(randPlayer.getName());
 				int index = playerOrder > startOrder ? playerOrder - startOrder : Game.MAX_HUMAN_PLAYERS + (playerOrder - startOrder);
 				playerArr[index] = randPlayer;
 			}
@@ -170,7 +173,7 @@ import cluedo.model.cards.WeaponCard;
 	{
 		List<SuspectCard> suspectCards = new ArrayList<SuspectCard>();
 		int i = 0;
-		for (String suspectName : SUSPECT_NAMES.keySet()) 
+		for (String suspectName : SUSPECT_ORDER.keySet()) 
 		{
 			assert i < Game.MAX_PLAYERS : "Exceeded the total number of suspects";
 			SuspectCard p = new SuspectCard(suspectName, suspectCardFaces.get(i));
