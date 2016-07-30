@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import cluedo.board.Board;
 import cluedo.game.Game;
+
 import cluedo.model.Cell;
 import cluedo.model.Displayable;
 import cluedo.model.Piece;
@@ -34,13 +35,13 @@ public class TextUserInterface
 	private static final String menuFormat = "    [%d] %s";
 	private static final String userPrompt = "> ";
 	private static final String shortcutDisplayCommand = "shortcuts";
-	
+
 	private static final Character horizontalLine = 'W';//'\u2550';
 	private static final Character verticalLine = 'W';//'\u2551';
-	
+
 	private static final Character topLeftCorner = 'W';//'\u2554';
 	private static final Character topRightCorner = 'W';//'\u2557';
-	
+
 	private static final Character bottomLeftCorner = 'W';//'\u255A';
 	private static final Character bottomRightCorner = 'W';//'\u255D';
 
@@ -57,23 +58,23 @@ public class TextUserInterface
 
 	private Game game;
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	private void newGame()
 	{
 		int numberOfPlayers = promptMenuNumber("Select players: ", Game.MIN_HUMAN_PLAYERS, Game.MAX_PLAYERS, " players");
@@ -114,7 +115,7 @@ public class TextUserInterface
 					 * Make a suggestion
 					 * Exit the room (if they haven't just entered)
 					 */
-					
+
 					options.add("Exit the " + game.getRoom(game.getPosition(currentPlayer.getPiece())).getName());
 					regex.add("exit|leave|go");
 
@@ -168,7 +169,7 @@ public class TextUserInterface
 	private void generateBoard()
 	{
 		Cell[][] board = game.getCells();
-		
+
 		for (int y = 0; y < board.length; y++)
 		{
 			for (int x = 0; x < board[y].length; x++)
@@ -176,9 +177,71 @@ public class TextUserInterface
 				addCellLayerDrawingBuffer(board[y][x]);
 			}
 		}
-		
-		//addPlayerLayerDrawingBuffer();
+
+		addPlayerLayerDrawingBuffer();
 		//addWeaponLayerDrawingBuffer();
+	}
+
+	private void addPlayerLayerDrawingBuffer()
+	{
+		Cell[][] board = game.getCells();
+		List<Player> players = game.getAllPlayers();
+
+		for (int y = 0; y < board.length; y++)
+		{
+			for (int x = 0; x < board[y].length; x++)
+			{
+				for (Player p : players)
+				{
+					Cell playerLocation = game.getPosition(p.getPiece());
+					
+					if (board[x][y].equals(playerLocation)) // Draw the Piece in this Cell
+					{
+						drawingBuffer[x + 1][y + 1] = getPlayerDisplayable(p);
+					}
+				}
+
+			}
+		}
+	}
+
+	/**
+	 * As GameBuilder is non public and doesn't provide
+	 * the names in a public and fixed manner we need to
+	 * hard code the names here. If the names or order changes
+	 * then this method will need to change too.
+	 * @param p The player whose character we need to represent.
+	 * @return The character representing p.
+	 */
+	private Character getPlayerDisplayable(Player p)
+	{
+		Character playerDisplayable = ' ';
+		
+		switch (p.getName())
+		{
+			case "Miss Scarlett":
+				playerDisplayable = 'S';
+				break;
+			case "Colonel Mustard":
+				playerDisplayable = 'C';
+				break;
+			case "Mrs. White":
+				playerDisplayable = 'w';
+				break;
+			case "Reverend Green":
+				playerDisplayable = 'G';
+				break;
+			case "Mrs. Peacock":
+				playerDisplayable = 'p';
+				break;
+			case "Professor Plum":
+				playerDisplayable = 'P';
+				break;
+			default:
+				// Player not recognised, don't draw them
+		}
+		
+		return playerDisplayable;
 	}
 
 	private void addCellLayerDrawingBuffer(Cell cell)
@@ -186,7 +249,7 @@ public class TextUserInterface
 		// Each cell is 3*3, so we multiply the Cell location by 3 to avoid overwriting other Cell's walls.
 		int x = 3 * cell.getX();
 		int y = 3 * cell.getY();
-		
+
 		boolean north = cell.hasWall(Direction.North);
 		boolean south = cell.hasWall(Direction.South);
 		boolean east = cell.hasWall(Direction.East);
@@ -196,12 +259,12 @@ public class TextUserInterface
 		drawingBuffer[x][y] = cellTopLeft(north, west);
 		drawingBuffer[x + 1][y] = cellTopCentre(north);
 		drawingBuffer[x + 2][y] = cellTopRight(north, east);
-		
+
 		// Middle row
 		drawingBuffer[x][y + 1] = cellMiddleLeft(west);
 		drawingBuffer[x + 1][y + 1] = cellMiddleCentre();
 		drawingBuffer[x + 2][y + 1] = cellMiddleRight(east);
-		
+
 		// Bottom row
 		drawingBuffer[x][y + 2] = cellBottomLeft(south, west);
 		drawingBuffer[x + 1][y + 2] = cellBottomCentre(south);
@@ -226,7 +289,7 @@ public class TextUserInterface
 		{
 			result = verticalLine;
 		} // Else an empty space.
-		
+
 		return result;
 	}
 
@@ -253,7 +316,7 @@ public class TextUserInterface
 		{
 			result = verticalLine;
 		} // Else an empty space.
-		
+
 		return result;
 	}
 
@@ -290,7 +353,7 @@ public class TextUserInterface
 		{
 			result = verticalLine;
 		} // Else an empty space.
-		
+
 		return result;
 	}
 
@@ -317,7 +380,7 @@ public class TextUserInterface
 		{
 			result = verticalLine;
 		} // Else an empty space.
-		
+
 		return result;
 	}
 
@@ -486,7 +549,7 @@ public class TextUserInterface
 			regex.addAll(regexOptions); // And their associated regexs.
 
 			userSelection = executeMenu(menuTitle, options, regex);
-			
+
 			/*
 			 * We deal with options 1 to 4, so the calling function doesn't need to.
 			 */
@@ -527,7 +590,7 @@ public class TextUserInterface
 		 * marked off the player's case file. 
 		 */
 		//TODO
-		
+
 	}
 
 	/**
