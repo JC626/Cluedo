@@ -178,7 +178,7 @@ public class TextUserInterface
 			}
 		}
 
-		//addPlayerLayerDrawingBuffer();
+		addPlayerLayerDrawingBuffer();
 		//addWeaponLayerDrawingBuffer();
 	}
 
@@ -187,9 +187,9 @@ public class TextUserInterface
 		Cell[][] board = game.getCells();
 		List<Player> players = game.getAllPlayers();
 
-		for (int y = 0; y < board.length; y++)
+		for (int x = 0; x < board.length; x++)
 		{
-			for (int x = 0; x < board[y].length; x++)
+			for (int y = 0; y < board[x].length; y++)
 			{
 				for (Player p : players)
 				{
@@ -197,7 +197,7 @@ public class TextUserInterface
 					
 					if (board[x][y].equals(playerLocation)) // Draw the Piece in this Cell
 					{
-						drawingBuffer[x + 1][y + 1] = getPlayerDisplayable(p);
+						drawingBuffer[(3 * x) + 1][(3 * y) + 1] = getPlayerDisplayable(p);
 					}
 				}
 
@@ -616,22 +616,29 @@ public class TextUserInterface
 
 		for (int player = 0; player < Game.MAX_HUMAN_PLAYERS; player++)
 		{
-			players.add(() -> {});
+			Piece p = new Piece(){
+				public void display(){
+					
+				}
+			};
+			players.add(p);
 		}
 
 		return players;
 	}
 
-	/**
-	 * The values returned here are based on order of the values in Game.
-	 */
 	private List<Piece> createWeaponTokens()
 	{
 		List<Piece> weapons = new ArrayList<Piece>();
 
 		for (int weapon = 0; weapon < Game.NUM_WEAPONS; weapon++)
 		{
-			weapons.add(() -> {});
+			Piece p = new Piece(){
+				public void display(){
+					
+				}
+			};
+			weapons.add(p);
 		}
 
 		return weapons;
@@ -639,41 +646,53 @@ public class TextUserInterface
 
 	private List<Displayable> createRoomCards()
 	{
-		// TODO Auto-generated method stub
-		List<Displayable> weapons = new ArrayList<Displayable>();
+		List<Displayable> roomCards = new ArrayList<Displayable>();
 
-		for (int weapon = 0; weapon < Game.NUM_ROOMS; weapon++)
+		for (int room = 0; room < Game.NUM_ROOMS; room++)
 		{
-			weapons.add(() -> {});
+			Displayable dis = new Displayable(){
+				public void display(){
+					
+				}
+			};
+			roomCards.add(dis);
 		}
 
-		return weapons;
+		return roomCards;
 	}
 
 	private List<Displayable> createWeaponCards()
 	{
-		// TODO Auto-generated method stub
-		List<Displayable> weapons = new ArrayList<Displayable>();
+		List<Displayable> weaponCards = new ArrayList<Displayable>();
 
 		for (int weapon = 0; weapon < Game.NUM_WEAPONS; weapon++)
 		{
-			weapons.add(() -> {});
+			Displayable dis = new Displayable(){
+				public void display(){
+					
+				}
+			};
+			weaponCards.add(dis);
 		}
 
-		return weapons;
+		return weaponCards;
 	}
 
 	private List<Displayable> createSuspectCards()
 	{
-		// TODO Auto-generated method stub
-		List<Displayable> weapons = new ArrayList<Displayable>();
+		List<Displayable> suspectCards = new ArrayList<Displayable>();
 
-		for (int weapon = 0; weapon < Game.MAX_PLAYERS; weapon++)
+		for (int suspect = 0; suspect < Game.MAX_PLAYERS; suspect++)
 		{
-			weapons.add(() -> {});
+			Displayable dis = new Displayable(){
+				public void display(){
+					
+				}
+			};
+			suspectCards.add(dis);
 		}
 
-		return weapons;
+		return suspectCards;
 	}
 
 
