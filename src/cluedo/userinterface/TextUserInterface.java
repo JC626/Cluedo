@@ -136,32 +136,7 @@ public class TextUserInterface
 					 * Move
 					 */
 					options.add("Move");
-					regex.add(  // Allow the user to press any number of NSEW in any combination to direct their character.
-							// Yes, this is ugly, but it's clearer than the regex required to match any combination of any of these characters.
-							"n*e*s*w*"+ "|" + 
-							"n*e*w*s*"+ "|" + 
-							"n*s*e*w*"+ "|" + 
-							"n*s*w*e*"+ "|" + 
-							"n*w*e*s*"+ "|" + 
-							"n*w*s*e*"+ "|" + 
-							"e*n*w*s*"+ "|" + 
-							"e*n*s*w*"+ "|" + 
-							"e*s*w*n*"+ "|" + 
-							"e*s*n*w*"+ "|" + 
-							"e*w*s*n*"+ "|" + 
-							"e*w*n*s*"+ "|" + 
-							"s*n*e*w*"+ "|" + 
-							"s*n*w*e*"+ "|" + 
-							"s*e*n*w*"+ "|" + 
-							"s*e*w*n*"+ "|" + 
-							"s*w*n*e*"+ "|" + 
-							"s*w*e*n*"+ "|" + 
-							"w*n*s*e*"+ "|" + 
-							"w*n*e*s*"+ "|" + 
-							"w*e*s*n*"+ "|" + 
-							"w*e*n*s*"+ "|" + 
-							"w*s*e*n*"+ "|" + 
-							"w*s*n*e*");
+					regex.add("(n|s|e|w)+");
 				}
 
 				if (gameOptions.printBoardAtStartTurn)
@@ -184,7 +159,6 @@ public class TextUserInterface
 		{
 			for (int x = 0; x < drawingBuffer.length; x++)
 			{
-			
 				print(drawingBuffer[x][y].toString());
 			}
 			println();
@@ -373,8 +347,6 @@ public class TextUserInterface
 		// Get the user input, and loop until we have something valid.
 		do
 		{
-			int IOExceptionAttempts = 0; // We should tell the user what's going on in a friendly manner even if they have verboseErrors turned off.
-
 			try
 			{
 
@@ -404,20 +376,12 @@ public class TextUserInterface
 			}
 			catch (IOException e)
 			{
-				IOExceptionAttempts++;
 				if (gameOptions.verboseErrors)
 				{
 					e.printStackTrace();
 				}
 				println();
 				print("Sorry, I couldn't hear you. Could you please repeat that?");
-
-				if (IOExceptionAttempts >= 3) // FIXME 3 was chosen arbitrarily. 
-				{
-					print(" (IO exception)");
-				}
-
-				println();
 			}
 		} while (userSelection == userSelectionSentinel);
 
