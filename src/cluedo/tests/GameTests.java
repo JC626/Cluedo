@@ -166,6 +166,12 @@ public class GameTests {
 		}
 	}
 
+	private Player nextPlayer()
+	{
+		resetRemainingMoves();
+		return game.nextTurn();
+	}
+
 	@Test
 	public void testStartingPositionWeaponsInDifferentRooms()
 	{
@@ -267,17 +273,16 @@ public class GameTests {
 			assertEquals("RoomSize " + roomCards.size() +  "SuspectSize " + suspectCards.size() + "WeaponSize " +  weaponCards.size(), 18, sizeAllTogether);
 			currentPlayer = nextPlayer();
 		}
-		int numCards =  game.NUM_WEAPONS + game.NUM_ROOMS + game.MAX_PLAYERS;
+		int numCards =  Game.NUM_WEAPONS + Game.NUM_ROOMS + Game.MAX_PLAYERS;
 		assertEquals(numCards,allCards.size());
 	}
 	@Test
 	public void testExtraCards()
 	{
-		
-	}
-	private Player nextPlayer()
-	{
-		resetRemainingMoves();
-		return game.nextTurn();
+		setupGame(5);
+		assertEquals(3,game.getExtraCards().size());
+		setupGame(4);
+		assertEquals(2,game.getExtraCards().size());
+
 	}
 }

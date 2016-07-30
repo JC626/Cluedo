@@ -195,9 +195,9 @@ public class Game
 		allCards.addAll(roomCards);
 		Collections.shuffle(allCards);
 		int numPlayers = activeHumanPlayers.size();
-		int numExtra = allCards.size() % numPlayers;
+		int numExtra = (allCards.size()-2) % numPlayers;
 		//Number of cards each player will get
-		int numCards = (allCards.size() - numExtra) / numPlayers; 
+		int numCards = (allCards.size() - numExtra -2) / numPlayers; 
 		int countCards = 0;
 		Set<Card> cardsForPlayer = new HashSet<Card>();
 		for (Card card : allCards) {
@@ -224,7 +224,6 @@ public class Game
 			countCards++;
 			if (countCards == numCards) 
 			{
-				int size = caseFile.getRoomCards().size() + caseFile.getSuspectCards().size() + caseFile.getWeaponCards().size();
 				// Put the cards in for a human player
 				playerHand.put(player, cardsForPlayer);
 				// Go to the next player
@@ -834,6 +833,29 @@ public class Game
 	{
 		CaseFile casefile = playerToCasefile.get(currentPlayer);
 		return Collections.unmodifiableList(casefile.getSuspectCards());
+	}
+	/**
+	 * @return All suspect cards
+	 */
+	public List<SuspectCard> getSuspectCards() 
+	{
+		return Collections.unmodifiableList(suspectCards);
+	}
+	
+	/**
+	 * @return All weapon cards
+	 */
+	public List<WeaponCard> getWeaponCards() 
+	{
+		return Collections.unmodifiableList(weaponCards);
+	}
+	
+	/**
+	 * @return All room cards
+	 */
+	public List<RoomCard> getRoomCards() {
+		
+		return Collections.unmodifiableList(roomCards);
 	}
 	
 	/**
