@@ -346,17 +346,17 @@ public class Game
 		{
 			return false;
 		}
+		if(hasMadeSuggestion)
+		{
+			return false;
+		}
 		/*
 		 * A player that has transferred (due to another player's suggestion)
 		 * can make a suggestion
 		 */
-		if(transferred.get(currentPlayer))
+		if(transferred.containsKey(currentPlayer) && transferred.get(currentPlayer))
 		{
 			return true;
-		}
-		if(hasMadeSuggestion)
-		{
-			return false;
 		}
 		return true;
 	}
@@ -404,6 +404,10 @@ public class Game
 			throw new IllegalMethodCallException(
 					currentPlayer.getName() + " cannot make a suggestion as they are not in a room");
 		}
+		if(hasMadeSuggestion)
+		{
+			throw new IllegalMethodCallException("Can only make a suggestion once per turn");
+		}
 		// Get the roomCard for the room the current player is in
 		RoomCard roomCard = null;
 		String roomName = getCurrentRoom().getName();
@@ -436,7 +440,7 @@ public class Game
 		allHumanIterator = new Turn<Player>(allHumanIterator.getList(), turn.getPos());
 		Player player = allHumanIterator.next();
 		Map<Player, Set<Card>> disprover = new HashMap<Player, Set<Card>>();
-
+		hasMadeSuggestion = true;
 		while (player != currentPlayer) 
 		{
 			Set<Card> cards = playerHand.get(player);
@@ -458,7 +462,6 @@ public class Game
 				return disprover;
 			}
 		}
-		hasMadeSuggestion = true;
 		return new HashMap<Player, Set<Card>>();
 	}
 
@@ -592,7 +595,7 @@ public class Game
 		else
 		{
 			board.setPosition(currentPlayer.getPiece(), cell);
-			lastRoom = playerToRoom.get(currentPlayer);
+			lastRoom = getCurrentRoom();
 			playerToRoom.put(currentPlayer, null);
 			remainingMoves--;
 			playerPath.add(cell);
@@ -644,7 +647,7 @@ public class Game
 	 */
 	private void putInRoom(Piece piece, Room room) 
 	{
-		for(Cell cell :roomCells.get(room))
+		for(Cell cell:roomCells.get(room))
 		{
 			/*
 			 * Do not put a piece on one of the entrance cells as 

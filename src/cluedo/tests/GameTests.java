@@ -242,7 +242,7 @@ public class GameTests {
 	 */
 	private void putPeacockInRoom() throws InvalidMoveException
 	{
-		Player peacock = getSpecificPlayer("Mrs. Peacock");
+		getSpecificPlayer("Mrs. Peacock");
 		setRemainingMoves(12);
 		game.move(Direction.West);
 		game.move(Direction.West);
@@ -631,7 +631,6 @@ public class GameTests {
 		assertEquals("Lounge",game.getRoom(playerPos).getName());
 		assertTrue(game.canMakeSuggestion());
 	}
-	//TODO when exits are blocked
 	@Test
 	public void testAccusationWin()
 	{
@@ -748,4 +747,37 @@ public class GameTests {
 		}
 			assertTrue(game.isGameOver());
 	}
+	//TODO exits are blocked
+	//TODO players enter same square
+	//TODO multiple players can be in the same room
+	//TODO suggestionOneCard
+	//TODO suggestionMultipleCard
+	//TODO suggestionNoDisprovers
+	//TODO suggestion secret passage
+	//TODO suggestion when transferred
+	//TODO player is actually transferred to the room
+	
+	@Test (expected = IllegalMethodCallException.class)
+	public void invalidSuggestionOutsideRoom()
+	{
+		assertFalse(game.canMakeSuggestion());
+		WeaponCard suggestWeapon = (WeaponCard) game.getWeaponCards().get(0);
+		SuspectCard suggestSuspect = (SuspectCard) game.getSuspectCards().get(0);
+		game.makeSuggestion(suggestWeapon, suggestSuspect);
+		fail("Should not be allowed to make a suggestion outside a room");
+	}
+	
+	@Test (expected = IllegalMethodCallException.class)
+	public void invalidMultipleSuggestion() throws InvalidMoveException
+	{
+		putPeacockInRoom();
+		assertTrue(game.canMakeSuggestion());
+		WeaponCard suggestWeapon = (WeaponCard) game.getWeaponCards().get(0);
+		SuspectCard suggestSuspect = (SuspectCard) game.getSuspectCards().get(0);
+		game.makeSuggestion(suggestWeapon, suggestSuspect);
+		assertFalse(game.canMakeSuggestion());
+		game.makeSuggestion(suggestWeapon, suggestSuspect);
+		fail("Should not be allowed to make a suggestion twice in one turn");
+	}
+	
 }
