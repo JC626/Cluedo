@@ -70,7 +70,7 @@ public class Board
 			throw new InvalidMoveException("Cannot move in that direction as a wall is blocking the way");
 		}
 		Cell newPos = getNeighbouringCell(onPiece,direction);
-		if(cellHasPiece.get(newPos) != null)
+		if(containsPiece(newPos))
 		{
 			throw new InvalidMoveException("Cannot move to a cell with another player on it");
 		}
@@ -80,7 +80,7 @@ public class Board
 	
 	public boolean containsPiece(Cell cell)
 	{
-		return cellHasPiece.containsKey(cell);
+		return cellHasPiece.get(cell) != null;
 	}
 	
 	/**

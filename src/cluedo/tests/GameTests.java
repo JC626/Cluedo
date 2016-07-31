@@ -165,7 +165,7 @@ public class GameTests {
 			remainingMoves.setAccessible(true);
 			remainingMoves.set(game, 0);
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
+			fail("Field cannot be accessed");
 		}
 	}
 	/**
@@ -179,7 +179,7 @@ public class GameTests {
 			remainingMoves.setAccessible(true);
 			remainingMoves.set(game, moveNum);
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
+			fail("Field cannot be accessed");
 		}
 	}
 	/**
@@ -194,7 +194,7 @@ public class GameTests {
 			gameOver.setAccessible(true);
 			gameOver.set(game, true);
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
+			fail("Field cannot be accessed");
 		}
 	}
 	/**
@@ -271,6 +271,28 @@ public class GameTests {
 		assert answer != null;
 		return answer.getRoomCards().get(0);
 	}
+	
+	/**
+	 * Used to move players to a particular cell
+	 * using reflection.
+	 * @param player
+	 * @param x
+	 * @param y
+	 */
+	private void teleportPlayer(Player player,int x, int y)
+	{
+		Field boardField;
+		try {
+			boardField = Game.class.getDeclaredField("board");
+			boardField.setAccessible(true);
+			Board board = (Board) boardField.get(game);
+			board.setPosition(player.getPiece(), x, y);
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			fail("Field not accessible");
+		}
+	
+	}
+
 	/**
 	 * All weapon pieces start in different rooms
 	 */
@@ -395,6 +417,9 @@ public class GameTests {
 		assertEquals(numCards,allCards.size());
 	}
 	
+	/**
+	 * Test game creation for a different number of players
+	 */
 	@Test 
 	public void testNumberPlayers()
 	{
@@ -540,6 +565,9 @@ public class GameTests {
 		assertEquals(remainingMoves-1, game.getRemainingMoves());
 	}
 	
+	/**
+	 * Cannot give a null direction
+	 */
 	@Test (expected = IllegalArgumentException.class)
 	public void testInvalidNullDirectionMove() throws InvalidMoveException
 	{
@@ -547,6 +575,9 @@ public class GameTests {
 		fail("Null should not be able to move a direction");
 	}
 	
+	/**
+	 * Cannot move as no more moves left
+	 */
 	@Test(expected = InvalidMoveException.class)
 	public void testInvalidNoRemainingMoves() throws InvalidMoveException
 	{
@@ -566,6 +597,9 @@ public class GameTests {
 		fail("Should not be able to reenter the same path");
 	}
 	
+	/**
+	 * Cannot move through a wall
+	 */
 	@Test(expected = InvalidMoveException.class)
 	public void testInvalidMoveAgainstWall() throws InvalidMoveException
 	{
@@ -573,6 +607,34 @@ public class GameTests {
 		game.move(Direction.North);
 		fail("Should not be able to move through a wall");
 	}
+	/**
+	 * Players cannot move on a cell that another player is on
+	 */
+	@Test (expected = InvalidMoveException.class)
+	public void testInvalidMoveSameSquare() throws InvalidMoveException
+	{
+		
+		getSpecificPlayer("Mrs. White");
+		teleportPlayer(getSpecificPlayer("Mrs. White"),0,7);
+		teleportPlayer(getSpecificPlayer("Mrs. Peacock"),0,8);
+		getSpecificPlayer("Mrs. White");
+		game.move(Direction.South);
+	}
+	
+	/**
+	 * Cannot move as the path is blocked by another player
+	 */
+	@Test (expected = InvalidMoveException.class)
+	public void testInvalidMovePathBlocked() throws InvalidMoveException
+	{
+		teleportPlayer(getSpecificPlayer("Mrs. White"),22,6);
+		getSpecificPlayer("Mrs. Peacock");
+		game.move(Direction.West);
+	}
+	
+	/**
+	 * Entering a room
+	 */
 	@Test
 	public void testEnterRoom() throws InvalidMoveException
 	{
@@ -584,6 +646,10 @@ public class GameTests {
 		assertEquals("Conservatory",game.getRoom(playerPos).getName());
 		assertEquals("Conservatory",game.getCurrentRoom().getName());
 	}
+	
+	/**
+	 * Exiting a room into the hallway
+	 */
 	@Test
 	public void testExitIntoHallway() throws InvalidMoveException, NoAvailableExitException
 	{
@@ -599,6 +665,48 @@ public class GameTests {
 		assertEquals(5, playerPos.getY());
 	}
 	
+	/**
+	 * Cannot exit room as player's are blocking the way
+	 */
+	@Test
+	public void testExitsBlocked() throws InvalidMoveException
+	{
+		teleportPlayer(getSpecificPlayer("Mrs. Peacock"), 17, 9);
+		game.move(Direction.East);
+		Player white = getSpecificPlayer("Mrs. White");
+		Player plum = getSpecificPlayer("Professor Plum");
+		teleportPlayer(white, 22, 13);
+		teleportPlayer(plum, 17, 9);
+		getSpecificPlayer("Mrs. Peacock");
+		try {
+			List<Cell> exits = game.getAvailableExits();
+			fail("All exits should be blocked");
+		} 
+		catch (NoAvailableExitException e) {
+		}
+		Cell exitOne = game.getPosition(white.getPiece());
+		Cell exitTwo = game.getPosition(plum.getPiece());
+		try
+		{
+			game.takeExit(exitOne);
+			fail("Should not be able to take an exit that's blocked");
+		}
+		catch(InvalidMoveException e){
+		}
+		try
+		{
+			game.takeExit(exitTwo);
+			fail("Should not be able to take an exit that's blocked");
+		}
+		catch(InvalidMoveException e){
+		}
+		
+	}
+	
+	/**
+	 * Player tries to reenter a room they have exited
+	 * on the same turn
+	 */
 	@Test(expected = InvalidMoveException.class)
 	public void testInvalidReenterRoom() throws InvalidMoveException, NoAvailableExitException
 	{
@@ -616,6 +724,9 @@ public class GameTests {
 		fail("Should not be able to reenter a room");
 	}
 	
+	/**
+	 * Player uses a secret passage on one of the corner rooms
+	 */
 	@Test
 	public void testSecretPassage() throws InvalidMoveException, NoAvailableExitException
 	{
@@ -634,6 +745,10 @@ public class GameTests {
 		SuspectCard guessSuspect = (SuspectCard) game.getSuspectCards().get(0);
 		game.makeSuggestion(guessWeapon,guessSuspect);
 	}
+	
+	/**
+	 * A player made an accusation and won the game
+	 */
 	@Test
 	public void testAccusationWin()
 	{
@@ -654,6 +769,9 @@ public class GameTests {
 		assertTrue(game.isGameOver());
 	}
 	
+	/**
+	 * A player made an accusation on their corresponding turn and failed
+	 */
 	@Test
 	public void testSelfAccusationFail()
 	{
@@ -672,7 +790,13 @@ public class GameTests {
 		assertFalse(game.getActivePlayers().contains(player));
 		assertNull(getSpecificPlayer(player.getName())); //Check player removed from turn rotation
 		assertEquals(numPlayers - 1, game.getActivePlayers().size());
+		assertFalse(game.isGameOver());
 	}
+	
+	/**
+	 * A player made an accusation on another player's
+	 * turn and failed
+	 */
 	@Test
 	public void testAccusationFail()
 	{
@@ -694,8 +818,13 @@ public class GameTests {
 		assertFalse(game.getActivePlayers().contains(player));
 		assertNull(getSpecificPlayer(player.getName())); //Check player removed from turn rotation
 		assertEquals(numPlayers - 1, game.getActivePlayers().size());
+		assertFalse(game.isGameOver());
 	}
 	
+	/**
+	 * A player made an accusation on another player's
+	 * turn and failed. This happens until there are no more players
+	 */
 	@Test
 	public void testAccusationFailAllPlayers()
 	{
@@ -725,6 +854,11 @@ public class GameTests {
 		}
 			assertTrue(game.isGameOver());
 	}
+	
+	/**
+	 * All players made an accusation on their corresponding turn
+	 * and failed
+	 */
 	@Test
 	public void testSelfAccusationFailAllPlayers()
 	{
@@ -750,8 +884,11 @@ public class GameTests {
 		}
 			assertTrue(game.isGameOver());
 	}
-	//TODO exits are blocked
-	//TODO players enter same square
+	
+	/**
+	 * Suggestion where a player who is disproving the suggestion
+	 * has more than one card that was suggested
+	 */
 	@Test
 	public void testSuggestionMultipleCard() throws InvalidMoveException
 	{
@@ -834,6 +971,10 @@ public class GameTests {
 		assertTrue(cards.contains(guessSuspect));
 	}
 	
+	/**
+	 * Suggestion with one player who has one of the cards to disprove
+	 * the suggestion
+	 */
 	@Test
 	public void testSuggestionOneCard() throws InvalidMoveException
 	{
@@ -904,6 +1045,9 @@ public class GameTests {
 		}
 	}
 	
+	/**
+	 * Suggestions with no players disproving
+	 */
 	@Test
 	public void testSuggestionNoDisprovers() throws InvalidMoveException
 	{
@@ -934,6 +1078,9 @@ public class GameTests {
 		assertEquals(0,disprover.size());
 	}
 	
+	/**
+	 * Transferred player can make a suggestion
+	 */
 	@Test
 	public void testSuggestionTransferred() throws InvalidMoveException
 	{
@@ -959,8 +1106,10 @@ public class GameTests {
 		//Check transferred player is actually in the room
 		assertTrue(game.isInRoom());
 		assertEquals("Conservatory",game.getCurrentRoom().getName());
-		//Transferred player can make a suggestion in the room
-		System.out.println(answerSuspect.getName());
+		/*
+		 * Cannot make a suggestion if player suggested a suspect card
+		 * with piece's face as they would not have transferred rooms
+		 */
 		if(answerSuspect.getName().equals("Mrs. Peacock"))
 		{
 			assertFalse(game.canMakeSuggestion());
@@ -969,9 +1118,9 @@ public class GameTests {
 			}
 			catch(IllegalArgumentException e)
 			{
-				
 			}
 		}
+		//Transferred player can make a suggestion in the room
 		else
 		{
 			assertTrue(game.canMakeSuggestion());
@@ -979,6 +1128,9 @@ public class GameTests {
 		}
 	}
 	
+	/**
+	 * Cannot make a suggestion outside a room
+	 */
 	@Test (expected = IllegalMethodCallException.class)
 	public void testInvalidSuggestionOutsideRoom()
 	{
@@ -989,6 +1141,9 @@ public class GameTests {
 		fail("Should not be allowed to make a suggestion outside a room");
 	}
 	
+	/**
+	 * Cannot make multiple suggestions in one turn
+	 */
 	@Test (expected = IllegalMethodCallException.class)
 	public void testInvalidMultipleSuggestion() throws InvalidMoveException
 	{

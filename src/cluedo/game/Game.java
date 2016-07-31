@@ -25,6 +25,7 @@ import cluedo.model.cards.RoomCard;
 import cluedo.model.cards.SuspectCard;
 import cluedo.model.cards.WeaponCard;
 import cluedo.utility.Heading.Direction;
+import cluedo.utility.Heading;
 import cluedo.utility.Turn;
 
 //TODO Game description
@@ -602,6 +603,14 @@ public class Game
 		{
 			throw new InvalidMoveException(currentPlayer.getName() + " is not in a room therefore cannot exit");
 		}
+		if (remainingMoves <= 0) 
+		{
+			throw new InvalidMoveException("Cannot move as no moves left");
+		}	
+		if(board.containsPiece(cell))
+		{
+			throw new InvalidMoveException("Another player is blocking that exit");
+		}
 		//Used secret passage
 		if(cellToRoom.containsKey(cell))
 		{
@@ -930,6 +939,79 @@ public class Game
 	 */
 	public boolean isGameOver() {
 		return gameOver;
+	}
+	//FIXME keep?
+	public boolean allPathsBlocked()
+	{		
+		Set<Direction> directions = new HashSet<Direction>();
+		Set<Direction> toRemove = new HashSet<Direction>();
+		directions.add(Direction.North);
+		directions.add(Direction.South);
+		directions.add(Direction.West);
+		directions.add(Direction.East);
+		if(!isInRoom())
+		{
+			Cell pos = getPosition(currentPlayer.getPiece());
+			for(Direction dir : directions)
+			{
+				if(pos.hasWall(dir))
+				{
+					toRemove.add(dir);
+				}
+			}
+			directions.removeAll(toRemove);
+			int x = pos.getX();
+			int y = pos.getY();
+			Cell[][] cells = getCells();
+			for(Direction dir : directions)
+			{
+				switch(dir)
+				{
+				case North:
+					if(board.containsPiece(cells[x][y-1]))
+					{
+						toRemove.add(dir);
+					}
+					break;
+				case South:
+					if(board.containsPiece(cells[x][y+1]))
+					{
+						toRemove.add(dir);
+					}
+					break;
+				case East:
+					if(board.containsPiece(cells[x+1][y]))
+					{
+						toRemove.add(dir);
+					}
+					break;
+				case West:
+					if(board.containsPiece(cells[x-1][y]))
+					{
+						toRemove.add(dir);
+					}
+					break;
+				}
+			}
+			directions.removeAll(toRemove);
+			if(directions.isEmpty())
+			{
+				return true;
+			}
+		}
+		else
+		{
+			try 
+			{
+				return getAvailableExits().isEmpty();
+			} 
+			catch (NoAvailableExitException e) {
+				return true;
+			} 
+			catch (InvalidMoveException e) {	
+			}
+		}
+		return false;
 	}
 
 }
