@@ -47,8 +47,8 @@ class RoomBuilder
 			2, 23, 2, 18, 3, 19, 3, 20, 3, 21, 3, 22, 3, 23, 3, 18, 4, 19, 4, 20, 4, 21, 4, 22, 4, 23, 4, 19, 5, 20, 5,
 			21, 5, 22, 5 };
 
-	private int[] CONSERVATORY_ENTRANCE = new int[] { 19, 5, 22, 5 };
-	private int[] CONSERVATORY_EXIT = new int[] { 19, 6, 0, 19 };
+	private int[] CONSERVATORY_ENTRANCE = new int[] { 18, 6, 22, 5 };
+	private int[] CONSERVATORY_EXIT = new int[] { 18, 5, 0, 19 };
 
 	private int[] DINING_ROOM = new int[] { 0, 9, 1, 9, 2, 9, 3, 9, 4, 9, 0, 10, 1, 10, 2, 10, 3, 10, 4, 10, 5, 10, 6,
 			10, 7, 10, 0, 11, 1, 11, 2, 11, 3, 11, 4, 11, 5, 11, 6, 11, 7, 11, 0, 12, 1, 12, 2, 12, 3, 12, 4, 12, 5, 12,

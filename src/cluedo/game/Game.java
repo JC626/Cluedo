@@ -530,13 +530,12 @@ public class Game
 				 */
 				if(pos < 0)
 				{
-					//FIXME second accusation error
-					pos = players.size()- 1;
-					//pos = players.size() < 2 ? 1 : players.size()- 1;
+					pos = players.size()-1;
 				}
 				// Current player failed the accusation
 				if (removedPos == currentPlayerPos) 
 				{
+					//FIXME second player accusation incorrect
 					// Current player has no more moves as they are eliminated
 					remainingMoves = 0;
 					// Go to next player if it was the current player who failed
@@ -586,6 +585,10 @@ public class Game
 		else
 		{
 			board.setPosition(currentPlayer.getPiece(), cell);
+			lastRoom = playerToRoom.get(currentPlayer);
+			playerToRoom.put(currentPlayer, null);
+			remainingMoves--;
+			playerPath.add(cell);
 		}
 		return cell;
 	}

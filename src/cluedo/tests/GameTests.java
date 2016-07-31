@@ -155,10 +155,6 @@ public class GameTests {
 	}
 	/**
 	 * Using reflection to set remainingMoves to zero for testing purposes
-	 * @throws SecurityException 
-	 * @throws NoSuchFieldException 
-	 * @throws IllegalAccessException 
-	 * @throws IllegalArgumentException 
 	 */
 	private void resetRemainingMoves()
 	{
@@ -167,6 +163,20 @@ public class GameTests {
 			remainingMoves = Game.class.getDeclaredField("remainingMoves");
 			remainingMoves.setAccessible(true);
 			remainingMoves.set(game, 0);
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+	}
+	/**
+	 * Using reflection to set remainingMoves to a specific number for testing purposes
+	 */
+	private void setRemainingMoves(int moveNum)
+	{
+		Field remainingMoves = null;
+		try {
+			remainingMoves = Game.class.getDeclaredField("remainingMoves");
+			remainingMoves.setAccessible(true);
+			remainingMoves.set(game, moveNum);
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
@@ -206,13 +216,37 @@ public class GameTests {
 		{
 			fail("Invalid playerName put into getSpecificPlayer name method. Fix corresponding test");
 		}
+		int pCount = 0;
 		while(!currentPlayer.getName().equals(playerName))
 		{
+			if(pCount > 6)
+			{
+				fail("Player is not an active player. Fix corresponding test");
+			}
 			currentPlayer = nextPlayer();
+			pCount++;
 		}
 		return currentPlayer;
 	}
 	
+	/**
+	 * Put Mrs. Peacock in a room from her
+	 *  starting position
+	 * @throws InvalidMoveException 
+	 */
+	private void putPeacockInRoom() throws InvalidMoveException
+	{
+		Player peacock = getSpecificPlayer("Mrs. Peacock");
+		setRemainingMoves(12);
+		game.move(Direction.West);
+		game.move(Direction.West);
+		game.move(Direction.West);
+		game.move(Direction.West);
+		game.move(Direction.West);
+		game.move(Direction.North);
+		game.move(Direction.North);
+	}
+
 	/**
 	 * All weapon pieces start in different rooms
 	 */
@@ -472,6 +506,7 @@ public class GameTests {
 	public void testInvalidNullDirectionMove() throws InvalidMoveException
 	{
 		game.move(null);
+		fail("Null should not be able to move a direction");
 	}
 	
 	@Test(expected = InvalidMoveException.class)
@@ -479,6 +514,7 @@ public class GameTests {
 	{
 		resetRemainingMoves();
 		game.move(Direction.North);
+		fail("Cannot move if there are no remaining moves");
 	}
 	/**
 	 * Player moves on a cell they have already been on in the same turn
@@ -489,19 +525,59 @@ public class GameTests {
 		getSpecificPlayer("Mrs. Peacock");
 		game.move(Direction.West);
 		game.move(Direction.East);
+		fail("Should not be able to reenter the same path");
 	}
+	
 	@Test(expected = InvalidMoveException.class)
 	public void testInvalidMoveAgainstWall() throws InvalidMoveException
 	{
 		getSpecificPlayer("Mrs. Peacock");
 		game.move(Direction.North);
+		fail("Should not be able to move through a wall");
 	}
-	
-	
-	//TODO test entering a room
-	//TODO test exiting a room
-	//TODO invalid entering and exiting the same room
-	
-	//TODO  pick one specific character and use that character to move around for testing (skip all other players).
-	
+	@Test
+	public void testEnterRoom() throws InvalidMoveException
+	{
+		while(!game.isInRoom())
+		{
+			putPeacockInRoom();
+			Player peacock = getSpecificPlayer("Mrs. Peacock");
+			Cell playerPos = game.getPosition(peacock.getPiece());
+			assertTrue(game.isInRoom());
+			assertEquals(0,game.getRemainingMoves());
+			assertEquals("Conservatory",game.getRoom(playerPos).getName());
+			assertEquals("Conservatory",game.getCurrentRoom().getName());
+		}
+		
+	}
+	@Test
+	public void testExitIntoHallway() throws InvalidMoveException, NoAvailableExitException
+	{
+		putPeacockInRoom();
+		game.nextTurn();
+		Player peacock = getSpecificPlayer("Mrs. Peacock");
+		List<Cell> exits = game.getAvailableExits();
+		assertFalse(exits.isEmpty());
+		game.takeExit(exits.get(0)); //Not the secret passage
+		assertFalse(game.isInRoom());
+		Cell playerPos = game.getPosition(peacock.getPiece());
+		assertEquals(18, playerPos.getX());
+		assertEquals(5, playerPos.getY());
+	}
+	@Test(expected = InvalidMoveException.class)
+	public void testReenterRoom() throws InvalidMoveException, NoAvailableExitException
+	{
+		putPeacockInRoom();
+		game.nextTurn();
+		Player peacock = getSpecificPlayer("Mrs. Peacock");
+		List<Cell> exits = game.getAvailableExits();
+		assertFalse(exits.isEmpty());
+		game.takeExit(exits.get(0)); //Not the secret passage
+		assertFalse(game.isInRoom());
+		Cell playerPos = game.getPosition(peacock.getPiece());
+		assertEquals(18, playerPos.getX());
+		assertEquals(5, playerPos.getY());
+		game.move(Direction.North);
+		fail("Should not be able to reenter a room");
+	}
 }
