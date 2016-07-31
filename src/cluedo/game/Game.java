@@ -443,22 +443,23 @@ public class Game
 		hasMadeSuggestion = true;
 		while (player != currentPlayer) 
 		{
-			Set<Card> cards = playerHand.get(player);
-			if (cards.contains(roomCard)) 
+			Set<Card> playerCards = playerHand.get(player);
+			Set<Card> disprovingCards = new HashSet<Card>();
+			if (playerCards.contains(roomCard)) 
 			{
-				cards.add(roomCard);
+				disprovingCards.add(roomCard);
 			}
-			if (cards.contains(weaponCard)) 
+			if (playerCards.contains(weaponCard)) 
 			{
-				cards.add(weaponCard);
+				disprovingCards.add(weaponCard);
 			}
-			if (cards.contains(suspectCard)) 
+			if (playerCards.contains(suspectCard)) 
 			{
-				cards.add(suspectCard);
+				disprovingCards.add(suspectCard);
 			}
-			if (!cards.isEmpty()) 
+			if (!playerCards.isEmpty()) 
 			{
-				disprover.put(player, cards);
+				disprover.put(player, disprovingCards);
 				return disprover;
 			}
 		}
