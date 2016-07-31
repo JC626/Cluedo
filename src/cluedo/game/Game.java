@@ -307,6 +307,10 @@ public class Game
 		if(cellToRoom.containsKey(newPos))
 		{
 			Room room = cellToRoom.get(newPos);
+			if(!entranceCells.get(room).contains(newPos))
+			{
+				throw new InvalidMoveException("Did not enter the room through a valid entrance");
+			}
 			//Reallocate the player to a cell in the room
 			this.putInRoom(currentPlayer.getPiece(), room);
 			playerToRoom.put(currentPlayer, room);
