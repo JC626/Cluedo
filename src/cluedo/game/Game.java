@@ -342,6 +342,10 @@ public class Game
 		{
 			return false;
 		}
+		if(hasMadeSuggestion)
+		{
+			return false;
+		}
 		/*
 		 * A player that has transferred (due to another player's suggestion)
 		 * can make a suggestion
@@ -351,10 +355,6 @@ public class Game
 			return true;
 		}
 		if (remainingMoves != 0) 
-		{
-			return false;
-		}
-		if(hasMadeSuggestion)
 		{
 			return false;
 		}
@@ -419,23 +419,33 @@ public class Game
 				break;
 			}
 		}
-		//Transfer the suspected murder weapon and suspect to the current player's room
-		for(Player p : allPlayers) 
+		if(!currentPlayer.getName().equals(suspectCard.getName()))
 		{
-			if(p.getName().equals(suspectCard.getName())) 
-			{ //Put in the room
-				this.putInRoom(p.getPiece(),getCurrentRoom());
-				playerToRoom.put(p, getCurrentRoom());
-				transferred.put(p, true);
-				break; 
+			//Transfer a player if they are not in the room
+			for(Player p : allPlayers) 
+			{
+				if(p.getName().equals(suspectCard.getName())) 
+				{ //Put in the room
+					this.putInRoom(p.getPiece(),getCurrentRoom());
+					playerToRoom.put(p, getCurrentRoom());
+					transferred.put(p, true);
+					break; 
+					} 
 				} 
-			} 
+		}
+		//Transfer the weapon into the room
 		for(Weapon w : weapons) 
 		{
 			if(w.getName().equals(weaponCard.getName())) 
 			{ 
-				this.putInRoom(w.getPiece(),getCurrentRoom());
-				break; 
+				Cell weaponPos = getPosition(w.getPiece());
+				//Weapon is not in this room
+				if(cellToRoom.containsKey(weaponPos) &&
+ 						!cellToRoom.get(weaponPos).equals(getCurrentRoom()))
+				{
+					this.putInRoom(w.getPiece(),getCurrentRoom());
+					break; 
+				}
 			} 
 		}
 		// Iterate through each human player to try and disprove the suggestion

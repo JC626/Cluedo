@@ -752,7 +752,6 @@ public class GameTests {
 	}
 	//TODO exits are blocked
 	//TODO players enter same square
-	//TODO multiple players can be in the same room
 	@Test
 	public void testSuggestionMultipleCard() throws InvalidMoveException
 	{
@@ -859,11 +858,36 @@ public class GameTests {
 			setupGame(6);
 		}
 		assert answer != null;
-		WeaponCard answerWeapon = answer.getWeaponCards().get(0);
-		WeaponCard guessWeapon = (WeaponCard) game.getWeaponCards().get(0);
-		if(guessWeapon == answerWeapon)
+		WeaponCard guessWeapon = null;
+		Field playerHandField = null;
+		Map<Player,Set<Card>> allHands = null;
+		try 
 		{
-			guessWeapon = (WeaponCard) game.getWeaponCards().get(1);
+			playerHandField = Game.class.getDeclaredField("playerHand");
+			playerHandField.setAccessible(true);
+			allHands = (Map<Player,Set<Card>>) playerHandField.get(game);
+			for(Map.Entry<Player, Set<Card>> hands : allHands.entrySet())
+			{
+				if(hands.getKey().getName().equals("Mrs. Peacock"))
+				{
+					continue;
+				}
+				for(Card card : hands.getValue())
+				{
+					if(card instanceof WeaponCard)
+					{
+						guessWeapon = (WeaponCard) card;
+						break;
+					}
+				}
+				if(guessWeapon != null)
+				{
+					break;
+				}
+			}
+		} 
+		catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			fail("Field access error");
 		}
 		SuspectCard answerSuspect = answer.getSuspectCards().get(0);
 		putPeacockInRoom();
@@ -875,14 +899,8 @@ public class GameTests {
 			Player player = suggestion.getKey();
 			assertEquals(1,suggestion.getValue().size());
 			assertTrue(suggestion.getValue().contains(guessWeapon));
-			try {
-				Field playerHandField = Game.class.getDeclaredField("playerHand");
-				playerHandField .setAccessible(true);
-				Map<Player,Set<Card>> allHands = (Map<Player,Set<Card>>) playerHandField .get(game);
-				assertTrue(allHands.get(player).contains(guessWeapon)); //Check player actually has the card
-			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-				fail("Field access error");
-			}
+			assert allHands != null;
+			assertTrue(allHands.get(player).contains(guessWeapon)); //Check player actually has the card
 		}
 	}
 	
@@ -914,12 +932,6 @@ public class GameTests {
 		putPeacockInRoom();
 		Map<Player, Set<Card>> disprover = game.makeSuggestion(answerWeapon, answerSuspect);
 		assertEquals(0,disprover.size());
-		Player transferredPlayer = getSpecificPlayer(answerSuspect.getName());
-		assertTrue(game.isInRoom());
-		assertEquals("Conservatory",game.getCurrentRoom().getName());
-		//Transferred player can make a suggestion in the room
-		assertTrue(game.canMakeSuggestion());
-		game.makeSuggestion(answerWeapon, answerSuspect);
 	}
 	
 	@Test
@@ -941,13 +953,30 @@ public class GameTests {
 		SuspectCard answerSuspect = answer.getSuspectCards().get(0);
 		putPeacockInRoom();
 		game.makeSuggestion(answerWeapon, answerSuspect);
+		nextPlayer();
 		getSpecificPlayer(answerSuspect.getName());
+		//Multiple players can be in the same room
 		//Check transferred player is actually in the room
 		assertTrue(game.isInRoom());
 		assertEquals("Conservatory",game.getCurrentRoom().getName());
 		//Transferred player can make a suggestion in the room
-		assertTrue(game.canMakeSuggestion());
-		game.makeSuggestion(answerWeapon, answerSuspect);
+		System.out.println(answerSuspect.getName());
+		if(answerSuspect.getName().equals("Mrs. Peacock"))
+		{
+			assertFalse(game.canMakeSuggestion());
+			try{
+				game.makeSuggestion(answerWeapon, answerSuspect);
+			}
+			catch(IllegalArgumentException e)
+			{
+				
+			}
+		}
+		else
+		{
+			assertTrue(game.canMakeSuggestion());
+			game.makeSuggestion(answerWeapon, answerSuspect);
+		}
 	}
 	
 	@Test (expected = IllegalMethodCallException.class)
