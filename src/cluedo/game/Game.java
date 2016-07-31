@@ -164,6 +164,7 @@ public class Game
 		entranceCells = roomBuilder.getEntranceCells();
 		exitCells = roomBuilder.getExitCells();
 		rooms = roomBuilder.getRooms();
+		
 		setStartingPosition();
 		nextTurn();
 	}
@@ -345,7 +346,7 @@ public class Game
 		 * A player that has transferred (due to another player's suggestion)
 		 * can make a suggestion
 		 */
-		if(!transferred.get(currentPlayer))
+		if(!transferred.containsKey(currentPlayer) || !transferred.get(currentPlayer) )
 		{
 			return false;
 		}
@@ -529,7 +530,9 @@ public class Game
 				 */
 				if(pos < 0)
 				{
-					pos = players.size() -1;
+					//FIXME second accusation error
+					pos = players.size()- 1;
+					//pos = players.size() < 2 ? 1 : players.size()- 1;
 				}
 				// Current player failed the accusation
 				if (removedPos == currentPlayerPos) 
