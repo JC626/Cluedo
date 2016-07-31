@@ -5,13 +5,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import cluedo.board.Board;
+import cluedo.exceptions.InvalidMoveException;
 import cluedo.game.Game;
 
 import cluedo.model.Cell;
@@ -23,6 +23,7 @@ import cluedo.model.cards.Card;
 import cluedo.model.cards.RoomCard;
 import cluedo.model.cards.SuspectCard;
 import cluedo.model.cards.WeaponCard;
+import cluedo.utility.Heading;
 import cluedo.utility.Heading.Direction;
 
 /**
@@ -42,14 +43,14 @@ public class TextUserInterface
 	private static final String userPrompt = "> ";
 	private static final String shortcutDisplayCommand = "shortcuts";
 
-	private static final Character horizontalLine = 'W';//'\u2550';
-	private static final Character verticalLine = 'W';//'\u2551';
+	private static final Character horizontalLine = '=';//'\u2550';
+	private static final Character verticalLine = '|';//'\u2551';
 
-	private static final Character topLeftCorner = 'W';//'\u2554';
-	private static final Character topRightCorner = 'W';//'\u2557';
+	private static final Character topLeftCorner = '+';//'\u2554';
+	private static final Character topRightCorner = '+';//'\u2557';
 
-	private static final Character bottomLeftCorner = 'W';//'\u255A';
-	private static final Character bottomRightCorner = 'W';//'\u255D';
+	private static final Character bottomLeftCorner = '+';//'\u255A';
+	private static final Character bottomRightCorner = '+';//'\u255D';
 
 	private final GameOptions gameOptions = new GameOptions();
 	private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
@@ -109,15 +110,16 @@ public class TextUserInterface
 					regex.add(regex.remove(0) + "|"); 
 				}
 			}
-			else
+			else if (game.getRemainingMoves() > 0)
 			{
-				/*
-				 * The player can:
-				 * 
-				 * Move
-				 */
 				options.add("Move");
-				regex.add("(n|s|e|w)+");
+				regex.add("m|"); // Make movement the default
+			}
+
+			if (game.getRemainingMoves() <= 0)
+			{
+				options.add("End turn");
+				regex.add("done|next");
 			}
 
 			if (gameOptions.printBoardAtStartTurn)
@@ -127,21 +129,121 @@ public class TextUserInterface
 
 			userSelection = executeDefaultMenu(game.getCurrentPlayer().getName(), options, regex);
 
-			System.out.println("Moves: " + game.getRemainingMoves());
-			System.out.println("Player: " + game.getCurrentPlayer());
+			if (userSelection == 0) // Incorrect accusation
+			{
+				// Carry on, this player has been eliminated.
+			}
+			else
+			{
 
-			/*switch(userSelection)
+				if (game.isInRoom())
 				{
-					case 1:
-
-						//...
-					default: 
-						// 0 or currently unsupported option, continue on.
-				}*/
+					if (userSelection == 1) // Exit room
+					{
+						promptExitRoom();
+					}
+					else if (game.canMakeSuggestion()) // 2 == make suggestion, else 2 == end turn
+					{
+						promptMakeSuggestion();
+					}
+				}
+				else if (game.getRemainingMoves() > 0)
+				{
+					try
+					{
+						printRemainingMoves();
+						promptMovement();
+					}
+					catch (InvalidMoveException e)
+					{
+						println("You can't move in that direction");
+					}
+				}
+				else
+				{
+					game.nextTurn();
+				}
+			}
 
 			continuePromptMenu();
 
 		}
+	}
+
+	private void printRemainingMoves()
+	{
+
+		int remaining = game.getRemainingMoves();
+		String remainingMoves = "You have " + remaining + " move";
+
+		if (remaining != 1)
+		{
+			remainingMoves = remainingMoves + "s";
+		}
+
+		remainingMoves = remainingMoves + " remaining";
+		println(remainingMoves);
+	}
+
+	private void promptMovement() throws InvalidMoveException
+	{
+
+		String movement;
+
+		try
+		{
+			movement = getMovement();
+
+			makeMoves(movement);
+		}
+		catch (IOException e)
+		{
+			handleIOException(e);
+		}
+
+	}
+
+	private void makeMoves(String movement) throws InvalidMoveException
+	{
+		List<Direction> moves = Heading.convertStringToDirection(movement);
+
+		for (Direction d : moves)
+		{
+			game.move(d);
+		}
+	}
+
+	private String getMovement() throws IOException
+	{
+		String movement = null; // Will always be set, if we reach the return statement.
+		boolean validMovement = false;
+
+		while (!validMovement)
+		{
+			print(userPrompt);
+			movement = input.readLine().toLowerCase();
+
+			while (!Pattern.matches("(n|s|e|w)+".toLowerCase(), movement))
+			{
+				movement = input.readLine().toLowerCase();
+			}
+
+			if (movement != null)
+			{
+				if (movement.length() <= game.getRemainingMoves())
+				{
+					validMovement = true;
+				}
+			}
+		}
+
+		return movement;
+	}
+
+	private void promptExitRoom()
+	{
+		// TODO Auto-generated method stub
+
 	}
 
 	private void printBoard()
@@ -487,16 +589,21 @@ public class TextUserInterface
 			}
 			catch (IOException e)
 			{
-				if (gameOptions.verboseErrors)
-				{
-					e.printStackTrace();
-				}
-				println();
-				print("Sorry, I couldn't hear you. Could you please repeat that?");
+				handleIOException(e);
 			}
 		} while (userSelection == userSelectionSentinel);
 
 		return userSelection;
+	}
+
+	private void handleIOException(IOException e)
+	{
+		if (gameOptions.verboseErrors)
+		{
+			e.printStackTrace();
+		}
+		println();
+		print("Sorry, I couldn't hear you. Could you please repeat that?");
 	}
 
 	private void printShortcuts(List<String> menuOptions, List<String> regexMatches)
@@ -596,9 +703,6 @@ public class TextUserInterface
 			options.addAll(menuOptions); // Add all of the caller provided menu options.
 			regex.addAll(regexOptions); // And their associated regexs.
 
-			options.add("End turn");
-			regex.add("done|next");
-
 			userSelection = executeMenu(menuTitle, options, regex);
 
 			/*
@@ -633,41 +737,41 @@ public class TextUserInterface
 
 		return userSelection;
 	}
-	
+
 	private void promptMakeSuggestion()
 	{
 		SuspectCard murderer = (SuspectCard) promptCard("I suggest the crime was committed in the " + game.getCurrentRoom().getName() + " by ...", game.getSuspectCards());
 		WeaponCard murderWeapon = (WeaponCard) promptCard("with the ...", game.getWeaponCards());
-		
+
 		String verificationQuestion = String.format("You're suggesting %s committed the crime in the %s with the %s??", murderer.getName(), game.getCurrentRoom().getName(), murderWeapon.getName());
 
 		if (!promptMenuBoolean(verificationQuestion, "That's correct", "Actually, I'll take another look at the evidence"))
 		{
 			return; // The user decided not to go through with the suggestion.
 		}
-		
+
 		Map<Player, Set<Card>> disproved = game.makeSuggestion(murderWeapon, murderer);
-		
+
 		if (!disproved.isEmpty())
 		{
 			// Given that disproved is not empty, these two variables will be initialised.
 			Player disprovingPlayer = null;
 			Set<Card> disprovingHandSet = null;
-			
+
 			List<Card> disprovingHandList = new ArrayList<Card>();
-			
+
 			for (Player p : disproved.keySet())
 			{
 				disprovingPlayer = p;
 				disprovingHandSet = disproved.get(p);
 				break;
 			}
-			
+
 			for (Card c : disprovingHandSet)
 			{
 				disprovingHandList.add(c);
 			}
-			
+
 			String question = String.format("%s choose a card to reveal to %s:", disprovingPlayer.getName(), game.getCurrentPlayer().getName());
 			promptCard(question, disprovingHandList);
 		}
@@ -741,7 +845,7 @@ public class TextUserInterface
 
 		return game.getActivePlayers().get(userSelection - 1);
 	}
-	
+
 	private Player promptAccusingPlayer()
 	{
 		String question = "Who is making the accusation?";
@@ -775,7 +879,7 @@ public class TextUserInterface
 
 		return pieces;
 	}
-	
+
 	private List<Displayable> createRoomCards()
 	{
 		List<Displayable> roomCards = new ArrayList<Displayable>();
@@ -1105,7 +1209,7 @@ public class TextUserInterface
 		boolean printBoardAtStartTurn = true;
 		boolean verboseErrors = false; // Print out exception stack traces.
 	}
-	
+
 	public static void main(String[] args)
 	{
 		TextUserInterface t = new TextUserInterface();
