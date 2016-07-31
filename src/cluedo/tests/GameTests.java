@@ -630,6 +630,9 @@ public class GameTests {
 		Cell playerPos = game.getPosition(peacock.getPiece());
 		assertEquals("Lounge",game.getRoom(playerPos).getName());
 		assertTrue(game.canMakeSuggestion());
+		WeaponCard guessWeapon = (WeaponCard) game.getWeaponCards().get(0);
+		SuspectCard guessSuspect = (SuspectCard) game.getSuspectCards().get(0);
+		game.makeSuggestion(guessWeapon,guessSuspect);
 	}
 	@Test
 	public void testAccusationWin()
@@ -750,12 +753,139 @@ public class GameTests {
 	//TODO exits are blocked
 	//TODO players enter same square
 	//TODO multiple players can be in the same room
-	//TODO suggestionOneCard
-	//TODO suggestionMultipleCard
-	//TODO suggestion secret passage
-	//TODO suggestion when transferred
-	//TODO player is actually transferred to the room
+	@Test
+	public void testSuggestionMultipleCard() throws InvalidMoveException
+	{
+		Player disprovingPlayer = null;
+		WeaponCard guessWeapon = null;
+		SuspectCard guessSuspect = null;
+		boolean completeSetUp = false;
+		/*
+		 * Must get a player who has both a weapon and a suspect card to do the test
+		 * Otherwise reset the game
+		 */
+		while(!completeSetUp)
+		{
+			//Remove the roomCard as a variable
+			while(true)
+			{
+				CaseFile answer = null;
+				try 
+				{
+					Field answerField = Game.class.getDeclaredField("answer");
+					answerField.setAccessible(true);
+					answer = (CaseFile) answerField.get(game);
+				} 
+				catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+					fail("Field access error");
+				}
+				assert answer != null;
+				RoomCard answerRoom = answer.getRoomCards().get(0);
+				if(answerRoom.getName().equals("Conservatory"))
+				{
+					break;
+				}
+				setupGame(6);
+			}
 
+			getSpecificPlayer("Mrs. Peacock");
+			disprovingPlayer = nextPlayer();
+			while(!disprovingPlayer.getName().equals("Mrs. Peacock"))
+			{
+				try 
+				{
+					Field playerHandField = Game.class.getDeclaredField("playerHand");
+					playerHandField .setAccessible(true);
+					Map<Player,Set<Card>> allHands = (Map<Player,Set<Card>>) playerHandField .get(game);
+					for(Card card : allHands.get(disprovingPlayer))
+					{
+						if(card instanceof WeaponCard)
+						{
+							guessWeapon = (WeaponCard) card;
+						}
+						else if(card instanceof SuspectCard)
+						{
+							guessSuspect = (SuspectCard) card;
+						}
+					}
+				} 
+				catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+					fail("Field access error");
+				}
+				if(guessWeapon != null && guessSuspect != null)
+				{
+					completeSetUp = true;
+					break;
+				}
+				else
+				{
+					guessWeapon = null;
+					guessSuspect = null;
+					disprovingPlayer = nextPlayer();
+				}
+			}
+		}
+		putPeacockInRoom();
+		Map<Player,Set<Card>> disproving = game.makeSuggestion(guessWeapon, guessSuspect);
+		assertEquals(1,disproving.size());
+		assertTrue(disproving.containsKey(disprovingPlayer));
+		Set<Card> cards = disproving.get(disprovingPlayer);
+		assertEquals(2,cards.size());
+		assertTrue(cards.contains(guessWeapon));
+		assertTrue(cards.contains(guessSuspect));
+	}
+	
+	@Test
+	public void testSuggestionOneCard() throws InvalidMoveException
+	{
+		RoomCard answerRoom = null;
+		Field answerField = null;
+		CaseFile answer = null;
+		//Remove the roomCard as a variable
+		while(true){
+			try {
+				answerField = Game.class.getDeclaredField("answer");
+				answerField.setAccessible(true);
+				answer = (CaseFile) answerField.get(game);
+			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+				fail("Field access error");
+			}
+			assert answer != null;
+			answerRoom = answer.getRoomCards().get(0);
+			if(answerRoom.getName().equals("Conservatory"))
+			{
+				break;
+			}
+			setupGame(6);
+		}
+		assert answer != null;
+		WeaponCard answerWeapon = answer.getWeaponCards().get(0);
+		WeaponCard guessWeapon = (WeaponCard) game.getWeaponCards().get(0);
+		if(guessWeapon == answerWeapon)
+		{
+			guessWeapon = (WeaponCard) game.getWeaponCards().get(1);
+		}
+		SuspectCard answerSuspect = answer.getSuspectCards().get(0);
+		putPeacockInRoom();
+		Map<Player, Set<Card>> disprover = game.makeSuggestion(guessWeapon, answerSuspect);
+		assertEquals(1,disprover.size());
+		
+		for(Map.Entry<Player, Set<Card>> suggestion: disprover.entrySet())
+		{
+			Player player = suggestion.getKey();
+			assertEquals(1,suggestion.getValue().size());
+			assertTrue(suggestion.getValue().contains(guessWeapon));
+			try {
+				Field playerHandField = Game.class.getDeclaredField("playerHand");
+				playerHandField .setAccessible(true);
+				Map<Player,Set<Card>> allHands = (Map<Player,Set<Card>>) playerHandField .get(game);
+				assertTrue(allHands.get(player).contains(guessWeapon)); //Check player actually has the card
+			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+				fail("Field access error");
+			}
+		}
+	}
+	
 	@Test
 	public void testSuggestionNoDisprovers() throws InvalidMoveException
 	{
@@ -784,6 +914,40 @@ public class GameTests {
 		putPeacockInRoom();
 		Map<Player, Set<Card>> disprover = game.makeSuggestion(answerWeapon, answerSuspect);
 		assertEquals(0,disprover.size());
+		Player transferredPlayer = getSpecificPlayer(answerSuspect.getName());
+		assertTrue(game.isInRoom());
+		assertEquals("Conservatory",game.getCurrentRoom().getName());
+		//Transferred player can make a suggestion in the room
+		assertTrue(game.canMakeSuggestion());
+		game.makeSuggestion(answerWeapon, answerSuspect);
+	}
+	
+	@Test
+	public void testSuggestionTransferred() throws InvalidMoveException
+	{
+		RoomCard answerRoom = null;
+		Field answerField = null;
+		CaseFile answer = null;
+			try {
+				answerField = Game.class.getDeclaredField("answer");
+				answerField.setAccessible(true);
+				answer = (CaseFile) answerField.get(game);
+			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+				fail("Field access error");
+			}
+		assert answer != null;
+		answerRoom = answer.getRoomCards().get(0);
+		WeaponCard answerWeapon = answer.getWeaponCards().get(0);
+		SuspectCard answerSuspect = answer.getSuspectCards().get(0);
+		putPeacockInRoom();
+		game.makeSuggestion(answerWeapon, answerSuspect);
+		getSpecificPlayer(answerSuspect.getName());
+		//Check transferred player is actually in the room
+		assertTrue(game.isInRoom());
+		assertEquals("Conservatory",game.getCurrentRoom().getName());
+		//Transferred player can make a suggestion in the room
+		assertTrue(game.canMakeSuggestion());
+		game.makeSuggestion(answerWeapon, answerSuspect);
 	}
 	
 	@Test (expected = IllegalMethodCallException.class)

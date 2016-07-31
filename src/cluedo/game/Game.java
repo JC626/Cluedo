@@ -342,14 +342,6 @@ public class Game
 		{
 			return false;
 		}
-		if (remainingMoves != 0) 
-		{
-			return false;
-		}
-		if(hasMadeSuggestion)
-		{
-			return false;
-		}
 		/*
 		 * A player that has transferred (due to another player's suggestion)
 		 * can make a suggestion
@@ -357,6 +349,14 @@ public class Game
 		if(transferred.containsKey(currentPlayer) && transferred.get(currentPlayer))
 		{
 			return true;
+		}
+		if (remainingMoves != 0) 
+		{
+			return false;
+		}
+		if(hasMadeSuggestion)
+		{
+			return false;
 		}
 		return true;
 	}
@@ -425,6 +425,8 @@ public class Game
 			if(p.getName().equals(suspectCard.getName())) 
 			{ //Put in the room
 				this.putInRoom(p.getPiece(),getCurrentRoom());
+				playerToRoom.put(p, getCurrentRoom());
+				transferred.put(p, true);
 				break; 
 				} 
 			} 
@@ -441,6 +443,10 @@ public class Game
 		Player player = allHumanIterator.next();
 		Map<Player, Set<Card>> disprover = new HashMap<Player, Set<Card>>();
 		hasMadeSuggestion = true;
+		if(transferred.containsKey(currentPlayer) && transferred.get(currentPlayer))
+		{
+			remainingMoves = 0;
+		}
 		while (player != currentPlayer) 
 		{
 			Set<Card> playerCards = playerHand.get(player);
