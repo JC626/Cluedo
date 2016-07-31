@@ -119,7 +119,7 @@ public class BoardTests
 		board.move(() -> {}, getRandomDirection());
 	}
 
-	@Test (expected = InvalidMoveException.class)
+	/*@Test (expected = InvalidMoveException.class)
 	public void invalidMoveWallBlocking() throws InvalidMoveException 
 	{
 		// As there may not be a blocking wall for the direction
@@ -130,7 +130,7 @@ public class BoardTests
 
 		board.setPosition(validPiece, validCell); // We changed our Cell, so we need to move our Piece
 		board.move(validPiece, invalidDirection);
-	}
+	}*/
 
 	/*@Test (expected = InvalidMoveException.class)
 	public void invalidMovePieceBlocking() throws InvalidMoveException 
