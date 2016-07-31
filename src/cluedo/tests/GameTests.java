@@ -29,7 +29,6 @@ import cluedo.model.cards.Card;
 import cluedo.model.cards.RoomCard;
 import cluedo.model.cards.SuspectCard;
 import cluedo.model.cards.WeaponCard;
-import cluedo.utility.Heading;
 import cluedo.utility.Heading.Direction;
 
 public class GameTests {
@@ -155,7 +154,7 @@ public class GameTests {
 		return suspectCards;
 	}
 	/**
-	 * Using reflection to set remainingMoves to zero each time
+	 * Using reflection to set remainingMoves to zero for testing purposes
 	 * @throws SecurityException 
 	 * @throws NoSuchFieldException 
 	 * @throws IllegalAccessException 
@@ -174,6 +173,7 @@ public class GameTests {
 	}
 	/**
 	 * Use reflection to set gameOver to true
+	 * for testing purposes
 	 */
 	private void causeGameOver()
 	{
@@ -186,13 +186,36 @@ public class GameTests {
 			e.printStackTrace();
 		}
 	}
-
+	/**
+	 * @return The next player in the turn rotation, regardless of remaining moves
+	 */
 	private Player nextPlayer()
 	{
 		resetRemainingMoves();
 		return game.nextTurn();
 	}
-
+	/**
+	 * Switch the current player in the game to this character
+	 * @param playerName - Player wanted as the current player
+	 * @return The current player
+	 */
+	private Player getSpecificPlayer(String playerName)
+	{
+		Player currentPlayer = game.getCurrentPlayer();
+		if(!SUSPECT_ORDER.containsKey(playerName))
+		{
+			fail("Invalid playerName put into getSpecificPlayer name method. Fix corresponding test");
+		}
+		while(!currentPlayer.getName().equals(playerName))
+		{
+			currentPlayer = nextPlayer();
+		}
+		return currentPlayer;
+	}
+	
+	/**
+	 * All weapon pieces start in different rooms
+	 */
 	@Test
 	public void testStartingPositionWeaponsInDifferentRooms()
 	{
@@ -217,6 +240,9 @@ public class GameTests {
 			}
 		}
 	}
+	/**
+	 * All players are in their correct starting positions
+	 */
 	@Test 
 	public void testStartingPlayerPosition()
 	{
@@ -234,6 +260,10 @@ public class GameTests {
 			pCount++;
 		}
 	} 
+	/**
+	 * The order of player's is correct based on the
+	 * the starting position of player's in a clockwise order.
+	 */
 	@Test
 	public void testPlayerOrder() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
 	{
@@ -259,6 +289,10 @@ public class GameTests {
 
 		}
 	}
+	/**
+	 * Must only have between MIN_HUMAN_PLAYERS and MAX_HUMAN_PLAYERS
+	 * playing Cluedo game
+	 */
 	@Test 
 	public void invalidNumberPlayers()
 	{
@@ -268,12 +302,15 @@ public class GameTests {
 		}
 		catch(IllegalArgumentException e){}
 		try{
-			game = new Game(Game.MAX_PLAYERS+1,playerTokens,weaponTokens,suspectCardFaces,weaponCardFaces,roomCardFaces);
-			fail("Cannot have over " + Game.MAX_PLAYERS + " players");
+			game = new Game(Game.MAX_HUMAN_PLAYERS+1,playerTokens,weaponTokens,suspectCardFaces,weaponCardFaces,roomCardFaces);
+			fail("Cannot have over " + Game.MAX_HUMAN_PLAYERS + " players");
 		}
 		catch(IllegalArgumentException e){}
 	}
-	
+	/**
+	 * Ensure all cards are distributed and each player
+	 * has the correct number of cards
+	 */
 	@Test
 	public void testPlayerHand()
 	{
@@ -299,6 +336,9 @@ public class GameTests {
 		int numCards =  Game.NUM_WEAPONS + Game.NUM_ROOMS + Game.MAX_PLAYERS;
 		assertEquals(numCards,allCards.size());
 	}
+	/**
+	 * Ensure that there are extra cards from uneven distribution
+	 */
 	@Test
 	public void testExtraCards()
 	{
@@ -308,15 +348,22 @@ public class GameTests {
 		assertEquals(2,game.getExtraCards().size());
 	}
 	
+	/**
+	 * Cannot go to the next player if there are remaining moves
+	 */
 	@Test (expected = HasRemainingMovesException.class)
-	public void invalidHasRemainingMoves()
+	public void testInvalidHasRemainingMoves()
 	{
 		assert game.getRemainingMoves() >= 2 && game.getRemainingMoves() <=12 : "remainingMoves should be between 2 and 12" + game.getRemainingMoves();
 		game.nextTurn();
 		assert game.getRemainingMoves() >= 2 && game.getRemainingMoves() <=12 : "remainingMoves should be between 2 and 12" + game.getRemainingMoves();
 	}
+	
+	/**
+	 * Cannot call methods if the game is over
+	 */
 	@Test
-	public void invalidGameOver() throws InvalidMoveException, NoAvailableExitException
+	public void testInvalidGameOver() throws InvalidMoveException, NoAvailableExitException
 	{
 		Player currentPlayer = game.getCurrentPlayer();
 		assertFalse(game.isGameOver());
@@ -374,7 +421,9 @@ public class GameTests {
 		}
 		catch(IllegalMethodCallException e){}
 	}
-	
+	/**
+	 * Moving onto another cell (in the hallway)
+	 */
 	@Test
 	public void testValidMove()
 	{
@@ -418,4 +467,41 @@ public class GameTests {
 		}
 		assertEquals(remainingMoves-1, game.getRemainingMoves());
 	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void testInvalidNullDirectionMove() throws InvalidMoveException
+	{
+		game.move(null);
+	}
+	
+	@Test(expected = InvalidMoveException.class)
+	public void testInvalidNoRemainingMoves() throws InvalidMoveException
+	{
+		resetRemainingMoves();
+		game.move(Direction.North);
+	}
+	/**
+	 * Player moves on a cell they have already been on in the same turn
+	 */
+	@Test(expected = InvalidMoveException.class)
+	public void testInvalidSamePathMove() throws InvalidMoveException
+	{
+		getSpecificPlayer("Mrs. Peacock");
+		game.move(Direction.West);
+		game.move(Direction.East);
+	}
+	@Test(expected = InvalidMoveException.class)
+	public void testInvalidMoveAgainstWall() throws InvalidMoveException
+	{
+		getSpecificPlayer("Mrs. Peacock");
+		game.move(Direction.North);
+	}
+	
+	
+	//TODO test entering a room
+	//TODO test exiting a room
+	//TODO invalid entering and exiting the same room
+	
+	//TODO  pick one specific character and use that character to move around for testing (skip all other players).
+	
 }
