@@ -346,9 +346,9 @@ public class Game
 		 * A player that has transferred (due to another player's suggestion)
 		 * can make a suggestion
 		 */
-		if(!transferred.containsKey(currentPlayer) || !transferred.get(currentPlayer) )
+		if(transferred.get(currentPlayer))
 		{
-			return false;
+			return true;
 		}
 		if(hasMadeSuggestion)
 		{
@@ -511,16 +511,17 @@ public class Game
 		// Last player in the game failed.
 		else if (players.size() == 1) 
 		{
+			players.remove(player);
 			gameOver = true;
 			return false;
 		} 
 		else 
 		{
 			// Accusation failed, remove player from the game
+			int removedPos = players.indexOf(player);
+			int currentPlayerPos = players.indexOf(currentPlayer);
 			players.remove(player);
 			int pos = turn.getPos();
-			int currentPlayerPos = GameBuilder.SUSPECT_ORDER.get(currentPlayer.getName());
-			int removedPos = GameBuilder.SUSPECT_ORDER.get(player.getName());
 			if (removedPos <= currentPlayerPos) 
 			{
 				pos--;
@@ -535,16 +536,18 @@ public class Game
 				// Current player failed the accusation
 				if (removedPos == currentPlayerPos) 
 				{
-					//FIXME second player accusation incorrect
 					// Current player has no more moves as they are eliminated
 					remainingMoves = 0;
+					// Remove player from the active players
+					turn = new Turn<Player>(players, pos);
 					// Go to next player if it was the current player who failed
 					// to make the accusation
 					nextTurn();
-					// Remove player from the active players
-					turn = new Turn<Player>(players, pos);
+					return false;
 				}
 			}
+			// Remove player from the active players
+			turn = new Turn<Player>(players, pos);
 			return false;
 		}
 	}

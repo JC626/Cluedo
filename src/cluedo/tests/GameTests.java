@@ -26,6 +26,7 @@ import cluedo.model.Player;
 import cluedo.model.Room;
 import cluedo.model.Weapon;
 import cluedo.model.cards.Card;
+import cluedo.model.cards.CaseFile;
 import cluedo.model.cards.RoomCard;
 import cluedo.model.cards.SuspectCard;
 import cluedo.model.cards.WeaponCard;
@@ -211,6 +212,10 @@ public class GameTests {
 	 */
 	private Player getSpecificPlayer(String playerName)
 	{
+		if(game.isGameOver())
+		{
+			return null;
+		}
 		Player currentPlayer = game.getCurrentPlayer();
 		if(!SUSPECT_ORDER.containsKey(playerName))
 		{
@@ -221,7 +226,8 @@ public class GameTests {
 		{
 			if(pCount > 6)
 			{
-				fail("Player is not an active player. Fix corresponding test");
+				System.out.println("Player not there");
+				return null;
 			}
 			currentPlayer = nextPlayer();
 			pCount++;
@@ -246,7 +252,25 @@ public class GameTests {
 		game.move(Direction.North);
 		game.move(Direction.North);
 	}
-
+	/**
+	 * Used to ensure that the accusation will fail by 
+	 * NOT picking this card
+	 * @return The roomCard from the answer
+	 */
+	private RoomCard getAnswerRoomCard()
+	{
+		Field answerField = null;
+		CaseFile answer = null;
+		try {
+			answerField = Game.class.getDeclaredField("answer");
+			answerField.setAccessible(true);
+			answer = (CaseFile) answerField.get(game);
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			fail("Field access error");
+		}
+		assert answer != null;
+		return answer.getRoomCards().get(0);
+	}
 	/**
 	 * All weapon pieces start in different rooms
 	 */
@@ -369,6 +393,20 @@ public class GameTests {
 		}
 		int numCards =  Game.NUM_WEAPONS + Game.NUM_ROOMS + Game.MAX_PLAYERS;
 		assertEquals(numCards,allCards.size());
+	}
+	
+	@Test 
+	public void testNumberPlayers()
+	{
+		setupGame(6);
+		assertEquals(6, game.getAllPlayers().size());
+		assertEquals(6, game.getActivePlayers().size());
+		setupGame(5);
+		assertEquals(5, game.getActivePlayers().size());
+		setupGame(4);
+		assertEquals(4, game.getActivePlayers().size());
+		setupGame(3);
+		assertEquals(3, game.getActivePlayers().size());
 	}
 	/**
 	 * Ensure that there are extra cards from uneven distribution
@@ -538,17 +576,13 @@ public class GameTests {
 	@Test
 	public void testEnterRoom() throws InvalidMoveException
 	{
-		while(!game.isInRoom())
-		{
-			putPeacockInRoom();
-			Player peacock = getSpecificPlayer("Mrs. Peacock");
-			Cell playerPos = game.getPosition(peacock.getPiece());
-			assertTrue(game.isInRoom());
-			assertEquals(0,game.getRemainingMoves());
-			assertEquals("Conservatory",game.getRoom(playerPos).getName());
-			assertEquals("Conservatory",game.getCurrentRoom().getName());
-		}
-		
+		putPeacockInRoom();
+		Player peacock = getSpecificPlayer("Mrs. Peacock");
+		Cell playerPos = game.getPosition(peacock.getPiece());
+		assertTrue(game.isInRoom());
+		assertEquals(0,game.getRemainingMoves());
+		assertEquals("Conservatory",game.getRoom(playerPos).getName());
+		assertEquals("Conservatory",game.getCurrentRoom().getName());
 	}
 	@Test
 	public void testExitIntoHallway() throws InvalidMoveException, NoAvailableExitException
@@ -564,8 +598,9 @@ public class GameTests {
 		assertEquals(18, playerPos.getX());
 		assertEquals(5, playerPos.getY());
 	}
+	
 	@Test(expected = InvalidMoveException.class)
-	public void testReenterRoom() throws InvalidMoveException, NoAvailableExitException
+	public void testInvalidReenterRoom() throws InvalidMoveException, NoAvailableExitException
 	{
 		putPeacockInRoom();
 		game.nextTurn();
@@ -579,5 +614,138 @@ public class GameTests {
 		assertEquals(5, playerPos.getY());
 		game.move(Direction.North);
 		fail("Should not be able to reenter a room");
+	}
+	
+	@Test
+	public void testSecretPassage() throws InvalidMoveException, NoAvailableExitException
+	{
+		putPeacockInRoom();
+		game.nextTurn();
+		Player peacock = getSpecificPlayer("Mrs. Peacock");
+		List<Cell> exits = game.getAvailableExits();
+		assertFalse(exits.isEmpty());
+		game.takeExit(exits.get(1));
+		assertTrue(game.isInRoom());
+		assertEquals(0, game.getRemainingMoves());
+		Cell playerPos = game.getPosition(peacock.getPiece());
+		assertEquals("Lounge",game.getRoom(playerPos).getName());
+		assertTrue(game.canMakeSuggestion());
+	}
+	//TODO when exits are blocked
+	@Test
+	public void testAccusationWin()
+	{
+		Field answerField = null;
+		CaseFile answer = null;
+		try {
+			answerField = Game.class.getDeclaredField("answer");
+			answerField.setAccessible(true);
+			answer = (CaseFile) answerField.get(game);
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			fail("Field access error");
+		}
+		assert answer != null;
+		RoomCard answerRoom = answer.getRoomCards().get(0);
+		WeaponCard answerWeapon = answer.getWeaponCards().get(0);
+		SuspectCard answerSuspect = answer.getSuspectCards().get(0);
+		assertTrue(game.makeAccusation(game.getCurrentPlayer(), answerWeapon, answerRoom,answerSuspect));
+		assertTrue(game.isGameOver());
+	}
+	
+	@Test
+	public void testSelfAccusationFail()
+	{
+		int numPlayers = game.getActivePlayers().size();
+		Player player = game.getCurrentPlayer();
+		RoomCard answerRoom = getAnswerRoomCard();
+		RoomCard guessRoom = (RoomCard) game.getRoomCards().get(0);
+		if(guessRoom == answerRoom)
+		{
+			guessRoom = (RoomCard) game.getRoomCards().get(1);
+		}
+		WeaponCard guessWeapon = (WeaponCard) game.getWeaponCards().get(0);
+		SuspectCard guessSuspect = (SuspectCard) game.getSuspectCards().get(0);
+		assertFalse(game.makeAccusation(player, guessWeapon, guessRoom, guessSuspect));
+		assertNotEquals(player,game.getCurrentPlayer());
+		assertFalse(game.getActivePlayers().contains(player));
+		assertNull(getSpecificPlayer(player.getName())); //Check player removed from turn rotation
+		assertEquals(numPlayers - 1, game.getActivePlayers().size());
+	}
+	@Test
+	public void testAccusationFail()
+	{
+		int numPlayers = game.getActivePlayers().size();
+		Player player = game.getActivePlayers().get(0);
+		if(player == game.getCurrentPlayer())
+		{
+			player = game.getActivePlayers().get(1);
+		}
+		RoomCard answerRoom = getAnswerRoomCard();
+		RoomCard guessRoom = (RoomCard) game.getRoomCards().get(0);
+		if(guessRoom == answerRoom)
+		{
+			guessRoom = (RoomCard) game.getRoomCards().get(1);
+		}
+		WeaponCard guessWeapon = (WeaponCard) game.getWeaponCards().get(0);
+		SuspectCard guessSuspect = (SuspectCard) game.getSuspectCards().get(0);
+		assertFalse(game.makeAccusation(player, guessWeapon, guessRoom, guessSuspect));
+		assertFalse(game.getActivePlayers().contains(player));
+		assertNull(getSpecificPlayer(player.getName())); //Check player removed from turn rotation
+		assertEquals(numPlayers - 1, game.getActivePlayers().size());
+	}
+	
+	@Test
+	public void testAccusationFailAllPlayers()
+	{
+		setupGame(3);
+		int numPlayers = game.getActivePlayers().size();
+		RoomCard answerRoom = getAnswerRoomCard();
+		RoomCard guessRoom = (RoomCard) game.getRoomCards().get(0);
+		if(guessRoom == answerRoom)
+		{
+			guessRoom = (RoomCard) game.getRoomCards().get(1);
+		}
+		WeaponCard guessWeapon = (WeaponCard) game.getWeaponCards().get(0);
+		SuspectCard guessSuspect = (SuspectCard) game.getSuspectCards().get(0);
+		
+		while(numPlayers > 0)
+		{
+			Player player = game.getActivePlayers().get(0);
+			if(numPlayers > 1 && player == game.getCurrentPlayer())
+			{
+				player = game.getActivePlayers().get(1);
+			}
+			assertFalse(game.makeAccusation(player, guessWeapon, guessRoom, guessSuspect));
+			assertFalse(game.getActivePlayers().contains(player));
+			assertNull(getSpecificPlayer(player.getName())); //Check player removed from turn rotation
+			numPlayers--;
+			assertEquals(numPlayers, game.getActivePlayers().size());
+		}
+			assertTrue(game.isGameOver());
+	}
+	@Test
+	public void testSelfAccusationFailAllPlayers()
+	{
+		setupGame(3);
+		int numPlayers = game.getActivePlayers().size();
+		RoomCard answerRoom = getAnswerRoomCard();
+		RoomCard guessRoom = (RoomCard) game.getRoomCards().get(0);
+		if(guessRoom == answerRoom)
+		{
+			guessRoom = (RoomCard) game.getRoomCards().get(1);
+		}
+		WeaponCard guessWeapon = (WeaponCard) game.getWeaponCards().get(0);
+		SuspectCard guessSuspect = (SuspectCard) game.getSuspectCards().get(0);
+		
+		while(numPlayers > 0)
+		{
+			Player player = game.getCurrentPlayer();
+			assertFalse(game.makeAccusation(player, guessWeapon, guessRoom, guessSuspect));
+			assertFalse(game.getActivePlayers().contains(player));
+			assertNull(getSpecificPlayer(player.getName())); //Check player removed from turn rotation
+			numPlayers--;
+			assertEquals(numPlayers, game.getActivePlayers().size());
+		}
+			assertTrue(game.isGameOver());
 	}
 }
