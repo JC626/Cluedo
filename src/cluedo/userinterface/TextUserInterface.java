@@ -49,6 +49,8 @@ public class TextUserInterface
 	private static final Character topLeftCorner = '+';//'\u2554';
 	private static final Character topRightCorner = '+';//'\u2557';
 
+	private static final Character cellEmpty = '.';
+
 	private static final Character bottomLeftCorner = '+';//'\u255A';
 	private static final Character bottomRightCorner = '+';//'\u255D';
 
@@ -221,11 +223,25 @@ public class TextUserInterface
 		while (!validMovement)
 		{
 			print(userPrompt);
-			movement = input.readLine().toLowerCase();
+			movement = input.readLine();
+
+			if (movement == null)
+			{
+				throw new IOException();
+			}
+
+			movement = movement.toLowerCase();
 
 			while (!Pattern.matches("(n|s|e|w)+".toLowerCase(), movement))
 			{
-				movement = input.readLine().toLowerCase();
+				movement = input.readLine();
+
+				if (movement == null)
+				{
+					throw new IOException();
+				}
+
+				movement = movement.toLowerCase();
 			}
 
 			if (movement != null)
@@ -477,7 +493,7 @@ public class TextUserInterface
 
 	private Character cellMiddleCentre()
 	{
-		return ' '; // This will be overridden if there's a weapon or player there.
+		return cellEmpty; // This will be overridden if there's a weapon or player there.
 	}
 
 	private Character cellMiddleLeft(boolean west)
@@ -564,7 +580,14 @@ public class TextUserInterface
 			{
 
 				print(userPrompt);
-				String answer = input.readLine().toLowerCase();
+				String answer = input.readLine();
+
+				if (answer == null)
+				{
+					throw new IOException();
+				}
+
+				answer = answer.toLowerCase();
 
 				if (answer.equals(shortcutDisplayCommand))
 				{
@@ -766,6 +789,9 @@ public class TextUserInterface
 				disprovingHandSet = disproved.get(p);
 				break;
 			}
+
+			assert disprovingHandSet != null;
+			assert disprovingPlayer != null;
 
 			for (Card c : disprovingHandSet)
 			{
