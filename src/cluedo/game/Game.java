@@ -457,11 +457,12 @@ public class Game
 			{
 				disprovingCards.add(suspectCard);
 			}
-			if (!playerCards.isEmpty()) 
+			if (!disprovingCards.isEmpty()) 
 			{
 				disprover.put(player, disprovingCards);
 				return disprover;
 			}
+			player = allHumanIterator.next();
 		}
 		return new HashMap<Player, Set<Card>>();
 	}

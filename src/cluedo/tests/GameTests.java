@@ -752,13 +752,42 @@ public class GameTests {
 	//TODO multiple players can be in the same room
 	//TODO suggestionOneCard
 	//TODO suggestionMultipleCard
-	//TODO suggestionNoDisprovers
 	//TODO suggestion secret passage
 	//TODO suggestion when transferred
 	//TODO player is actually transferred to the room
+
+	@Test
+	public void testSuggestionNoDisprovers() throws InvalidMoveException
+	{
+		RoomCard answerRoom = null;
+		Field answerField = null;
+		CaseFile answer = null;
+		while(true){
+			try {
+				answerField = Game.class.getDeclaredField("answer");
+				answerField.setAccessible(true);
+				answer = (CaseFile) answerField.get(game);
+			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+				fail("Field access error");
+			}
+			assert answer != null;
+			answerRoom = answer.getRoomCards().get(0);
+			if(answerRoom.getName().equals("Conservatory"))
+			{
+				break;
+			}
+			setupGame(6);
+		}
+		assert answer != null;
+		WeaponCard answerWeapon = answer.getWeaponCards().get(0);
+		SuspectCard answerSuspect = answer.getSuspectCards().get(0);
+		putPeacockInRoom();
+		Map<Player, Set<Card>> disprover = game.makeSuggestion(answerWeapon, answerSuspect);
+		assertEquals(0,disprover.size());
+	}
 	
 	@Test (expected = IllegalMethodCallException.class)
-	public void invalidSuggestionOutsideRoom()
+	public void testInvalidSuggestionOutsideRoom()
 	{
 		assertFalse(game.canMakeSuggestion());
 		WeaponCard suggestWeapon = (WeaponCard) game.getWeaponCards().get(0);
@@ -768,7 +797,7 @@ public class GameTests {
 	}
 	
 	@Test (expected = IllegalMethodCallException.class)
-	public void invalidMultipleSuggestion() throws InvalidMoveException
+	public void testInvalidMultipleSuggestion() throws InvalidMoveException
 	{
 		putPeacockInRoom();
 		assertTrue(game.canMakeSuggestion());
