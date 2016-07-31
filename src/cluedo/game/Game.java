@@ -613,6 +613,8 @@ public class Game
 			lastRoom = getCurrentRoom();
 		}
 		playerPath = new HashSet<Cell>();
+		Cell playerPos = getPosition(currentPlayer.getPiece());
+		playerPath.add(playerPos);
 		hasMadeSuggestion = false;
 		rollDice();
 		return currentPlayer;

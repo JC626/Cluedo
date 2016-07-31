@@ -5,7 +5,6 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.sun.corba.se.impl.util.Utility;
 
 import cluedo.board.Board;
 import cluedo.exceptions.IllegalMethodCallException;
