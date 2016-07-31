@@ -1,5 +1,9 @@
 package cluedo.utility;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+
 /**
  * Utility class for directions.
  * As Players cannot legally move diagonally, the only available directions are:
@@ -51,5 +55,48 @@ public final class Heading
 		}
 		
 		return opposite;
+	}
+	
+	/**
+	 * Converts a character containing
+	 * n, s, e, or w into a list of directions. 
+	 * @param s The string, must contain at least one of nsew.
+	 * @return The resulting list of Directions.
+	 * @throws IllegalArgumentException if s contains zero, any other characters.
+	 */
+	public static List<Direction> convertStringToDirection(String s)
+	{
+		if (!Pattern.matches("(n|s|e|w)+", s))
+		{
+			throw new IllegalArgumentException("String must contain only n, s, e, or w");
+		}
+		
+		List<Direction> converted = new ArrayList<Direction>();
+		
+		for (char charDirection : s.toCharArray())
+		{
+			charDirection = Character.toLowerCase(charDirection);
+			Direction convertedDirection = null;
+			
+			switch (charDirection)
+			{
+				case 'n':
+					convertedDirection = Direction.North;
+					break;
+				case 's':
+					convertedDirection = Direction.South;
+					break;
+				case 'e':
+					convertedDirection = Direction.East;
+					break;
+				case 'w':
+					convertedDirection = Direction.West;
+					break;
+			}
+			
+			converted.add(convertedDirection);
+		}
+		
+		return converted;
 	}
 }
