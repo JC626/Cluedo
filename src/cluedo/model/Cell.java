@@ -1,5 +1,6 @@
 package cluedo.model;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -86,6 +87,11 @@ public abstract class Cell implements Displayable
 	public boolean hasWall(Direction d)
 	{
 		return walls.contains(d);
+	}
+	
+	public Set<Direction> getWalls()
+	{
+		return Collections.unmodifiableSet(walls);
 	}
 	
 	/**
