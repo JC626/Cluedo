@@ -183,7 +183,7 @@ public class Board
 	 * does not exist as it is outside the board's boundaries.
 	 * Also if the parameters are null
 	 */
-	private Cell getNeighbouringCell(Cell cell, Direction direction)
+	public Cell getNeighbouringCell(Cell cell, Direction direction)
 	{
 		if(cell == null || direction == null)
 		{
@@ -197,20 +197,20 @@ public class Board
 		}
 		switch(direction)
 		{
-		case North:
-			y--;
-			break;
-		case South:
-			y++;
-			break;
-		case East:
-			x++;
-			break;
-		case West:
-			x--;
-			break;
-		default:
-			throw new IllegalArgumentException("Direction not recognised - internal error");
+			case North:
+				y--;
+				break;
+			case South:
+				y++;
+				break;
+			case East:
+				x++;
+				break;
+			case West:
+				x--;
+				break;
+			default:
+				throw new IllegalArgumentException("Direction not recognised - internal error");
 		}
 		if(x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT)
 		{
