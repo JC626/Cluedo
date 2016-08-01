@@ -318,7 +318,6 @@ public class Game
 			}
 			//Reallocate the player to a cell in the room
 			this.putInRoom(currentPlayer.getPiece(), room);
-			playerToRoom.put(currentPlayer, room);
 			remainingMoves = 0;
 		}
 		else
@@ -426,20 +425,22 @@ public class Game
 				break;
 			}
 		}
-		if(!currentPlayer.getName().equals(suspectCard.getName()))
+		for(Player p : allPlayers) 
 		{
-			//Transfer a player if they are not in the room
-			for(Player p : allPlayers) 
-			{
-				if(p.getName().equals(suspectCard.getName())) 
-				{ //Put in the room
+			if(p.getName().equals(suspectCard.getName())) 
+			{ 
+				//Transfer a player if they are not in the room
+				if(playerToRoom.get(p) != getCurrentRoom())
+				{
+					//Put in the room
 					this.putInRoom(p.getPiece(),getCurrentRoom());
 					playerToRoom.put(p, getCurrentRoom());
 					transferred.put(p, true);
-					break; 
-					} 
-				} 
-		}
+				}
+				break; 
+			} 
+		} 
+		
 		//Transfer the weapon into the room
 		for(Weapon w : weapons) 
 		{
@@ -464,6 +465,7 @@ public class Game
 		{
 			remainingMoves = 0;
 		}
+		CaseFile currentPlayerFile = playerToCasefile.get(currentPlayer);
 		while (player != currentPlayer) 
 		{
 			Set<Card> playerCards = playerHand.get(player);
@@ -471,14 +473,17 @@ public class Game
 			if (playerCards.contains(roomCard)) 
 			{
 				disprovingCards.add(roomCard);
+				currentPlayerFile.removeCard(roomCard);
 			}
 			if (playerCards.contains(weaponCard)) 
 			{
 				disprovingCards.add(weaponCard);
+				currentPlayerFile.removeCard(roomCard);
 			}
 			if (playerCards.contains(suspectCard)) 
 			{
 				disprovingCards.add(suspectCard);
+				currentPlayerFile.removeCard(roomCard);
 			}
 			if (!disprovingCards.isEmpty()) 
 			{
@@ -638,7 +643,6 @@ public class Game
 		{
 			remainingMoves = 0;
 			Room newRoom = cellToRoom.get(cell);
-			playerToRoom.put(currentPlayer, newRoom);
 			putInRoom(currentPlayer.getPiece(), newRoom);
 		}
 		else
@@ -674,7 +678,7 @@ public class Game
 		//Reset for the next player
 		if(lastRoom != null)
 		{
-			lastRoom = getCurrentRoom();
+			lastRoom = null;
 		}
 		playerPath = new HashSet<Cell>();
 		Cell playerPos = getPosition(currentPlayer.getPiece());
@@ -695,6 +699,7 @@ public class Game
 	 */
 	private void putInRoom(Piece piece, Room room) 
 	{
+		playerToRoom.put(currentPlayer, room);
 		for(Cell cell:roomCells.get(room))
 		{
 			/*
@@ -738,7 +743,28 @@ public class Game
 	}
 
 	// Getters
-
+	
+	/**
+	 * Gets the answer casefile of the game when the game is over
+	 * @throws IllegalMethodCallException
+	 * If the game is not over
+	 * @return The cards from the answer caseFile
+	 */
+	public List<Card> getAnswer()
+	{
+		if(gameOver)
+		{
+			List<Card> answerCards = new ArrayList<Card>();
+			Card roomCard = answer.getRoomCards().get(0);
+			Card suspectCard = answer.getSuspectCards().get(0);
+			Card weaponCard = answer.getWeaponCards().get(0);
+			answerCards.add(roomCard);
+			answerCards.add(suspectCard);
+			answerCards.add(weaponCard);
+			return Collections.unmodifiableList(answerCards);
+		}
+		throw new IllegalMethodCallException("Cannot access answer if game is not over");
+	}
 	/**
 	 * @return The human players still playing the Cluedo game (have not been
 	 *         eliminated)

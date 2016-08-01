@@ -786,6 +786,7 @@ public class GameTests {
 		assertTrue(game.canMakeSuggestion());
 		WeaponCard guessWeapon = (WeaponCard) game.getWeaponCards().get(0);
 		SuspectCard guessSuspect = (SuspectCard) game.getSuspectCards().get(0);
+		assertTrue(game.canMakeSuggestion());
 		game.makeSuggestion(guessWeapon,guessSuspect);
 	}
 	
