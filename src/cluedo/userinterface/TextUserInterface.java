@@ -56,6 +56,15 @@ public class TextUserInterface
 	private final Character[][] drawingBuffer = new Character[3 * Board.WIDTH][3 * Board.HEIGHT]; // The drawing buffer, which will be modified in layers based in game state.
 
 	private Game game;
+	
+	
+	// TODO
+	// Document
+	// Clean up
+	// Split up Menus into separate class
+	// Change Character to String to allow for Colours. Update gameOptions and setOptions method
+	
+	
 
 	/**
 	 * Start a new game.
