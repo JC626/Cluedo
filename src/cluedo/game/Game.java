@@ -426,20 +426,22 @@ public class Game
 				break;
 			}
 		}
-		if(!currentPlayer.getName().equals(suspectCard.getName()))
+		for(Player p : allPlayers) 
 		{
-			//Transfer a player if they are not in the room
-			for(Player p : allPlayers) 
-			{
-				if(p.getName().equals(suspectCard.getName())) 
-				{ //Put in the room
+			if(p.getName().equals(suspectCard.getName())) 
+			{ 
+				//Transfer a player if they are not in the room
+				if(playerToRoom.get(p) != getCurrentRoom())
+				{
+					//Put in the room
 					this.putInRoom(p.getPiece(),getCurrentRoom());
 					playerToRoom.put(p, getCurrentRoom());
 					transferred.put(p, true);
-					break; 
-					} 
-				} 
-		}
+				}
+				break; 
+			} 
+		} 
+		
 		//Transfer the weapon into the room
 		for(Weapon w : weapons) 
 		{
