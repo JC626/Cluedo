@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -80,92 +81,86 @@ public class TextUserInterface
 
 	private void runGame()
 	{
+		Map<Integer, Runnable> actions = new HashMap<Integer, Runnable>();
+		int nextAction = 0;
+		
 		printCanonBackground();
+		
+		if (gameOptions.printBoardAtStartTurn)
+		{
+			printBoard();
+		}
 
 		while (!game.isGameOver())
 		{
+			// The state for this user may have changed, so we need to reevaluate our options
+			nextAction = 0;
+			actions.clear();
+			actions.put(nextAction, () -> { /* Do nothing, the player is either eliminated or the game is over */ }); // 0 is an accusation that has been fulfilled.
+			nextAction++;
+			
 			int userSelection;
-
-
 			List<String> options = new ArrayList<String>();
 			List<String> regex = new ArrayList<String>();
+			
 
 			if (game.isInRoom()) 
 			{
-				/*
-				 * If the current player is in a room, then they can do the following:
-				 * 
-				 * Make a suggestion
-				 * Exit the room (if they haven't just entered)
-				 */
-
-				options.add("Exit the " + game.getRoom(game.getPosition(game.getCurrentPlayer().getPiece())).getName());
-				regex.add("exit|leave|go");
+				// If the current player is in a room, they can make a suggestion or leave.
 
 				if (game.canMakeSuggestion())
 				{
 					options.add("Make a suggestion");
 					regex.add("suggest|"); // The default action is to suggest
+					
+					actions.put(nextAction, () -> promptMakeSuggestion());
+					nextAction++;
 				}
-				else // The user cannot make a suggestion, so make leaving the default.
-				{
-					regex.add(regex.remove(0) + "|"); 
-				}
+				
+				options.add("Exit the " + game.getRoom(game.getPosition(game.getCurrentPlayer().getPiece())).getName());
+				regex.add("exit|leave|go");
+				
+				actions.put(nextAction, () -> promptExitRoom());
+				nextAction++;
 			}
 			else if (game.getRemainingMoves() > 0)
 			{
 				options.add("Move");
 				regex.add("m|"); // Make movement the default
+				
+				actions.put(nextAction, () -> {
+					try
+					{
+						promptMovement();
+					}
+					catch (InvalidMoveException e)
+					{
+						println("Can't do that!");
+					}
+				});
+				nextAction++;
 			}
 
 			if (game.getRemainingMoves() <= 0)
 			{
 				options.add("End turn");
 				regex.add("done|next");
+				
+				actions.put(nextAction, () -> {
+					game.nextTurn();
+					if (gameOptions.printBoardAtStartTurn)
+					{
+						printBoard();
+					}
+				});
+				nextAction++;
 			}
 
-			if (gameOptions.printBoardAtStartTurn)
-			{
-				printBoard();
-			}
+			printRemainingMoves();
 
 			userSelection = executeDefaultMenu(game.getCurrentPlayer().getName(), options, regex);
 
-			if (userSelection == 0) // Incorrect accusation
-			{
-				// Carry on, this player has been eliminated.
-			}
-			else
-			{
-
-				if (game.isInRoom())
-				{
-					if (userSelection == 1) // Exit room
-					{
-						promptExitRoom();
-					}
-					else if (game.canMakeSuggestion()) // 2 == make suggestion, else 2 == end turn
-					{
-						promptMakeSuggestion();
-					}
-				}
-				else if (game.getRemainingMoves() > 0)
-				{
-					try
-					{
-						printRemainingMoves();
-						promptMovement();
-					}
-					catch (InvalidMoveException e)
-					{
-						println("You can't move in that direction");
-					}
-				}
-				else
-				{
-					game.nextTurn();
-				}
-			}
+			actions.get(userSelection).run();
 
 			continuePromptMenu();
 
@@ -734,7 +729,7 @@ public class TextUserInterface
 			switch (userSelection)
 			{
 				case 1:
-					println("You have " + game.getRemainingMoves() + " remaining.");
+					printRemainingMoves();
 					break;
 				case 2:
 					printBoard();
@@ -766,7 +761,7 @@ public class TextUserInterface
 		SuspectCard murderer = (SuspectCard) promptCard("I suggest the crime was committed in the " + game.getCurrentRoom().getName() + " by ...", game.getSuspectCards());
 		WeaponCard murderWeapon = (WeaponCard) promptCard("with the ...", game.getWeaponCards());
 
-		String verificationQuestion = String.format("You're suggesting %s committed the crime in the %s with the %s??", murderer.getName(), game.getCurrentRoom().getName(), murderWeapon.getName());
+		String verificationQuestion = String.format("You're suggesting %s committed the crime in the %s with the %s?", murderer.getName(), game.getCurrentRoom().getName(), murderWeapon.getName());
 
 		if (!promptMenuBoolean(verificationQuestion, "That's correct", "Actually, I'll take another look at the evidence"))
 		{
