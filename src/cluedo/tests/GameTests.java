@@ -160,11 +160,14 @@ public class GameTests {
 	private void resetRemainingMoves()
 	{
 		Field remainingMoves = null;
-		try {
+		try 
+		{
 			remainingMoves = Game.class.getDeclaredField("remainingMoves");
 			remainingMoves.setAccessible(true);
 			remainingMoves.set(game, 0);
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+		} 
+		catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) 
+		{
 			fail("Field cannot be accessed");
 		}
 	}
@@ -174,11 +177,14 @@ public class GameTests {
 	private void setRemainingMoves(int moveNum)
 	{
 		Field remainingMoves = null;
-		try {
+		try 
+		{
 			remainingMoves = Game.class.getDeclaredField("remainingMoves");
 			remainingMoves.setAccessible(true);
 			remainingMoves.set(game, moveNum);
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+		} 
+		catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) 
+		{
 			fail("Field cannot be accessed");
 		}
 	}
@@ -189,11 +195,14 @@ public class GameTests {
 	private void causeGameOver()
 	{
 		Field gameOver = null;
-		try {
+		try 
+		{
 			gameOver = Game.class.getDeclaredField("gameOver");
 			gameOver.setAccessible(true);
 			gameOver.set(game, true);
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+		} 
+		catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) 
+		{
 			fail("Field cannot be accessed");
 		}
 	}
@@ -261,11 +270,14 @@ public class GameTests {
 	{
 		Field answerField = null;
 		CaseFile answer = null;
-		try {
+		try 
+		{
 			answerField = Game.class.getDeclaredField("answer");
 			answerField.setAccessible(true);
 			answer = (CaseFile) answerField.get(game);
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+		} 
+		catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) 
+		{
 			fail("Field access error");
 		}
 		assert answer != null;
@@ -282,12 +294,15 @@ public class GameTests {
 	private void teleportPlayer(Player player,int x, int y)
 	{
 		Field boardField;
-		try {
+		try 
+		{
 			boardField = Game.class.getDeclaredField("board");
 			boardField.setAccessible(true);
 			Board board = (Board) boardField.get(game);
 			board.setPosition(player.getPiece(), x, y);
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+		} 
+		catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) 
+		{
 			fail("Field not accessible");
 		}
 	
@@ -376,16 +391,22 @@ public class GameTests {
 	@Test 
 	public void invalidNumberPlayers()
 	{
-		try{
+		try
+		{
 			game = new Game(Game.MIN_HUMAN_PLAYERS-1,playerTokens,weaponTokens,suspectCardFaces,weaponCardFaces,roomCardFaces);
 			fail("Cannot have less than " + Game.MIN_HUMAN_PLAYERS + " players");
 		}
-		catch(IllegalArgumentException e){}
-		try{
+		catch(IllegalArgumentException e)
+		{	
+		}
+		try
+		{
 			game = new Game(Game.MAX_HUMAN_PLAYERS+1,playerTokens,weaponTokens,suspectCardFaces,weaponCardFaces,roomCardFaces);
 			fail("Cannot have over " + Game.MAX_HUMAN_PLAYERS + " players");
 		}
-		catch(IllegalArgumentException e){}
+		catch(IllegalArgumentException e)
+		{
+		}
 	}
 	/**
 	 * Ensure all cards are distributed and each player
@@ -471,13 +492,17 @@ public class GameTests {
 			game.nextTurn();
 			fail("Cannot continue playing when the game is over");
 		}
-		catch(IllegalMethodCallException e){}
+		catch(IllegalMethodCallException e)
+		{
+		}
 		try
 		{
 			game.move(Direction.East);
 			fail("Cannot continue playing when the game is over");
 		}
-		catch(IllegalMethodCallException e){}
+		catch(IllegalMethodCallException e)
+		{	
+		}
 		
 		WeaponCard weaponCard = (WeaponCard)game.getWeaponCards().get(0);
 		SuspectCard suspectCard = (SuspectCard) game.getSuspectCards().get(0);
@@ -489,34 +514,43 @@ public class GameTests {
 			game.makeSuggestion(weaponCard,suspectCard);
 			fail("Cannot continue playing when the game is over");
 		}
-		catch(IllegalMethodCallException e){}
-		
+		catch(IllegalMethodCallException e)
+		{
+		}
 		try
 		{
 			game.makeAccusation(currentPlayer,weaponCard,roomCard,suspectCard);
 			fail("Cannot continue playing when the game is over");
 
 		}
-		catch(IllegalMethodCallException e){}
+		catch(IllegalMethodCallException e)
+		{
+		}
 		try
 		{
 			assertFalse(game.canMakeSuggestion());
 			game.makeSuggestion(weaponCard,suspectCard);
 			fail("Cannot continue playing when the game is over");
 		}
-		catch(IllegalMethodCallException e){}
+		catch(IllegalMethodCallException e)
+		{
+		}
 		try
 		{
 			game.takeExit(game.getPosition(playerTokens.get(0)));
 			fail("Cannot continue playing when the game is over");
 		}
-		catch(IllegalMethodCallException e){}
+		catch(IllegalMethodCallException e)
+		{
+		}
 		try
 		{
 			game.getAvailableExits();
 			fail("Cannot continue playing when the game is over");
 		}
-		catch(IllegalMethodCallException e){}
+		catch(IllegalMethodCallException e)
+		{
+		}
 	}
 	/**
 	 * Moving onto another cell (in the hallway)
@@ -542,24 +576,27 @@ public class GameTests {
 		{
 			dir = Direction.North;
 		}
-		try {
+		try 
+		{
 			Cell cell = game.move(dir);
 			switch(dir)
 			{
-			case North:
-				assertEquals(y-1,cell.getY());
-				break;
-			case South:
-				assertEquals(y+1,cell.getY());
-				break;
-			case East:
-				assertEquals(x+1,cell.getX());
-				break;
-			case West:
-				assertEquals(x-1,cell.getX());
-				break;
+				case North:
+					assertEquals(y-1,cell.getY());
+					break;
+				case South:
+					assertEquals(y+1,cell.getY());
+					break;
+				case East:
+					assertEquals(x+1,cell.getX());
+					break;
+				case West:
+					assertEquals(x-1,cell.getX());
+					break;
 			}
-		} catch (InvalidMoveException e) {
+		} 
+		catch (InvalidMoveException e) 
+		{
 			fail("Could not move " + e.getMessage());
 		}
 		assertEquals(remainingMoves-1, game.getRemainingMoves());
@@ -627,8 +664,11 @@ public class GameTests {
 	@Test (expected = InvalidMoveException.class)
 	public void testInvalidMovePathBlocked() throws InvalidMoveException
 	{
+		getSpecificPlayer("Mrs. Peacock");
+		assertFalse(game.allPathsBlocked());
 		teleportPlayer(getSpecificPlayer("Mrs. White"),22,6);
 		getSpecificPlayer("Mrs. Peacock");
+		assertTrue(game.allPathsBlocked());
 		game.move(Direction.West);
 	}
 	
@@ -678,11 +718,13 @@ public class GameTests {
 		teleportPlayer(white, 22, 13);
 		teleportPlayer(plum, 17, 9);
 		getSpecificPlayer("Mrs. Peacock");
-		try {
+		try 
+		{
 			List<Cell> exits = game.getAvailableExits();
 			fail("All exits should be blocked");
 		} 
-		catch (NoAvailableExitException e) {
+		catch (NoAvailableExitException e) 
+		{
 		}
 		Cell exitOne = game.getPosition(white.getPiece());
 		Cell exitTwo = game.getPosition(plum.getPiece());
@@ -691,16 +733,17 @@ public class GameTests {
 			game.takeExit(exitOne);
 			fail("Should not be able to take an exit that's blocked");
 		}
-		catch(InvalidMoveException e){
+		catch(InvalidMoveException e)
+		{
 		}
 		try
 		{
 			game.takeExit(exitTwo);
 			fail("Should not be able to take an exit that's blocked");
 		}
-		catch(InvalidMoveException e){
+		catch(InvalidMoveException e)
+		{
 		}
-		
 	}
 	
 	/**
@@ -754,11 +797,14 @@ public class GameTests {
 	{
 		Field answerField = null;
 		CaseFile answer = null;
-		try {
+		try 
+		{
 			answerField = Game.class.getDeclaredField("answer");
 			answerField.setAccessible(true);
 			answer = (CaseFile) answerField.get(game);
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+		} 
+		catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) 
+		{
 			fail("Field access error");
 		}
 		assert answer != null;
@@ -912,7 +958,8 @@ public class GameTests {
 					answerField.setAccessible(true);
 					answer = (CaseFile) answerField.get(game);
 				} 
-				catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+				catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) 
+				{
 					fail("Field access error");
 				}
 				assert answer != null;
@@ -945,7 +992,8 @@ public class GameTests {
 						}
 					}
 				} 
-				catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+				catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) 
+				{
 					fail("Field access error");
 				}
 				if(guessWeapon != null && guessSuspect != null)
@@ -983,11 +1031,14 @@ public class GameTests {
 		CaseFile answer = null;
 		//Remove the roomCard as a variable
 		while(true){
-			try {
+			try 
+			{
 				answerField = Game.class.getDeclaredField("answer");
 				answerField.setAccessible(true);
 				answer = (CaseFile) answerField.get(game);
-			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			} 
+			catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) 
+			{
 				fail("Field access error");
 			}
 			assert answer != null;
@@ -1027,7 +1078,8 @@ public class GameTests {
 				}
 			}
 		} 
-		catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+		catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) 
+		{
 			fail("Field access error");
 		}
 		SuspectCard answerSuspect = answer.getSuspectCards().get(0);
@@ -1055,11 +1107,14 @@ public class GameTests {
 		Field answerField = null;
 		CaseFile answer = null;
 		while(true){
-			try {
+			try 
+			{
 				answerField = Game.class.getDeclaredField("answer");
 				answerField.setAccessible(true);
 				answer = (CaseFile) answerField.get(game);
-			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			} 
+			catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) 
+			{
 				fail("Field access error");
 			}
 			assert answer != null;
@@ -1087,11 +1142,14 @@ public class GameTests {
 		RoomCard answerRoom = null;
 		Field answerField = null;
 		CaseFile answer = null;
-			try {
+			try 
+			{
 				answerField = Game.class.getDeclaredField("answer");
 				answerField.setAccessible(true);
 				answer = (CaseFile) answerField.get(game);
-			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			} 
+			catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) 
+			{
 				fail("Field access error");
 			}
 		assert answer != null;
@@ -1114,6 +1172,7 @@ public class GameTests {
 		{
 			assertFalse(game.canMakeSuggestion());
 			try{
+				
 				game.makeSuggestion(answerWeapon, answerSuspect);
 			}
 			catch(IllegalArgumentException e)

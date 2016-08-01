@@ -324,9 +324,9 @@ public class Game
 		else
 		{
 			playerPath.add(newPos);
-			remainingMoves--;
 			//Actually move the player to the cell
 			board.move(currentPlayer.getPiece(), direction);
+			remainingMoves--;
 		}
 		return newPos;
 	}
@@ -594,8 +594,19 @@ public class Game
 		return playerToRoom.get(currentPlayer) != null; 
 	}
 
-	//TODO takeExit description. Unsure why we're returning a Cell? Maybe boolean and rename to canTakeExit?
-	public Cell takeExit(Cell cell) throws InvalidMoveException
+	/**
+	 * The current player actually takes an exit out of 
+	 * the current room they are in
+	 * @param cell - The proposed exit taken by the player
+	 * @throws InvalidMoveException
+	 * If player is not in a room,
+	 * or player has no moves left
+	 * or player is trying to move to an 
+	 * exit that is blocked by another player
+	 * @throws IllegalArgumentException
+	 * If cell given is not an exit cell or is null
+	 */
+	public void takeExit(Cell cell) throws InvalidMoveException
 	{
 		if (gameOver) 
 		{
@@ -609,6 +620,11 @@ public class Game
 		{
 			throw new InvalidMoveException(currentPlayer.getName() + " is not in a room therefore cannot exit");
 		}
+		if(!exitCells.get(getCurrentRoom()).contains(cell))
+		{
+			throw new IllegalArgumentException("Cannot move to a cell that is not an exit");
+		}
+
 		if (remainingMoves <= 0) 
 		{
 			throw new InvalidMoveException("Cannot move as no moves left");
@@ -633,7 +649,6 @@ public class Game
 			remainingMoves--;
 			playerPath.add(cell);
 		}
-		return cell;
 	}
 	
 	/**
@@ -946,7 +961,12 @@ public class Game
 	public boolean isGameOver() {
 		return gameOver;
 	}
-	//FIXME keep?
+	/**
+	 * Checks whether a player can move in any 
+	 * direction.
+	 * @return true if the player can move in any direction, 
+	 * false if the player cannot move
+	 */
 	public boolean allPathsBlocked()
 	{		
 		Set<Direction> directions = new HashSet<Direction>();
@@ -958,50 +978,44 @@ public class Game
 		if(!isInRoom())
 		{
 			Cell pos = getPosition(currentPlayer.getPiece());
-			for(Direction dir : directions)
-			{
-				if(pos.hasWall(dir))
-				{
-					toRemove.add(dir);
-				}
-			}
-			directions.removeAll(toRemove);
+			Set<Direction> walls = pos.getWalls();
+			directions.removeAll(walls);
 			int x = pos.getX();
 			int y = pos.getY();
 			Cell[][] cells = getCells();
 			for(Direction dir : directions)
 			{
+				Cell checkCell = null;
 				switch(dir)
 				{
-				case North:
-					if(board.containsPiece(cells[x][y-1]))
-					{
-						toRemove.add(dir);
-					}
-					break;
-				case South:
-					if(board.containsPiece(cells[x][y+1]))
-					{
-						toRemove.add(dir);
-					}
-					break;
-				case East:
-					if(board.containsPiece(cells[x+1][y]))
-					{
-						toRemove.add(dir);
-					}
-					break;
-				case West:
-					if(board.containsPiece(cells[x-1][y]))
-					{
-						toRemove.add(dir);
-					}
-					break;
+					case North:
+						checkCell = cells[x][y-1];
+						break;
+					case South:
+						checkCell = cells[x][y+1];
+						break;
+					case East:
+						checkCell = cells[x+1][y];
+						break;
+					case West:
+						checkCell = cells[x-1][y];
+						break;
+				}
+				if(board.containsPiece(checkCell) ||
+						playerPath.contains(checkCell)) 
+				{
+					toRemove.add(dir);
 				}
 			}
 			directions.removeAll(toRemove);
 			if(directions.isEmpty())
 			{
+				//FIXME set remainingMoves to 0?
+				/*
+				 * Set remaining moves to zero so nextTurn() can be called
+				 * without throwing an exception
+				 */
+				remainingMoves = 0;
 				return true;
 			}
 		}
@@ -1012,9 +1026,11 @@ public class Game
 				return getAvailableExits().isEmpty();
 			} 
 			catch (NoAvailableExitException e) {
+				
 				return true;
 			} 
-			catch (InvalidMoveException e) {	
+			catch (InvalidMoveException e)
+			{	
 			}
 		}
 		return false;
