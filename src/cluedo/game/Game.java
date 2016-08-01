@@ -678,7 +678,7 @@ public class Game
 		//Reset for the next player
 		if(lastRoom != null)
 		{
-			lastRoom = getCurrentRoom();
+			lastRoom = null;
 		}
 		playerPath = new HashSet<Cell>();
 		Cell playerPos = getPosition(currentPlayer.getPiece());
