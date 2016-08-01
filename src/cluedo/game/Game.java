@@ -318,7 +318,6 @@ public class Game
 			}
 			//Reallocate the player to a cell in the room
 			this.putInRoom(currentPlayer.getPiece(), room);
-			playerToRoom.put(currentPlayer, room);
 			remainingMoves = 0;
 		}
 		else
@@ -644,7 +643,6 @@ public class Game
 		{
 			remainingMoves = 0;
 			Room newRoom = cellToRoom.get(cell);
-			playerToRoom.put(currentPlayer, newRoom);
 			putInRoom(currentPlayer.getPiece(), newRoom);
 		}
 		else
@@ -701,6 +699,7 @@ public class Game
 	 */
 	private void putInRoom(Piece piece, Room room) 
 	{
+		playerToRoom.put(currentPlayer, room);
 		for(Cell cell:roomCells.get(room))
 		{
 			/*
