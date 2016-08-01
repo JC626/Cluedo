@@ -6,6 +6,7 @@ import java.util.Map;
 import cluedo.exceptions.IllegalMethodCallException;
 import cluedo.exceptions.InvalidMoveException;
 import cluedo.model.*;
+import cluedo.utility.Heading;
 import cluedo.utility.Heading.Direction;
 
 /**
@@ -65,11 +66,21 @@ public class Board
 			throw new IllegalMethodCallException("Cannot move the piece as it does not exist");
 		}
 		Cell onPiece = pieceOnCell.get(piece);
+		/*
+		 * Walls are not defined in both cells 
+		 * (i.e. cell may not have a South wall
+		 * but neighbouring cell will have North wall)
+		 *  so have to check both cells if there is a wall
+		 */
 		if(onPiece.hasWall(direction))
 		{
 			throw new InvalidMoveException("Cannot move in that direction as a wall is blocking the way");
 		}
 		Cell newPos = getNeighbouringCell(onPiece,direction);
+		if(newPos.hasWall(Heading.opposite(direction)))
+		{
+			throw new InvalidMoveException("Cannot move in that direction as a wall is blocking the way");
+		}
 		if(containsPiece(newPos))
 		{
 			throw new InvalidMoveException("Cannot move to a cell with another player on it");

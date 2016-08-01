@@ -296,11 +296,21 @@ public class Game
 			throw new InvalidMoveException("Cannot move as no moves left");
 		}
 		Cell oldPos = getPosition(currentPlayer.getPiece());
+		/*
+		 * Walls are not defined in both cells 
+		 * (i.e. cell may not have a South wall
+		 * but neighbouring cell will have North wall)
+		 *  so have to check both cells if there is a wall
+		 */
 		if(oldPos.hasWall(direction))
 		{
 			throw new InvalidMoveException("Cannot move in that direction as a wall is blocking the way");
 		}
 		Cell newPos = board.getNeighbouringCell(oldPos, direction);
+		if(newPos.hasWall(Heading.opposite(direction)))
+		{
+			throw new InvalidMoveException("Cannot move in that direction as a wall is blocking the way");
+		}
 		if(lastRoom != null && lastRoom.equals(cellToRoom.get(newPos)))
 		{
 			throw new InvalidMoveException(currentPlayer.getName() + " cannot reenter the same room they exited");
@@ -309,6 +319,7 @@ public class Game
 		{
 			throw new InvalidMoveException("Cannot move to the same cell in the same turn");
 		}
+		//Player going into a room
 		if(cellToRoom.containsKey(newPos))
 		{
 			Room room = cellToRoom.get(newPos);
