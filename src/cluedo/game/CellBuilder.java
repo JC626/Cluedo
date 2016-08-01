@@ -8,22 +8,15 @@ import cluedo.utility.Heading.Direction;
 
 /**
  * Creates the Cells for building the Board.
- * FIXME revise this
- * For reasons explained in the documentation, the UI needs to make all Cells.
- * This, in combination of Cells needing to print the things in them at the time of
- * their own printing and the lack of layering in a CLI leads to this class being
- * a private inner class.
  * 
- * Cells cannot contain game state, but need to access game state, in order to know
- * what they're to draw. This problem also exists with Players, and Weapons. For
- * Players and Weapons an acceptable solution was to have them contain Pieces (Displayable
- * aspects) because the drawing of the Piece doesn't effect anything else.
+ * The Board is defined by a 2D array of Cells.
  * 
- * This is not a suitable solution for Cells because what is drawn, and where, depends 
- * partially on the game state - this means Cells need to access the state. If the Cells
- * contained the state themselves then it could be modified by the UI; the only alternative
- * is to have the Cells access state via the UI.
- * 
+ * Walls are defined inside the cell that has them (cells inside rooms own walls, not the cell inside the hallway).
+ * Walls inside the mansion are owned by the cells inside the mansion rather than out.
+ * This means that the outside cells are all 0000 or starting positions.
+
+ * This allows for the UI to draw each wall exactly once - but means the Game needs to check for walls on
+ * both this Cell and the Cell being moved to.
  */
 class CellBuilder
 {
@@ -34,16 +27,9 @@ class CellBuilder
 		/*
 		 * North, South, East, West are NSEW.
 		 * 
-		 * Walls are defined inside the cell that has them (cells inside rooms own walls, not the cell inside the hallway).
-		 * Walls inside the mansion are owned by the cells inside the mansion rather than out.
-		 * This means that the outside cells are all 0000 or starting positions.
-		 * 
-		 * Currently undrawn, subject to change later are:
-		 * i.e. just draw where the player is now.
-		 * C is the center (needed?) It's not treated specially in the game... Used as a marker, for any changed later.
-		 * 
 		 * Place holder is 0 to make the map appear as square as possible.
 		 * Secret passages are X.
+		 * Starting positions are A.
 		 * Each side of the doors are D.
 		 * Note: The bottom of the hall has a wall (is not a rectangle). The wall on the actual board is half way between a cell.
 		 */ 
