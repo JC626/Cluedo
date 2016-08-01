@@ -183,7 +183,7 @@ public class Board
 	 * does not exist as it is outside the board's boundaries.
 	 * Also if the parameters are null
 	 */
-	private Cell getNeighbouringCell(Cell cell, Direction direction)
+	public Cell getNeighbouringCell(Cell cell, Direction direction)
 	{
 		if(cell == null || direction == null)
 		{

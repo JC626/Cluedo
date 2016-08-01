@@ -275,6 +275,7 @@ public class Game
 	 *             If the current player has no more moves remaining
 	 *             or reentered the room they exited in the same turn
 	 *             or move on a cell they already passed on the same turn
+	 *             or moved towards a wall
 	 * @throws IllegalMethodCallException
 	 *             If the game is over
 	 * @throws IllegalArgumentException
@@ -294,9 +295,12 @@ public class Game
 		{
 			throw new InvalidMoveException("Cannot move as no moves left");
 		}
-		
-		Cell newPos = board.move(currentPlayer.getPiece(), direction);
-		
+		Cell oldPos = getPosition(currentPlayer.getPiece());
+		if(oldPos.hasWall(direction))
+		{
+			throw new InvalidMoveException("Cannot move in that direction as a wall is blocking the way");
+		}
+		Cell newPos = board.getNeighbouringCell(oldPos, direction);
 		if(lastRoom != null && lastRoom.equals(cellToRoom.get(newPos)))
 		{
 			throw new InvalidMoveException(currentPlayer.getName() + " cannot reenter the same room they exited");
@@ -321,6 +325,8 @@ public class Game
 		{
 			playerPath.add(newPos);
 			remainingMoves--;
+			//Actually move the player to the cell
+			board.move(currentPlayer.getPiece(), direction);
 		}
 		return newPos;
 	}
