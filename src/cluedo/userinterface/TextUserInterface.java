@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import cluedo.board.Board;
 import cluedo.exceptions.InvalidMoveException;
+import cluedo.exceptions.NoAvailableExitException;
 import cluedo.game.Game;
 
 import cluedo.model.Cell;
@@ -32,14 +33,7 @@ import cluedo.utility.Heading.Direction;
  */
 public class TextUserInterface
 {
-	private static final String BANNER = " ____    ___                       __            \n" +
-			"/\\  _`\\ /\\_ \\                     /\\ \\           \n" +
-			"\\ \\ \\/\\_\\//\\ \\    __  __     __   \\_\\ \\    ___   \n" +
-			" \\ \\ \\/_/_\\ \\ \\  /\\ \\/\\ \\  /'__`\\ /'_` \\  / __`\\ \n" +
-			"  \\ \\ \\_\\ \\\\_\\ \\_\\ \\ \\_\\ \\/\\  __//\\ \\_\\ \\/\\ \\_\\ \\\n" +
-			"   \\ \\____//\\____\\\\ \\____/\\ \\____\\ \\___,_\\ \\____/\n" +
-			"    \\/___/ \\/____/ \\/___/  \\/____/\\/__,_ /\\/___/ \n" +
-			"                                                 \n";
+	private static final String BANNER = " ____    ___                       __            \n" + "/\\  _`\\ /\\_ \\                     /\\ \\           \n" + "\\ \\ \\/\\_\\//\\ \\    __  __     __   \\_\\ \\    ___   \n" + " \\ \\ \\/_/_\\ \\ \\  /\\ \\/\\ \\  /'__`\\ /'_` \\  / __`\\ \n" + "  \\ \\ \\_\\ \\\\_\\ \\_\\ \\ \\_\\ \\/\\  __//\\ \\_\\ \\/\\ \\_\\ \\\n" + "   \\ \\____//\\____\\\\ \\____/\\ \\____\\ \\___,_\\ \\____/\n" + "    \\/___/ \\/____/ \\/___/  \\/____/\\/__,_ /\\/___/ \n" + "                                                 \n";
 	private static final String menuFormat = "    [%d] %s";
 	private static final String userPrompt = "> ";
 	private static final String shortcutDisplayCommand = "shortcuts";
@@ -83,12 +77,13 @@ public class TextUserInterface
 	{
 		Map<Integer, Runnable> actions = new HashMap<Integer, Runnable>();
 		int nextAction = 0;
-		
+
 		printCanonBackground();
-		
+		printExtraCards();
+
 		if (gameOptions.printBoardAtStartTurn)
 		{
-			printBoard();
+			makeAndDisplayBoard();
 		}
 
 		while (!game.isGameOver())
@@ -96,15 +91,16 @@ public class TextUserInterface
 			// The state for this user may have changed, so we need to reevaluate our options
 			nextAction = 0;
 			actions.clear();
-			actions.put(nextAction, () -> { /* Do nothing, the player is either eliminated or the game is over */ }); // 0 is an accusation that has been fulfilled.
+			actions.put(nextAction, () ->
+			{
+				/* Do nothing, the player is either eliminated or the game is over */ }); // 0 is an accusation that has been fulfilled.
 			nextAction++;
-			
+
 			int userSelection;
 			List<String> options = new ArrayList<String>();
 			List<String> regex = new ArrayList<String>();
-			
 
-			if (game.isInRoom()) 
+			if (game.isInRoom())
 			{
 				// If the current player is in a room, they can make a suggestion or leave.
 
@@ -112,30 +108,33 @@ public class TextUserInterface
 				{
 					options.add("Make a suggestion");
 					regex.add("suggest|"); // The default action is to suggest
-					
+
 					actions.put(nextAction, () -> promptMakeSuggestion());
 					nextAction++;
 				}
-				
-				options.add("Exit the " + game.getRoom(game.getPosition(game.getCurrentPlayer().getPiece())).getName());
-				regex.add("exit|leave|go");
-				
-				actions.put(nextAction, () -> promptExitRoom());
-				nextAction++;
+				else if (!game.allPathsBlocked())
+				{
+					options.add("Exit the " + game.getRoom(game.getPosition(game.getCurrentPlayer().getPiece())).getName());
+					regex.add("exit|leave|go");
+
+					actions.put(nextAction, () -> promptExitRoom());
+					nextAction++;
+				}
 			}
-			else if (game.getRemainingMoves() > 0)
+			else if (game.getRemainingMoves() > 0 && !game.allPathsBlocked())
 			{
 				options.add("Move");
 				regex.add("m|"); // Make movement the default
-				
-				actions.put(nextAction, () -> {
+
+				actions.put(nextAction, () ->
+				{
 					try
 					{
 						promptMovement();
 					}
 					catch (InvalidMoveException e)
 					{
-						println("Can't do that!");
+						println("You must be mistaken, you can't have walked there!");
 					}
 				});
 				nextAction++;
@@ -144,19 +143,25 @@ public class TextUserInterface
 			if (game.getRemainingMoves() <= 0)
 			{
 				options.add("End turn");
-				regex.add("done|next");
-				
-				actions.put(nextAction, () -> {
+				regex.add("done|next|wait");
+
+				actions.put(nextAction, () ->
+				{
 					game.nextTurn();
 					if (gameOptions.printBoardAtStartTurn)
 					{
-						printBoard();
+						makeAndDisplayBoard();
 					}
 				});
 				nextAction++;
 			}
-
+			
 			printRemainingMoves();
+			
+			if (game.allPathsBlocked())
+			{
+				println("You recall being stuck!");
+			}
 
 			userSelection = executeDefaultMenu(game.getCurrentPlayer().getName(), options, regex);
 
@@ -167,19 +172,46 @@ public class TextUserInterface
 		}
 	}
 
+	private void printExtraCards()
+	{
+		List<Card> extras = game.getExtraCards();
+		List<String> extraNames = new ArrayList<String>();
+
+		if (!extras.isEmpty())
+		{
+			for (Card c : extras)
+			{
+				extraNames.add(c.getName());
+			}
+
+			println("Everyone, we've found some evidence. We can conclusively say that the following were not involved in the murder:\n");
+
+			printMenu(extraNames);
+			continuePromptMenu();
+		}
+	}
+
 	private void printRemainingMoves()
 	{
 
 		int remaining = game.getRemainingMoves();
-		String remainingMoves = "You have " + remaining + " move";
 
-		if (remaining != 1)
+		if (remaining > 0)
 		{
-			remainingMoves = remainingMoves + "s";
-		}
+			String remainingMoves = "You can remember taking " + remaining + " more step";
 
-		remainingMoves = remainingMoves + " remaining";
-		println(remainingMoves);
+			if (remaining != 1)
+			{
+				remainingMoves = remainingMoves + "s";
+			}
+			remainingMoves = remainingMoves + ".";
+
+			println(remainingMoves);
+		}
+		else
+		{
+			println("You don't remember going any further...");
+		}
 	}
 
 	private void promptMovement() throws InvalidMoveException
@@ -215,15 +247,14 @@ public class TextUserInterface
 		String movement = null; // Will always be set, if we reach the return statement.
 		boolean validMovement = false;
 
+		println("Where did you go to?");
+
 		while (!validMovement)
 		{
 			print(userPrompt);
 			movement = input.readLine();
 
-			if (movement == null)
-			{
-				throw new IOException();
-			}
+			if (movement == null) { throw new IOException(); }
 
 			movement = movement.toLowerCase();
 
@@ -231,10 +262,7 @@ public class TextUserInterface
 			{
 				movement = input.readLine();
 
-				if (movement == null)
-				{
-					throw new IOException();
-				}
+				if (movement == null) { throw new IOException(); }
 
 				movement = movement.toLowerCase();
 			}
@@ -253,14 +281,51 @@ public class TextUserInterface
 
 	private void promptExitRoom()
 	{
-		// TODO Auto-generated method stub
-
+		if (!game.allPathsBlocked())
+		{
+			try
+			{
+				int userSelection;
+				
+				List<Cell> exits = game.getAvailableExits();
+				List<String> options = new ArrayList<String>();
+				
+				for (int i = 0; i < exits.size(); i++)
+				{
+					// There are no more than 4 exits for any room, so this is legal:
+					String exitNum = Integer.toString(i + 1);
+					char num = exitNum.toCharArray()[0];
+					
+					options.add(exitNum);
+	
+					addCenterDrawingBuffer(exits.get(i), num);
+				}
+				
+				printBoard();
+				
+				userSelection = executeMenu("Select an exit", options, emptyRegex()) - 1; // -1 because lists are indexed from 0.
+				
+				game.takeExit(exits.get(userSelection));
+				
+				printBlankLines(5);
+				
+				makeAndDisplayBoard();
+			}
+			catch (InvalidMoveException | NoAvailableExitException e)
+			{
+				// Not possible, because we've determined that there is at least 1 path.
+			}
+		}
+	}
+	
+	private void makeAndDisplayBoard()
+	{
+		generateBoard();
+		printBoard();
 	}
 
 	private void printBoard()
 	{
-		generateBoard();
-
 		for (int y = 0; y < drawingBuffer[0].length; y++)
 		{
 			for (int x = 0; x < drawingBuffer.length; x++)
@@ -286,52 +351,30 @@ public class TextUserInterface
 		addPlayerLayerDrawingBuffer();
 		addWeaponLayerDrawingBuffer();
 	}
+	
+	private void addCenterDrawingBuffer(Cell cell, Character displayable)
+	{
+		// Cells are 3x3 and we need +1 to get to the middle of the Cell 
+		drawingBuffer[(3 * cell.getX()) + 1][(3 * cell.getY()) + 1] = displayable;
+	}
 
 	private void addPlayerLayerDrawingBuffer()
 	{
-		Cell[][] board = game.getCells();
 		List<Player> players = game.getAllPlayers();
-
-		for (int x = 0; x < board.length; x++)
+		
+		for (Player p : players)
 		{
-			for (int y = 0; y < board[x].length; y++)
-			{
-				for (Player p : players)
-				{
-					Cell playerLocation = game.getPosition(p.getPiece());
-
-					if (board[x][y].equals(playerLocation)) // Draw the Piece in this Cell
-					{
-						// Cells are 3x3 and we need +1 to get to the middle of the Cell 
-						drawingBuffer[(3 * x) + 1][(3 * y) + 1] = getPlayerDisplayable(p);
-					}
-				}
-
-			}
+			addCenterDrawingBuffer(game.getPosition(p.getPiece()), getPlayerDisplayable(p));
 		}
 	}
 
 	private void addWeaponLayerDrawingBuffer()
 	{
-		Cell[][] board = game.getCells();
 		List<Weapon> weapons = game.getWeapons();
-
-		for (int x = 0; x < board.length; x++)
+		
+		for (Weapon w : weapons)
 		{
-			for (int y = 0; y < board[x].length; y++)
-			{
-				for (Weapon w : weapons)
-				{
-					Cell weaponLocation = game.getPosition(w.getPiece());
-
-					if (board[x][y].equals(weaponLocation)) // Draw the Piece in this Cell
-					{
-						// Cells are 3x3 and we need +1 to get to the middle of the Cell 
-						drawingBuffer[(3 * x) + 1][(3 * y) + 1] = getWeaponDisplayable(w);
-					}
-				}
-
-			}
+			addCenterDrawingBuffer(game.getPosition(w.getPiece()), getWeaponDisplayable(w));
 		}
 	}
 
@@ -577,10 +620,7 @@ public class TextUserInterface
 				print(userPrompt);
 				String answer = input.readLine();
 
-				if (answer == null)
-				{
-					throw new IOException();
-				}
+				if (answer == null) { throw new IOException(); }
 
 				answer = answer.toLowerCase();
 
@@ -664,12 +704,10 @@ public class TextUserInterface
 		}
 	}
 
-	private void printMenuItem(String format, Object ... item)
+	private void printMenuItem(String format, Object... item)
 	{
 		println(String.format(format, item));
 	}
-
-
 
 	/**
 	 * A wrapper for makeMenu, providing some default options
@@ -680,7 +718,7 @@ public class TextUserInterface
 	 */
 	private int executeDefaultMenu(String playerName, List<String> menuOptions, List<String> regexOptions)
 	{
-		String menuTitle = String.format("%s, what do you want to do next?", playerName);
+		String menuTitle = String.format("%s, what did you do next?", playerName);
 
 		int userSelection = 0; // The compiler claims that userSelection may not have been initialised, we know however that it will be.
 		boolean selectedCallerOption = false; // The 
@@ -732,7 +770,7 @@ public class TextUserInterface
 					printRemainingMoves();
 					break;
 				case 2:
-					printBoard();
+					makeAndDisplayBoard();
 					break;
 				case 3:
 					promptReviewEvidence();
@@ -748,7 +786,7 @@ public class TextUserInterface
 						break;
 					}
 				default: // One of the caller's options was selected, pass it back to them.
-					selectedCallerOption = true; 
+					selectedCallerOption = true;
 					userSelection = userSelection - 4; // Give the caller the index from what they gave. 4 is the number of items we have added.
 			}
 		}
@@ -792,13 +830,15 @@ public class TextUserInterface
 			{
 				disprovingHandList.add(c);
 			}
+			
+			continuePromptMenu();
 
 			String question = String.format("%s choose a card to reveal to %s:", disprovingPlayer.getName(), game.getCurrentPlayer().getName());
 			promptCard(question, disprovingHandList);
 		}
 		else
 		{
-			println("No one could disprove your suggestion!");
+			println("No one could disprove your suggestion... Maybe you're onto something here.");
 		}
 	}
 
@@ -818,9 +858,7 @@ public class TextUserInterface
 
 		String verificationQuestion = String.format("Are you sure you want to accuse %s of killing John Boddy in the %s with the %s?", murderer.getName(), murderRoom.getName(), murderWeapon.getName());
 
-		if (!promptMenuBoolean(verificationQuestion, "I'm sure", "On second thought..."))
-		{
-			return false; // The user decided not to go through with the accusation.
+		if (!promptMenuBoolean(verificationQuestion, "I'm sure", "On second thought...")) { return false; // The user decided not to go through with the accusation.
 		}
 
 		boolean accusationCorrect = game.makeAccusation(accusingPlayer, murderWeapon, murderRoom, murderer);
@@ -831,7 +869,7 @@ public class TextUserInterface
 		}
 		else
 		{
-			println(accusingPlayer.getName() + ", you've made a very serious accusation and are incorrect. You will no longer be able to participate in this investigation.");
+			println(accusingPlayer.getName() + ", you've made a very serious accusation and we have evidence to the contrary. You will no longer be able to participate in this investigation.");
 		}
 
 		return true;
@@ -847,9 +885,14 @@ public class TextUserInterface
 			options.add(c.getName());
 		}
 
-		userSelection = executeMenu(question, options, new ArrayList<String>());
+		userSelection = executeMenu(question, options, emptyRegex());
 
 		return cards.get(userSelection - 1);
+	}
+
+	private List<String> emptyRegex()
+	{
+		return new ArrayList<String>();
 	}
 
 	private Player promptActivePlayer(String question)
@@ -862,7 +905,7 @@ public class TextUserInterface
 			options.add(p.getName());
 		}
 
-		userSelection = executeMenu(question, options, new ArrayList<String>());
+		userSelection = executeMenu(question, options, emptyRegex());
 
 		return game.getActivePlayers().get(userSelection - 1);
 	}
@@ -880,8 +923,36 @@ public class TextUserInterface
 		 * We print out the cards that are in the global set but have not been
 		 * marked off the player's case file. 
 		 */
-		//TODO
-
+		println("You remember none of the following were involved in the murder:\n");
+		
+		List<String> caseFile = new ArrayList<String>();
+		
+		for (Card suspect : game.getSuspectCards())
+		{
+			if (!game.getPlayerSuspectCards().contains(suspect))
+			{
+				caseFile.add(suspect.getName());
+			}
+		}
+		
+		for (Card room : game.getRoomCards())
+		{
+			if (!game.getPlayerRoomCards().contains(room))
+			{
+				caseFile.add(room.getName());
+			}
+		}
+		
+		for (Card weapon : game.getWeaponCards())
+		{
+			if (!game.getPlayerWeaponCards().contains(weapon))
+			{
+				caseFile.add(weapon.getName());
+			}
+		}
+		
+		printMenu(caseFile);
+		printBlankLines(2); // Give a bit of room before the turn menu prompt.
 	}
 
 	private List<Piece> createEmptyPiece(int count)
@@ -890,8 +961,10 @@ public class TextUserInterface
 
 		for (int piece = 0; piece < count; piece++)
 		{
-			Piece p = new Piece(){
-				public void display(){
+			Piece p = new Piece()
+			{
+				public void display()
+				{
 
 				}
 			};
@@ -907,8 +980,10 @@ public class TextUserInterface
 
 		for (int room = 0; room < Game.NUM_ROOMS; room++)
 		{
-			Displayable dis = new Displayable(){
-				public void display(){
+			Displayable dis = new Displayable()
+			{
+				public void display()
+				{
 
 				}
 			};
@@ -924,8 +999,10 @@ public class TextUserInterface
 
 		for (int weapon = 0; weapon < Game.NUM_WEAPONS; weapon++)
 		{
-			Displayable dis = new Displayable(){
-				public void display(){
+			Displayable dis = new Displayable()
+			{
+				public void display()
+				{
 
 				}
 			};
@@ -941,8 +1018,10 @@ public class TextUserInterface
 
 		for (int suspect = 0; suspect < Game.MAX_PLAYERS; suspect++)
 		{
-			Displayable dis = new Displayable(){
-				public void display(){
+			Displayable dis = new Displayable()
+			{
+				public void display()
+				{
 
 				}
 			};
@@ -951,7 +1030,6 @@ public class TextUserInterface
 
 		return suspectCards;
 	}
-
 
 	private void print(String s)
 	{
@@ -991,7 +1069,6 @@ public class TextUserInterface
 			regex.add("n|new|start");
 			regex.add("o|setting(s?)"); // match "setting" or "settings" but not "settingss" or any number of extra 's'
 			regex.add("q|exit");
-
 
 			printGreeting();
 
@@ -1156,7 +1233,7 @@ public class TextUserInterface
 		println();
 		println(userPrompt + shortcutDisplayCommand);
 		println();
-		printMenuItem(menuFormat, 4, "Options" +  humanReadableFromRegex("o|setting(s?)"));
+		printMenuItem(menuFormat, 4, "Options" + humanReadableFromRegex("o|setting(s?)"));
 		println(userPrompt + "settings");
 		println();
 
@@ -1164,7 +1241,7 @@ public class TextUserInterface
 
 		// Movement example
 		println();
-		printMenuItem(menuFormat, 4, "Move" +  humanReadableFromRegex("m|move"));
+		printMenuItem(menuFormat, 4, "Move" + humanReadableFromRegex("m|move"));
 		println(userPrompt + "n");
 		println();
 
@@ -1173,7 +1250,7 @@ public class TextUserInterface
 
 		// Movement example
 		println();
-		printMenuItem(menuFormat, 4, "Move" +  humanReadableFromRegex("m|move"));
+		printMenuItem(menuFormat, 4, "Move" + humanReadableFromRegex("m|move"));
 		println(userPrompt + "nnneeews");
 		println();
 
@@ -1192,6 +1269,7 @@ public class TextUserInterface
 		menu.add("Press enter to continue");
 		regex.add("");
 		executeMenu("", menu, regex);
+		printBlankLines(15); // So the previous text isn't available
 	}
 
 	private String humanReadableFromRegex(String regex)
@@ -1207,7 +1285,10 @@ public class TextUserInterface
 
 	private void printCanonBackground()
 	{
-		// TODO Auto-generated method stub
+		println("It's the morning of Sunday June 6th, 1926; and you're being investigated for murder.\n");
+		println("You, along with five other guests, at John Boddy's mansion on Rainbow Road spent the night getting to know many of John's friends.");
+		println("John was killed shortly after 8:15pm the previous night, his body found at the bottom of the cellar stairs - although you suspect it had been moved there.");
+		println("Although you don't remember much from the night before, you decide to make an effort to retrace your steps...");
 	}
 
 	private void printBlankLines(int lines)
@@ -1217,7 +1298,6 @@ public class TextUserInterface
 			println();
 		}
 	}
-
 
 	/**
 	 * A small wrapper class for optional functionality in game.
