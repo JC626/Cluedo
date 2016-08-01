@@ -464,6 +464,7 @@ public class Game
 		{
 			remainingMoves = 0;
 		}
+		CaseFile currentPlayerFile = playerToCasefile.get(currentPlayer);
 		while (player != currentPlayer) 
 		{
 			Set<Card> playerCards = playerHand.get(player);
@@ -471,14 +472,17 @@ public class Game
 			if (playerCards.contains(roomCard)) 
 			{
 				disprovingCards.add(roomCard);
+				currentPlayerFile.removeCard(roomCard);
 			}
 			if (playerCards.contains(weaponCard)) 
 			{
 				disprovingCards.add(weaponCard);
+				currentPlayerFile.removeCard(roomCard);
 			}
 			if (playerCards.contains(suspectCard)) 
 			{
 				disprovingCards.add(suspectCard);
+				currentPlayerFile.removeCard(roomCard);
 			}
 			if (!disprovingCards.isEmpty()) 
 			{
@@ -738,7 +742,28 @@ public class Game
 	}
 
 	// Getters
-
+	
+	/**
+	 * Gets the answer casefile of the game when the game is over
+	 * @throws IllegalMethodCallException
+	 * If the game is not over
+	 * @return The cards from the answer caseFile
+	 */
+	public List<Card> getAnswer()
+	{
+		if(gameOver)
+		{
+			List<Card> answerCards = new ArrayList<Card>();
+			Card roomCard = answer.getRoomCards().get(0);
+			Card suspectCard = answer.getSuspectCards().get(0);
+			Card weaponCard = answer.getWeaponCards().get(0);
+			answerCards.add(roomCard);
+			answerCards.add(suspectCard);
+			answerCards.add(weaponCard);
+			return Collections.unmodifiableList(answerCards);
+		}
+		throw new IllegalMethodCallException("Cannot access answer if game is not over");
+	}
 	/**
 	 * @return The human players still playing the Cluedo game (have not been
 	 *         eliminated)
