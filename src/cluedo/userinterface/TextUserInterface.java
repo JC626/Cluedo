@@ -955,6 +955,7 @@ public class TextUserInterface
 
 		if (!disproved.isEmpty())
 		{
+			Map<Player, Card> disprover = new HashMap<Player, Card>();
 			// Given that disproved is not empty, these two variables will be initialised.
 			Player disprovingPlayer = null;
 			Set<Card> disprovingHandSet = null;
@@ -979,7 +980,11 @@ public class TextUserInterface
 			continuePromptMenu();
 
 			String question = String.format("%s choose a card to reveal to %s:", disprovingPlayer.getName(), game.getCurrentPlayer().getName());
-			promptCard(question, disprovingHandList);
+			
+			
+			
+			disprover.put(disprovingPlayer, promptCard(question, disprovingHandList));
+			game.removeCard(disprover);
 		}
 		else
 		{
