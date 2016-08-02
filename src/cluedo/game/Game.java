@@ -475,7 +475,7 @@ public class Game
 				{
 					this.putInRoom(w.getPiece(),getCurrentRoom());
 					break; 
-				}
+				}	
 			} 
 		}
 		// Iterate through each human player to try and disprove the suggestion
@@ -495,17 +495,14 @@ public class Game
 			if (playerCards.contains(roomCard)) 
 			{
 				disprovingCards.add(roomCard);
-				currentPlayerFile.removeCard(roomCard);
 			}
 			if (playerCards.contains(weaponCard)) 
 			{
 				disprovingCards.add(weaponCard);
-				currentPlayerFile.removeCard(weaponCard);
 			}
 			if (playerCards.contains(suspectCard)) 
 			{
 				disprovingCards.add(suspectCard);
-				currentPlayerFile.removeCard(suspectCard);
 			}
 			if (!disprovingCards.isEmpty()) 
 			{
@@ -515,6 +512,49 @@ public class Game
 			player = allHumanIterator.next();
 		}
 		return new HashMap<Player, Set<Card>>();
+	}
+	/**
+	 * Removes the card from the current player's casefile. 
+	 * This is used when a disproving player 
+	 * has one or more cards that match the suggestion
+	 * and therefore must choose one card to show to the
+	 * suggesting player.
+	 * 
+	 * @param disprover - The player disproving the suggestion and 
+	 * who has selected a card
+	 * @throws IllegalMethodCallException
+	 * If the game is over
+	 * @throws IllegalArgumentException
+	 * If the map is null
+	 * or there is not one key-value pair 
+	 * or the disproving player doesn't have that card
+	 */
+	//FIXME only remove one card (need to know from game class)
+	public void removeCard(Map<Player,Card> disprover)
+	{
+		if (gameOver) 
+		{
+			throw new IllegalMethodCallException("Game is over.");
+		}
+		if (disprover == null) 
+		{
+			throw new IllegalArgumentException("Arguments cannot be null");
+		}
+		if(disprover.size() != 1)
+		{
+			throw new IllegalArgumentException("Map must only contain one key value pair");
+		}
+		for(Map.Entry<Player,Card> entry : disprover.entrySet())
+		{
+			Player p = entry.getKey();
+			Card card = entry.getValue();
+			if(!playerHand.get(p).contains(card))
+			{
+				throw new IllegalArgumentException("Player must have the card in their hand");
+			}
+			playerToCasefile.get(currentPlayer).removeCard(card);
+			return;
+		}
 	}
 
 	/**
