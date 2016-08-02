@@ -61,9 +61,9 @@ public class GameTests {
 		setupSuspectOrder();
 		playerTokens = createPlayerTokens();
 		weaponTokens = createWeaponTokens();
-		suspectCardFaces = createSuspectCards();
-		weaponCardFaces = createWeaponCards();
-		roomCardFaces = createRoomCards();
+		suspectCardFaces = createSuspectCardFaces();
+		weaponCardFaces = createWeaponCardFaces();
+		roomCardFaces = createRoomCardFaces();
 	 	setupGame(6);
 	}
 	public void setupGame(int numPlayers)
@@ -104,7 +104,7 @@ public class GameTests {
 		return weapons;
 	}
 
-	private List<Displayable> createRoomCards()
+	private List<Displayable> createRoomCardFaces()
 	{
 		List<Displayable> roomCards = new ArrayList<Displayable>();
 
@@ -121,7 +121,7 @@ public class GameTests {
 		return roomCards;
 	}
 
-	private List<Displayable> createWeaponCards()
+	private List<Displayable> createWeaponCardFaces()
 	{
 		List<Displayable> weaponCards = new ArrayList<Displayable>();
 
@@ -138,7 +138,7 @@ public class GameTests {
 		return weaponCards;
 	}
 
-	private List<Displayable> createSuspectCards()
+	private List<Displayable> createSuspectCardFaces()
 	{
 		List<Displayable> suspectCards = new ArrayList<Displayable>();
 
@@ -1087,7 +1087,7 @@ public class GameTests {
 		putPeacockInRoom();
 		Map<Player, Set<Card>> disprover = game.makeSuggestion(guessWeapon, answerSuspect);
 		assertEquals(1,disprover.size());
-		
+		Map<Player,Card> toRemove = new HashMap<Player,Card>();
 		for(Map.Entry<Player, Set<Card>> suggestion: disprover.entrySet())
 		{
 			Player player = suggestion.getKey();
@@ -1095,6 +1095,10 @@ public class GameTests {
 			assertTrue(suggestion.getValue().contains(guessWeapon));
 			assert allHands != null;
 			assertTrue(allHands.get(player).contains(guessWeapon)); //Check player actually has the card
+			//Check card is removed from current player, peacock's casefile
+			toRemove.put(player,guessWeapon);
+			game.removeCard(toRemove);
+			assertFalse(game.getPlayerWeaponCards().contains(guessWeapon));
 		}
 	}
 	

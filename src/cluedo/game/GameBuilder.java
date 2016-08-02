@@ -15,7 +15,6 @@ import cluedo.model.cards.RoomCard;
 import cluedo.model.cards.SuspectCard;
 import cluedo.model.cards.WeaponCard;
 
-//TODO better description for GameBuilder
 /**
  * Creates the components for the Game class
  * These components include:
@@ -25,17 +24,17 @@ import cluedo.model.cards.WeaponCard;
  */
  class GameBuilder {
 	
+	 //Constants
 	 public static final String[] ROOM_NAMES = new String[] { "Ballroom", "Billiard Room", "Conservatory",
 				"Dining Room", "Hall", "Kitchen", "Library", "Lounge", "Study" };
-	 	/**
-		 * A map of the suspect names mapped to the order the player is according to
-		 * the clockwise order of the player's starting position in the Cluedo game
-		 */
+	/**
+	 * A map of the suspect names mapped to the order the player is according to
+	 * the clockwise order of the player's starting position in the Cluedo game
+	 */
 	 public static final String[] SUSPECT_NAMES = new String[]{ "Miss Scarlett","Colonel Mustard",
 			 "Mrs. White","Reverend Green","Mrs. Peacock","Professor Plum"};
 	 public static final Map<String, Integer> SUSPECT_ORDER = new HashMap<String, Integer>();
-	// Static initializer
-	static{
+	 static{
 			SUSPECT_ORDER.put("Miss Scarlett", 0);
 			SUSPECT_ORDER.put("Colonel Mustard", 1);
 			SUSPECT_ORDER.put("Mrs. White", 2);
@@ -46,12 +45,6 @@ import cluedo.model.cards.WeaponCard;
 	
 	private static final String[] WEAPON_NAMES = new String[] { "Dagger", "Candlestick", "Revolver", "Rope",
 				"Lead Pipe", "Spanner" };
-
-		
-	GameBuilder()
-	{
-	}	
-	
 	/**
 	 * Create all the players in the Cluedo game
 	 * 
@@ -106,8 +99,10 @@ import cluedo.model.cards.WeaponCard;
 			} 
 			else 
 			{
-				// Put added players in a clockwise order based off the starting
-				// player's position on the board
+				/*
+				 * Put added players in a clockwise order based off the starting
+				 * player's position on the board
+				 */
 				int startOrder = SUSPECT_ORDER.get(startingPlayer.getName());
 				int playerOrder = SUSPECT_ORDER.get(randPlayer.getName());
 				int index = playerOrder > startOrder ? playerOrder - startOrder : Game.MAX_HUMAN_PLAYERS + (playerOrder - startOrder);

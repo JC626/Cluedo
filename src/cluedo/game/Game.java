@@ -28,13 +28,14 @@ import cluedo.utility.Heading.Direction;
 import cluedo.utility.Heading;
 import cluedo.utility.Turn;
 
-//TODO Game description
 /**
  * The Cluedo game.
- * This dictates the rules of Cluedo 
+ * Requires the GameBuilder and RoomBuilder class to set up the game
+ * Also requires the CellBuilder class to create the board
+ * representation of the game.
+ * This class dictates the rules and logic of Cluedo 
  * Players can move, enter and exit rooms,
  * make a suggestion and make an accusation.
- * Creates all objects used in the game
  *
  */
 public class Game 
@@ -147,15 +148,17 @@ public class Game
 		}
 		CellBuilder cellBuilder = new CellBuilder();
 		board = new Board(cellBuilder.getCells());
+		//Players
 		allPlayers = GameBuilder.createPlayers(playerTokens);
 		activeHumanPlayers = GameBuilder.createHumanPlayers(numPlayers,allPlayers);
 		/*
 		 * Cannot have the same references as removing a player from active players
-		 * should not remove it from a turn (as turn checks if the player is active or not)
+		 * should not remove it from a turn (as nextTurn will check if the player is active or not)
 		 */
 		List<Player> allHumanPlayers = new ArrayList<Player>(activeHumanPlayers);
 		turn = new Turn<Player>(allHumanPlayers,allHumanPlayers.size()-1); //Ensure turn starts on the first player
 		allHumanIterator = new Turn<Player>(allHumanPlayers);
+		//Weapons
 		weapons = GameBuilder.createWeapons(weaponTokens);
 		// Cards
 		suspectCards = GameBuilder.createSuspectCards(suspectCardFaces);
@@ -170,14 +173,15 @@ public class Game
 		entranceCells = roomBuilder.getEntranceCells();
 		exitCells = roomBuilder.getExitCells();
 		rooms = roomBuilder.getRooms();
-		
+		//Initialisation
 		setStartingPosition();
 		nextTurn();
 	}
 	
 	/**
-	 * Distribute the remaining cards (all the cards except the answer cards) to
-	 * the players. The cards that each player has is removed from their
+	 * Distribute the remaining cards (all the cards except the cards in the 
+	 * answer casefile) to the players. 
+	 * The cards that each player has is removed from their
 	 * CaseFile.
 	 * 
 	 * @param suspectCards
@@ -197,7 +201,7 @@ public class Game
 		allCards.addAll(weaponCards);
 		allCards.addAll(roomCards);
 		Collections.shuffle(allCards);
-		//Remove answer cards
+		//Remove answer cards as they cannot be distributed
 		RoomCard answerRoom = answer.getRoomCards().get(0);
 		WeaponCard answerWeapon = answer.getWeaponCards().get(0);
 		SuspectCard answerSuspect = answer.getSuspectCards().get(0);
@@ -219,7 +223,7 @@ public class Game
 			if (numPlayers == 0) 
 			{
 				extra.add(card);
-				//Remove extra card from each player's casefile
+				//Remove extra card from each player's CaseFile
 				for(Player p: getActivePlayers())
 				{
 					 playerToCasefile.get(p).removeCard(card);
@@ -390,6 +394,7 @@ public class Game
 	}
 
 	/**
+	 /**
 	 * A suggestion is when a player suggests what the murder weapon, murderer
 	 * and murder room is. This is so that the player can determine what cards
 	 * were part of the murder by a process of elimination. The current player
@@ -416,6 +421,8 @@ public class Game
 	 *             If the player is not in the room or the game is over
 	 * @throws IllegalArgumentException
 	 *             If the arguments are null
+	 * @return A map of the disproving player and the card(s) that the disproving
+	 * player has that matches the suggestion.
 	 */
 	public Map<Player, Set<Card>> makeSuggestion(WeaponCard weaponCard, SuspectCard suspectCard) 
 	{
@@ -447,6 +454,7 @@ public class Game
 				break;
 			}
 		}
+		//Find the player that matches the suspect card
 		for(Player p : allPlayers) 
 		{
 			if(p.getName().equals(suspectCard.getName())) 
@@ -463,7 +471,7 @@ public class Game
 			} 
 		} 
 		
-		//Transfer the weapon into the room
+		//Transfer the weapon that matches the weapon card into the room
 		for(Weapon w : weapons) 
 		{
 			if(w.getName().equals(weaponCard.getName())) 
@@ -487,7 +495,6 @@ public class Game
 		{
 			remainingMoves = 0;
 		}
-		CaseFile currentPlayerFile = playerToCasefile.get(currentPlayer);
 		while (player != currentPlayer) 
 		{
 			Set<Card> playerCards = playerHand.get(player);
@@ -514,7 +521,7 @@ public class Game
 		return new HashMap<Player, Set<Card>>();
 	}
 	/**
-	 * Removes the card from the current player's casefile. 
+	 * Removes the card from the current player's CaseFile. 
 	 * This is used when a disproving player 
 	 * has one or more cards that match the suggestion
 	 * and therefore must choose one card to show to the
@@ -529,7 +536,6 @@ public class Game
 	 * or there is not one key-value pair 
 	 * or the disproving player doesn't have that card
 	 */
-	//FIXME only remove one card (need to know from game class)
 	public void removeCard(Map<Player,Card> disprover)
 	{
 		if (gameOver) 
@@ -550,7 +556,7 @@ public class Game
 			Card card = entry.getValue();
 			if(!playerHand.get(p).contains(card))
 			{
-				throw new IllegalArgumentException("Player must have the card in their hand");
+				throw new IllegalArgumentException("Disproving player must have the card in their hand");
 			}
 			playerToCasefile.get(currentPlayer).removeCard(card);
 			return;
@@ -624,7 +630,6 @@ public class Game
 				nextTurn();
 			}
 			return false;
-			
 		}
 	}
 
@@ -695,7 +700,82 @@ public class Game
 	}
 	
 	/**
-	 * Switches to the next player. 
+	 * Checks whether a player can move in any 
+	 * direction.
+	 * @return true if the player can move in any direction, 
+	 * false if the player cannot move
+	 */
+	public boolean allPathsBlocked()
+	{		
+		Set<Direction> directions = new HashSet<Direction>();
+		Set<Direction> toRemove = new HashSet<Direction>();
+		directions.add(Direction.North);
+		directions.add(Direction.South);
+		directions.add(Direction.West);
+		directions.add(Direction.East);
+		if(!isInRoom())
+		{
+			Cell pos = getPosition(currentPlayer.getPiece());
+			Set<Direction> walls = pos.getWalls();
+			directions.removeAll(walls);
+			int x = pos.getX();
+			int y = pos.getY();
+			Cell[][] cells = getCells();
+			for(Direction dir : directions)
+			{
+				Cell checkCell = null;
+				switch(dir)
+				{
+					case North:
+						checkCell = cells[x][y-1];
+						break;
+					case South:
+						checkCell = cells[x][y+1];
+						break;
+					case East:
+						checkCell = cells[x+1][y];
+						break;
+					case West:
+						checkCell = cells[x-1][y];
+						break;
+				}
+				if(board.containsPiece(checkCell) ||
+						playerPath.contains(checkCell)) 
+				{
+					toRemove.add(dir);
+				}
+			}
+			directions.removeAll(toRemove);
+			if(directions.isEmpty())
+			{
+				//FIXME set remainingMoves to 0?
+				/*
+				 * Set remaining moves to zero so nextTurn() can be called
+				 * without throwing an exception
+				 */
+				remainingMoves = 0;
+				return true;
+			}
+		}
+		else
+		{
+			try 
+			{
+				return getAvailableExits().isEmpty();
+			} 
+			catch (NoAvailableExitException e) {
+				
+				return true;
+			} 
+			catch (InvalidMoveException e)
+			{	
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Switches to the next active human player. 
 	 * Also resets global values for the next player
 	 * @return the next player in the turn
 	 */
@@ -767,9 +847,9 @@ public class Game
 	}
 
 	/**
-	 * Simulates the roll of two six-sided die Generate the number of moves for
-	 * the current player (when they first decide to move) The number of moves
-	 * is between 2 to 12
+	 * Simulates the roll of two six-sided die 
+	 * Generate the number of moves for the current player (when they first decide to move) 
+	 * The number of moves is between 2 to 12
 	 * 
 	 * @throws IllegalMethodCallException
 	 * If the game is over
@@ -1030,80 +1110,6 @@ public class Game
 	 */
 	public boolean isGameOver() {
 		return gameOver;
-	}
-	/**
-	 * Checks whether a player can move in any 
-	 * direction.
-	 * @return true if the player can move in any direction, 
-	 * false if the player cannot move
-	 */
-	public boolean allPathsBlocked()
-	{		
-		Set<Direction> directions = new HashSet<Direction>();
-		Set<Direction> toRemove = new HashSet<Direction>();
-		directions.add(Direction.North);
-		directions.add(Direction.South);
-		directions.add(Direction.West);
-		directions.add(Direction.East);
-		if(!isInRoom())
-		{
-			Cell pos = getPosition(currentPlayer.getPiece());
-			Set<Direction> walls = pos.getWalls();
-			directions.removeAll(walls);
-			int x = pos.getX();
-			int y = pos.getY();
-			Cell[][] cells = getCells();
-			for(Direction dir : directions)
-			{
-				Cell checkCell = null;
-				switch(dir)
-				{
-					case North:
-						checkCell = cells[x][y-1];
-						break;
-					case South:
-						checkCell = cells[x][y+1];
-						break;
-					case East:
-						checkCell = cells[x+1][y];
-						break;
-					case West:
-						checkCell = cells[x-1][y];
-						break;
-				}
-				if(board.containsPiece(checkCell) ||
-						playerPath.contains(checkCell)) 
-				{
-					toRemove.add(dir);
-				}
-			}
-			directions.removeAll(toRemove);
-			if(directions.isEmpty())
-			{
-				//FIXME set remainingMoves to 0?
-				/*
-				 * Set remaining moves to zero so nextTurn() can be called
-				 * without throwing an exception
-				 */
-				remainingMoves = 0;
-				return true;
-			}
-		}
-		else
-		{
-			try 
-			{
-				return getAvailableExits().isEmpty();
-			} 
-			catch (NoAvailableExitException e) {
-				
-				return true;
-			} 
-			catch (InvalidMoveException e)
-			{	
-			}
-		}
-		return false;
 	}
 
 }

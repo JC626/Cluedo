@@ -10,7 +10,6 @@ import java.util.Set;
 import cluedo.model.Cell;
 import cluedo.model.Room;
 
-//TODO better description RoomBuilder
 /**
  * Creates the Rooms needed for the Game class
  * The cells for the room and the entrance and exit
@@ -21,13 +20,22 @@ class RoomBuilder
 {
 
 	private final Cell[][] cells;
-
+	/**
+	 * The cells that the player moves to to enter a room
+	 */
 	private Map<Room, Set<Cell>> entranceCells = new HashMap<Room,Set<Cell>>();
 	private Map<Room, Set<Cell>> roomCells = new HashMap<Room,Set<Cell>>();
+	/**
+	 * The cells that the player's can move to when they exit a room
+	 */
 	private Map<Room, List<Cell>> exitCells = new HashMap<Room,List<Cell>>();
+	/**
+	 * Contains all the cells that are part of a room
+	 */
 	private Map<Cell, Room> cellToRoom = new HashMap<Cell,Room>();
 	private List<Room> rooms = new ArrayList<Room>();
 
+	
 	private int[] KITCHEN = new int[] { 
 			0,1, 1,1, 2,1, 3,1, 4,1, 5,1, 
 			0,2, 1,2, 2,2, 3,2, 4,2, 5,2, 
