@@ -219,30 +219,15 @@ import cluedo.model.cards.WeaponCard;
 		{
 			playerToCasefile.put(player, new CaseFile(suspectCards, weaponCards, roomCards));
 		}
-		SuspectCard answerSuspect = null;
 		List<SuspectCard> suspects = new ArrayList<SuspectCard>(suspectCards);
 		Collections.shuffle(suspects);
-		for (SuspectCard suspect : suspects) 
-		{
-			answerSuspect = suspect;
-			break;
-		}
-		WeaponCard answerWeapon = null;
+		SuspectCard answerSuspect = suspects.get(0);
 		List<WeaponCard> weapons = new ArrayList<WeaponCard>(weaponCards);
 		Collections.shuffle(weapons);
-		for (WeaponCard weapon : weapons) 
-		{
-			answerWeapon = weapon;
-			break;
-		}
-		RoomCard answerRoom = null;
+		WeaponCard answerWeapon = weapons.get(0);
 		List<RoomCard> rooms = new ArrayList<RoomCard>(roomCards);
 		Collections.shuffle(rooms);
-		for (RoomCard room : rooms) 
-		{
-			answerRoom = room;
-			break;
-		}
+		RoomCard answerRoom = rooms.get(0);
 		return new CaseFile(answerSuspect, answerWeapon, answerRoom);
 	}
 	

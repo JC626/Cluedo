@@ -69,7 +69,7 @@ public class Game
 	/**
 	 * One round of the Cluedo game. Contains all the active players
 	 */
-	private Turn<Player> turn;
+	private final Turn<Player> turn;
 	/**
 	 * Iterator that contains all human players in the game (i.e. eliminated and
 	 * active players)
@@ -149,8 +149,13 @@ public class Game
 		board = new Board(cellBuilder.getCells());
 		allPlayers = GameBuilder.createPlayers(playerTokens);
 		activeHumanPlayers = GameBuilder.createHumanPlayers(numPlayers,allPlayers);
-		turn = new Turn<Player>(activeHumanPlayers,activeHumanPlayers.size()-1); //Ensure turn starts on the first player
-		allHumanIterator = new Turn<Player>(activeHumanPlayers);
+		/*
+		 * Cannot have the same references as removing a player from active players
+		 * should not remove it from a turn (as turn checks if the player is active or not)
+		 */
+		List<Player> allHumanPlayers = new ArrayList<Player>(activeHumanPlayers);
+		turn = new Turn<Player>(allHumanPlayers,allHumanPlayers.size()-1); //Ensure turn starts on the first player
+		allHumanIterator = new Turn<Player>(allHumanPlayers);
 		weapons = GameBuilder.createWeapons(weaponTokens);
 		// Cards
 		suspectCards = GameBuilder.createSuspectCards(suspectCardFaces);
@@ -192,11 +197,17 @@ public class Game
 		allCards.addAll(weaponCards);
 		allCards.addAll(roomCards);
 		Collections.shuffle(allCards);
+		//Remove answer cards
+		RoomCard answerRoom = answer.getRoomCards().get(0);
+		WeaponCard answerWeapon = answer.getWeaponCards().get(0);
+		SuspectCard answerSuspect = answer.getSuspectCards().get(0);
+		allCards.remove(answerWeapon);
+		allCards.remove(answerRoom);
+		allCards.remove(answerSuspect);
 		int numPlayers = activeHumanPlayers.size();
-		//Minus 3 from allCards size as want to remove the answer cards
-		int numExtra = (allCards.size()- 3) % numPlayers;
+		int numExtra = allCards.size() % numPlayers;
 		//Number of cards each player will get
-		int numCards = (allCards.size() - numExtra - 3) / numPlayers; 
+		int numCards = (allCards.size() - numExtra) / numPlayers; 
 		int countCards = 0;
 		Set<Card> cardsForPlayer = new HashSet<Card>();
 		for (Card card : allCards) {
@@ -489,12 +500,12 @@ public class Game
 			if (playerCards.contains(weaponCard)) 
 			{
 				disprovingCards.add(weaponCard);
-				currentPlayerFile.removeCard(roomCard);
+				currentPlayerFile.removeCard(weaponCard);
 			}
 			if (playerCards.contains(suspectCard)) 
 			{
 				disprovingCards.add(suspectCard);
-				currentPlayerFile.removeCard(roomCard);
+				currentPlayerFile.removeCard(suspectCard);
 			}
 			if (!disprovingCards.isEmpty()) 
 			{
@@ -566,37 +577,14 @@ public class Game
 		else 
 		{
 			// Accusation failed, remove player from the game
-			int removedPos = players.indexOf(player);
-			int currentPlayerPos = players.indexOf(currentPlayer);
 			players.remove(player);
-			int pos = turn.getPos();
-			if (removedPos <= currentPlayerPos) 
+			if(player == currentPlayer)
 			{
-				pos--;
-				/*
-				 * Rare case that first player wants to make an
-				 * accusation on the first round
-				 */
-				if(pos < 0)
-				{
-					pos = players.size()-1;
-				}
-				// Current player failed the accusation
-				if (removedPos == currentPlayerPos) 
-				{
-					// Current player has no more moves as they are eliminated
-					remainingMoves = 0;
-					// Remove player from the active players
-					turn = new Turn<Player>(players, pos);
-					// Go to next player if it was the current player who failed
-					// to make the accusation
-					nextTurn();
-					return false;
-				}
+				remainingMoves = 0;
+				nextTurn();
 			}
-			// Remove player from the active players
-			turn = new Turn<Player>(players, pos);
 			return false;
+			
 		}
 	}
 
@@ -686,6 +674,11 @@ public class Game
 			transferred.put(currentPlayer,false);
 		}
 		currentPlayer = turn.next();
+		//Ensure player is actually active
+		while(!activeHumanPlayers.contains(currentPlayer))
+		{
+			currentPlayer = turn.next();
+		}
 		//Reset for the next player
 		if(lastRoom != null)
 		{
