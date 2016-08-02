@@ -129,7 +129,7 @@ public class TextUserInterface
 					actions.put(nextAction, () -> promptMakeSuggestion());
 					nextAction++;
 				}
-				else if (!game.allPathsBlocked())
+				else if (!game.canMove())
 				{
 					options.add("Exit the " + game.getRoom(game.getPosition(game.getCurrentPlayer().getPiece())).getName());
 					regex.add("exit|leave|go");
@@ -138,7 +138,7 @@ public class TextUserInterface
 					nextAction++;
 				}
 			}
-			else if (game.getRemainingMoves() > 0 && !game.allPathsBlocked())
+			else if (game.getRemainingMoves() > 0 && !game.canMove())
 			{
 				options.add("Move");
 				regex.add("m|"); // Make movement the default
@@ -176,7 +176,7 @@ public class TextUserInterface
 
 			printRemainingMoves();
 
-			if (game.allPathsBlocked())
+			if (game.canMove())
 			{
 				println("You recall being stuck!");
 			}
@@ -338,7 +338,7 @@ public class TextUserInterface
 	 */
 	private void promptExitRoom() // TODO refactor
 	{
-		if (!game.allPathsBlocked())
+		if (!game.canMove())
 		{
 			try
 			{

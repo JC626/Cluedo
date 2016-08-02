@@ -279,6 +279,83 @@ public class Game
 	}
 
 	/**
+	 * Checks whether a player can move or exit a room
+	 * @return true if the player can move in any direction, 
+	 * false if the player cannot move
+	 */
+	public boolean canMove()
+	{		
+		if(remainingMoves == 0)
+		{
+			return false;
+		}
+		Set<Direction> directions = new HashSet<Direction>();
+		Set<Direction> toRemove = new HashSet<Direction>();
+		directions.add(Direction.North);
+		directions.add(Direction.South);
+		directions.add(Direction.West);
+		directions.add(Direction.East);
+		if(!isInRoom())
+		{
+			Cell pos = getPosition(currentPlayer.getPiece());
+			Set<Direction> walls = pos.getWalls();
+			directions.removeAll(walls);
+			int x = pos.getX();
+			int y = pos.getY();
+			Cell[][] cells = getCells();
+			for(Direction dir : directions)
+			{
+				Cell checkCell = null;
+				switch(dir)
+				{
+					case North:
+						checkCell = cells[x][y-1];
+						break;
+					case South:
+						checkCell = cells[x][y+1];
+						break;
+					case East:
+						checkCell = cells[x+1][y];
+						break;
+					case West:
+						checkCell = cells[x-1][y];
+						break;
+				}
+				if(board.containsPiece(checkCell) ||
+						playerPath.contains(checkCell)) 
+				{
+					toRemove.add(dir);
+				}
+			}
+			directions.removeAll(toRemove);
+			if(directions.isEmpty())
+			{
+				/*
+				 * Set remaining moves to zero so nextTurn() can be called
+				 * without throwing an exception
+				 */
+				remainingMoves = 0;
+				return true;
+			}
+		}
+		else
+		{
+			try 
+			{
+				return getAvailableExits().isEmpty();
+			} 
+			catch (NoAvailableExitException e) {
+				remainingMoves = 0;
+				return true;
+			} 
+			catch (InvalidMoveException e)
+			{	
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Checks if the player can move by calling the move method in the Board
 	 * class. Assigns new player’s moves using rollDice()
 	 * 
@@ -699,81 +776,6 @@ public class Game
 		}
 	}
 	
-	/**
-	 * Checks whether a player can move in any 
-	 * direction.
-	 * @return true if the player can move in any direction, 
-	 * false if the player cannot move
-	 */
-	public boolean allPathsBlocked()
-	{		
-		Set<Direction> directions = new HashSet<Direction>();
-		Set<Direction> toRemove = new HashSet<Direction>();
-		directions.add(Direction.North);
-		directions.add(Direction.South);
-		directions.add(Direction.West);
-		directions.add(Direction.East);
-		if(!isInRoom())
-		{
-			Cell pos = getPosition(currentPlayer.getPiece());
-			Set<Direction> walls = pos.getWalls();
-			directions.removeAll(walls);
-			int x = pos.getX();
-			int y = pos.getY();
-			Cell[][] cells = getCells();
-			for(Direction dir : directions)
-			{
-				Cell checkCell = null;
-				switch(dir)
-				{
-					case North:
-						checkCell = cells[x][y-1];
-						break;
-					case South:
-						checkCell = cells[x][y+1];
-						break;
-					case East:
-						checkCell = cells[x+1][y];
-						break;
-					case West:
-						checkCell = cells[x-1][y];
-						break;
-				}
-				if(board.containsPiece(checkCell) ||
-						playerPath.contains(checkCell)) 
-				{
-					toRemove.add(dir);
-				}
-			}
-			directions.removeAll(toRemove);
-			if(directions.isEmpty())
-			{
-				//FIXME set remainingMoves to 0?
-				/*
-				 * Set remaining moves to zero so nextTurn() can be called
-				 * without throwing an exception
-				 */
-				remainingMoves = 0;
-				return true;
-			}
-		}
-		else
-		{
-			try 
-			{
-				return getAvailableExits().isEmpty();
-			} 
-			catch (NoAvailableExitException e) {
-				
-				return true;
-			} 
-			catch (InvalidMoveException e)
-			{	
-			}
-		}
-		return false;
-	}
-
 	/**
 	 * Switches to the next active human player. 
 	 * Also resets global values for the next player
