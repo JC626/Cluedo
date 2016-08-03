@@ -2,8 +2,7 @@ package cluedo.exceptions;
 
 /**
  * This exception is for when the player 
- * cannot move to the new position
- *
+ * cannot move to the new position due to some condition
  */
 public class InvalidMoveException extends Exception
 {

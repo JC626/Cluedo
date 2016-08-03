@@ -1,9 +1,8 @@
 package cluedo.exceptions;
 
-//TODO IllegalMethodCallException description
 /**
  * This exception is for when a method is called
- * when the conditions are incorrect
+ * when the conditions for calling the method are incorrect
  *
  */
 public class IllegalMethodCallException extends RuntimeException

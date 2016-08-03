@@ -972,10 +972,8 @@ public class Game
 		return remainingMoves;
 	}
 
-	// TODO better description for getRoom
 	/**
-	 * Convenience method for the UI for example to print out whether a player
-	 * entered a room
+	 * Get the room that a cell is part of
 	 * 
 	 * @param cell - A room cell
 	 * @return The room the cell is in
@@ -1007,9 +1005,8 @@ public class Game
 		return room;
 	}
 	
-	// TODO do description for Game - getPosition
 	/**
-	 * Used by the UI to read the state of pieces in the game
+	 * Find the location of pieces in the game
 	 * 
 	 * @param piece
 	 * @return The cell the piece is in
