@@ -1272,7 +1272,7 @@ public class TextUserInterface
 					endGame = true;
 			}
 
-			printBlankLines(7); // FIXME 7 was also chosen arbitrarily
+			printBlankLines(7); // Give some space between the main menu and the game start.
 		}
 	}
 
@@ -1391,7 +1391,6 @@ public class TextUserInterface
 	private void printInstructions()
 	{
 		printControls();
-		printGameRules();
 	}
 
 	private void printControls()
@@ -1459,11 +1458,6 @@ public class TextUserInterface
 		return " {" + regex + "}";
 	}
 
-	private void printGameRules()
-	{
-		//TODO game rules
-	}
-
 	private void printCanonBackground()
 	{
 		println("It's the morning of Sunday June 6th, 1926; and you're being investigated for murder.\n");
@@ -1490,15 +1484,11 @@ public class TextUserInterface
 	{
 		boolean printBoardAtStartTurn = true;
 		boolean verboseErrors = false; // Print out exception stack traces.
-		boolean colour = false; // Coloured pieces and characters.
-		boolean fancyGraphics = false; // Unicode box drawing characters in place of standard ASCII.
 	}
 
 	public static void main(String[] args)
 	{
 		TextUserInterface t = new TextUserInterface();
 		t.mainMenu();
-
-		System.out.println("Thank you for playing!");
 	}
 }
