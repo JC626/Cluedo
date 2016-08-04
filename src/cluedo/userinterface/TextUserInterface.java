@@ -31,6 +31,8 @@ import cluedo.utility.Heading.Direction;
 
 /**
  * A user interface, for human players, that consists of input and output from the command line.
+ * 
+ * Future support for colouring of characters, and box drawing characters for walls is expected.
  */
 public class TextUserInterface
 {
@@ -39,33 +41,28 @@ public class TextUserInterface
 	private static final String userPrompt = "> ";
 	private static final String shortcutDisplayCommand = "shortcuts";
 
-	private Character horizontalLine = '=';//'\u2550';
-	private Character verticalLine = '|';//'\u2551';
+	// Portions of cells. Dividing them up into nine parts allows for a lot of flexability. 
+	private Character horizontalLine = '=';
+	private Character verticalLine = '|';
 
-	private Character topLeftCorner = '+';//'\u2554';
-	private Character topRightCorner = '+';//'\u2557';
+	private Character topLeftCorner = '+';
+	private Character topRightCorner = '+';
 
 	private Character cellEmpty = '.';
 
-	private Character bottomLeftCorner = '+';//'\u255A';
-	private Character bottomRightCorner = '+';//'\u255D';
+	private Character bottomLeftCorner = '+';
+	private Character bottomRightCorner = '+';
 
-	private final GameOptions gameOptions = new GameOptions();
+	
+	
+	private final GameOptions gameOptions = new GameOptions(); // User options for this game. e.g. printing the board every turn, or verbose errors.
+	
 	private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
 	// The size of the buffer is the number of Cells, multiplied by the size of each cell (3 by 3).
 	private final Character[][] drawingBuffer = new Character[3 * Board.WIDTH][3 * Board.HEIGHT]; // The drawing buffer, which will be modified in layers based in game state.
 
 	private Game game;
-	
-	
-	// TODO
-	// Document
-	// Clean up
-	// Split up Menus into separate class
-	// Change Character to String to allow for Colours. Update gameOptions and setOptions method
-	
-	
 
 	/**
 	 * Start a new game.
@@ -91,9 +88,11 @@ public class TextUserInterface
 		}
 		catch (IllegalMethodCallException e)
 		{
-			
+			// If we make an illegal method call the either the game is over, or
+			// there's a bug in the UI. In either case, end the game rather than crashing.
 		}
 		
+		// Output the solution for this game.
 		println("Game over.\nThe solution was:");
 		
 		for (Card c : game.getAnswer())
@@ -107,11 +106,14 @@ public class TextUserInterface
 	 */
 	private void runGame()
 	{
-		Map<Integer, Runnable> actions = new HashMap<Integer, Runnable>();
-		int nextAction = 0;
+		Map<Integer, Runnable> actions = new HashMap<Integer, Runnable>(); // Actions available to the user.
+		int nextAction = 0; // The menu option corresponding to each action.
 
+		// Give the user some information about this game.
 		printCanonBackground();
 		printExtraCards();
+		
+		continuePromptMenu(); // Don't interrupt their reading, just in case the board prints out.
 
 		if (gameOptions.printBoardAtStartTurn)
 		{
@@ -151,7 +153,7 @@ public class TextUserInterface
 					nextAction++;
 				}
 			}
-			else if (game.canMove())
+			else if (game.canMove()) // We can only move if we're not in a room
 			{
 				options.add("Move");
 				regex.add("m|"); // Make movement the default
@@ -170,7 +172,7 @@ public class TextUserInterface
 				nextAction++;
 			}
 
-			if (game.getRemainingMoves() <= 0)
+			if (game.getRemainingMoves() <= 0) // If we have no remaining moves, we may end our turn.
 			{
 				options.add("End turn");
 				regex.add("done|next|wait");
@@ -189,12 +191,12 @@ public class TextUserInterface
 
 			printRemainingMoves();
 
+			// If remaining moves == 0 we're not necesarily stuck, so that check is needed.
 			if (!game.canMove() && game.getRemainingMoves() != 0)
 			{
 				println("You recall being stuck!");
 			}
 			
-
 			userSelection = executeDefaultMenu(game.getCurrentPlayer().getName(), options, regex);
 
 			actions.get(userSelection).run();
@@ -207,21 +209,21 @@ public class TextUserInterface
 	 */
 	private void printExtraCards()
 	{
-		List<Card> extras = game.getExtraCards();
+		List<Card> extras = game.getExtraCards(); // Extra cards, may be empty.
 		List<String> extraNames = new ArrayList<String>();
 
-		if (!extras.isEmpty())
+		if (!extras.isEmpty()) // We have cards
 		{
 			for (Card c : extras)
 			{
 				extraNames.add(c.getName());
 			}
 
+			// Inform the user of the cards.
 			println("Everyone, we've found some evidence. We can conclusively say that the following were not involved in the murder:\n");
 
 			printMenu(extraNames);
-			continuePromptMenu();
-		}
+		} // Else: exit, there were no extras.
 	}
 
 	/**
@@ -245,7 +247,7 @@ public class TextUserInterface
 
 			println(remainingMoves);
 		}
-		else
+		else // 0 moves, so inform the user is a friendly manner. i.e. not "You can remember taking 0 more steps".
 		{
 			println("You don't remember going any further...");
 		}
@@ -264,17 +266,23 @@ public class TextUserInterface
 	 * Create and make moves from a given string.
 	 * @param movement The string containing movement information.
 	 * Must contain at least one of nsew in any order.
-	 * @throws InvalidMoveException If any given moves are invalid.
 	 */
-	private void makeMoves(String movement) throws InvalidMoveException
+	private void makeMoves(String movement)
 	{
 		List<Direction> moves = Heading.convertStringToDirection(movement);
 		
 		for (Direction d : moves)
 		{
-			if (game.getRemainingMoves() >= 1 && game.canMove())
+			if (game.canMove()) // Don't make the move if it's illegal.
 			{
-				game.move(d);
+				try
+				{
+					game.move(d);
+				}
+				catch (InvalidMoveException e)
+				{
+					// Never occurs, as the move is valid (canMove() is true)
+				}
 			}
 		}
 		
@@ -282,9 +290,9 @@ public class TextUserInterface
 		{
 			println(String.format("%s, you are now in the %s", game.getCurrentPlayer().getName(), game.getCurrentRoom().getName())); 
 		}
-		catch (IllegalMethodCallException e) // User is not in a room, so do nothing
+		catch (IllegalMethodCallException e) 
 		{
-			
+			// User is not in a room, so do nothing
 		}
 		
 	}
@@ -353,6 +361,7 @@ public class TextUserInterface
 			}
 			else
 			{
+				// Inform the user that their input was too long, and by how much.
 				println(String.format("You don't have enough moves (%d remaining, attempted to move %d)", game.getRemainingMoves(), movement.length()));
 			}
 		}
@@ -361,9 +370,10 @@ public class TextUserInterface
 	}
 
 	/**
+	 * Prompts the user to exit the room, displaying the exits on the board to inform their decision.
 	 * 
 	 */
-	private void promptExitRoom() // TODO refactor
+	private void promptExitRoom()
 	{
 		if (game.canMove())
 		{
@@ -382,18 +392,20 @@ public class TextUserInterface
 
 					options.add(exitNum);
 
-					addCenterDrawingBuffer(exits.get(i), num);
+					// Add the numbered exit to the cell on the drawingBuffer.
+					addCentreDrawingBuffer(exits.get(i), num);
 				}
 
+				// Display our work to the user.
 				printBoard();
 
-				userSelection = executeMenu("Select an exit", options, emptyRegex()) - 1; // -1 because lists are indexed from 0.
+				userSelection = executeMenu("Select an exit", options, emptyRegex()) - 1; // -1 because lists are indexed from 0 and menus are displayed 1 .. n.
 
 				game.takeExit(exits.get(userSelection));
 
 				printBlankLines(5);
 
-				makeAndDisplayBoard();
+				makeAndDisplayBoard(); // Reset the board (removing our numbers), and show the user their new position. 
 			}
 			catch (InvalidMoveException | NoAvailableExitException e)
 			{
@@ -435,7 +447,7 @@ public class TextUserInterface
 	 * 
 	 * If you're looking to print the board normally use makeAndDisplayBoard().
 	 * If you're looking to add something special to a Cell use 
-	 * addCenterDrawingBuffer(myCell, myString) and then printBoard().
+	 * addCentreDrawingBuffer(myCell, myString) and then printBoard().
 	 */
 	private void generateBoard()
 	{
@@ -448,13 +460,13 @@ public class TextUserInterface
 				addCellLayerDrawingBuffer(board[x][y]);
 			}
 		}
-
+		
 		addPlayerLayerDrawingBuffer();
 		addWeaponLayerDrawingBuffer();
 	}
 
 	/**
-	 * Add things to the center of cells in the drawing buffer.
+	 * Add things to the centre of cells in the drawing buffer.
 	 * Replaces what was there previously. It is your responsibility to ensure the space is empty.
 	 *
 	 * @param cell The cell to add displayable to.
@@ -462,7 +474,7 @@ public class TextUserInterface
 	 * Cells use 1 cell per wall segment (3 wall segments making up a wall) so exactly 1 printable character
 	 * is HIGHLY recommended to ensure consistent width of the board.
 	 */
-	private void addCenterDrawingBuffer(Cell cell, Character displayable)
+	private void addCentreDrawingBuffer(Cell cell, Character displayable)
 	{
 		// Cells are 3x3 and we need +1 to get to the middle of the Cell 
 		drawingBuffer[(3 * cell.getX()) + 1][(3 * cell.getY()) + 1] = displayable;
@@ -481,7 +493,7 @@ public class TextUserInterface
 
 		for (Player p : players)
 		{
-			addCenterDrawingBuffer(game.getPosition(p.getPiece()), getPlayerDisplayable(p));
+			addCentreDrawingBuffer(game.getPosition(p.getPiece()), getPlayerDisplayable(p));
 		}
 	}
 
@@ -498,7 +510,7 @@ public class TextUserInterface
 
 		for (Weapon w : weapons)
 		{
-			addCenterDrawingBuffer(game.getPosition(w.getPiece()), getWeaponDisplayable(w));
+			addCentreDrawingBuffer(game.getPosition(w.getPiece()), getWeaponDisplayable(w));
 		}
 	}
 
@@ -520,7 +532,7 @@ public class TextUserInterface
 				weaponDisplayable = 'D';
 				break;
 			case "Candlestick":
-				weaponDisplayable = 'c';
+				weaponDisplayable = 'c'; // Capital C is Colonel Mustard.
 				break;
 			case "Revolver":
 				weaponDisplayable = 'R';
@@ -532,10 +544,10 @@ public class TextUserInterface
 				weaponDisplayable = 'L';
 				break;
 			case "Spanner":
-				weaponDisplayable = 's';
+				weaponDisplayable = 's'; // Capital S is Miss Scarlett.
 				break;
 			default:
-				// Player not recognised, don't draw them.
+				// Weapon not recognised, don't draw them.
 		}
 
 		return weaponDisplayable;
@@ -547,7 +559,7 @@ public class TextUserInterface
 	 * hard code the names here. If the names or order changes
 	 * then this method will need to change too.
 	 * @param p The player whose character we need to represent.
-	 * @return The string that represents p. An empty string is returned if the weapon is not recognised.
+	 * @return The string that represents p. An empty string is returned if the player is not recognised.
 	 */
 	private Character getPlayerDisplayable(Player p)
 	{
@@ -571,7 +583,7 @@ public class TextUserInterface
 				playerDisplayable = 'P';
 				break;
 			case "Professor Plum":
-				playerDisplayable = 'p';
+				playerDisplayable = 'p'; // Capital P is Mrs. Peacock.
 				break;
 			default:
 				// Player not recognised, don't draw them
@@ -615,7 +627,12 @@ public class TextUserInterface
 		drawingBuffer[x + 2][y + 2] = cellBottomRight(east, south);
 	}
 
-	// TODO
+	/**
+	 * Calculate the bottom right wall of the cell, given the relevant directions.
+	 * @param east True if there is a wall to the east, false otherwise.
+	 * @param south True if there is a wall to the south, false otherwise.
+	 * @return The character at the bottom right of this cell.
+	 */
 	private Character cellBottomRight(boolean east, boolean south)
 	{
 		Character result = ' ';
@@ -638,13 +655,22 @@ public class TextUserInterface
 		return result;
 	}
 
-	// TODO
+	/**
+	 * Calculate the bottom centre wall of the cell, given the relevant directions.
+	 * @param south True if there is a wall to the south, false otherwise.
+	 * @return The character at the bottom of this cell.
+	 */
 	private Character cellBottomCentre(boolean south)
 	{
 		return (south) ? horizontalLine : ' ';
 	}
 
-	// TODO
+	/**
+	 * Calculate the bottom left wall of the cell, given the relevant directions.
+	 * @param west True if there is a wall to the west, false otherwise.
+	 * @param south True if there is a wall to the south, false otherwise.
+	 * @return The character at the bottom left of this cell.
+	 */
 	private Character cellBottomLeft(boolean south, boolean west)
 	{
 		Character result = ' ';
@@ -667,25 +693,47 @@ public class TextUserInterface
 		return result;
 	}
 
-	// TODO
+	/**
+	 * Calculate the middle right wall of the cell, given the relevant directions.
+	 * @param east True if there is a wall to the east, false otherwise.
+	 * @return The character at the right of this cell.
+	 */
 	private Character cellMiddleRight(boolean east)
 	{
 		return (east) ? verticalLine : ' ';
 	}
 
-	// TODO
+	/**
+	 * The middle of a regular cell is always empty.
+	 * To add something to the middle of a given cell use:
+	 * 
+	 * addPlayerLayerDrawingBuffer for adding all players.
+	 * addWeaponLayerDrawingBuffer for adding all weapons.
+	 * addCentreDrawingBuffer for adding arbitrary characters.
+	 * 
+	 * @return cellEmpty.
+	 */
 	private Character cellMiddleCentre()
 	{
 		return cellEmpty; // This will be overridden if there's a weapon or player there.
 	}
 
-	// TODO
+	/**
+	 * Calculate the middle left wall of the cell, given the relevant directions.
+	 * @param west True if there is a wall to the west, false otherwise.
+	 * @return The character at the left of this cell.
+	 */
 	private Character cellMiddleLeft(boolean west)
 	{
 		return (west) ? verticalLine : ' ';
 	}
 
-	// TODO
+	/**
+	 * Calculate the top right wall of the cell, given the relevant directions.
+	 * @param east True if there is a wall to the east, false otherwise.
+	 * @param south True if there is a wall to the south, false otherwise.
+	 * @return The character at the top right of this cell.
+	 */
 	private Character cellTopRight(boolean north, boolean east)
 	{
 		Character result = ' ';
@@ -708,13 +756,22 @@ public class TextUserInterface
 		return result;
 	}
 
-	// TODO
+	/**
+	 * Calculate the top centre wall of the cell, given the relevant directions.
+	 * @param north True if there is a wall to the north, false otherwise.
+	 * @return The character at the top of this cell.
+	 */
 	private Character cellTopCentre(boolean north)
 	{
 		return (north) ? horizontalLine : ' ';
 	}
 
-	// TODO
+	/**
+	 * Calculate the top left wall of the cell, given the relevant directions.
+	 * @param west True if there is a wall to the west, false otherwise.
+	 * @param north True if there is a wall to the north, false otherwise.
+	 * @return The character at the top left of this cell.
+	 */
 	private Character cellTopLeft(boolean north, boolean west)
 	{
 		Character result = ' ';
@@ -756,7 +813,7 @@ public class TextUserInterface
 	 */
 	private int executeMenu(String menuTitle, List<String> menuOptions, List<String> regexMatches)
 	{
-		final int userSelectionSentinel = -1;
+		final int userSelectionSentinel = -1; // We'll loop until the user enters something valid, at which point we change this value.
 		int userSelection = userSelectionSentinel;
 
 		updateMenuOptions(menuOptions, regexMatches);
@@ -786,7 +843,9 @@ public class TextUserInterface
 
 					if (Pattern.matches(thisIndexRegex + regexMatches.get(i).toLowerCase(), answer))
 					{
-						userSelection = i + 1; // We add 1 here to match the shown/accepted number instead of the index because we usually deal with the user selection in a switch.
+						// We add 1 here to match the shown/accepted number instead of the index because we usually deal with the user selection in a switch.
+						// It's more natural to say case 1, case 2, .. case n because that is what the user sees: option 1, option 2, .. option n.
+						userSelection = i + 1;
 						break;
 					}
 				}
@@ -809,8 +868,7 @@ public class TextUserInterface
 			println();
 		}
 		
-		print("Sorry, I couldn't hear you. Could you please repeat that?");
-		println();
+		println("Sorry, I couldn't hear you. Could you please repeat that?");
 	}
 
 	/**
@@ -847,9 +905,10 @@ public class TextUserInterface
 	}
 
 	/**
-	 * TODO
-	 * @param options
-	 * @param regex
+	 * Change the regex to include the text from options.
+	 * Modifies regex by reference.
+	 * @param options The options for the menu that is displayed to the user.
+	 * @param regex The regular expressions that correspond to each menu item. May be shorter than options, including empty. 
 	 */
 	private void updateMenuOptions(List<String> options, List<String> regex)
 	{
@@ -857,7 +916,7 @@ public class TextUserInterface
 		{
 			String regexOption = options.get(i).toLowerCase(); // The menu text is a valid option 
 
-			if (i < regex.size()) // There is a regex for this option
+			if (i < regex.size()) // There is a regex for this option. Note that regex may be shorter than options, including empty. 
 			{
 				String oldRegex = regex.get(i);
 				regex.remove(i);
@@ -868,6 +927,10 @@ public class TextUserInterface
 		}
 	}
 
+	/**
+	 * Output the menu with numbers starting from 1 going up to the length of menuOptions.
+	 * @param menuOptions A list containing the options that are to be printed.
+	 */
 	private void printMenu(List<String> menuOptions)
 	{
 		for (int i = 0; i < menuOptions.size(); i++)
@@ -876,24 +939,33 @@ public class TextUserInterface
 		}
 	}
 
+	/**
+	 * Wrapper for String.format() using println()
+	 * @param format A format conforming to String.format() specification.
+	 * @param item A number of items conforming to String.format() specification.
+	 */
 	private void printMenuItem(String format, Object... item)
 	{
 		println(String.format(format, item));
 	}
 
 	/**
-	 * A wrapper for makeMenu, providing some default options
-	 * @param playerName
-	 * @param menuOptions
-	 * @param regexMatches
-	 * @return The index of the 
+	 * A wrapper for makeMenu, providing some default options that users
+	 * may want to use on every turn.
+	 * Provides a default prompt including playerName.
+	 * @param playerName Used in the default prompt.
+	 * @param menuOptions Same as executeMenu.
+	 * @param regexMatches Same as executeMenu.
+	 * @return The index + 1 of the option select in menuOptions.
+	 * Reasons are explained in executeMenu.
+	 * May return 0, which indicates an accusation has been made and processed.
 	 */
 	private int executeDefaultMenu(String playerName, List<String> menuOptions, List<String> regexOptions)
 	{
 		String menuTitle = String.format("%s, what did you do next?", playerName);
 
 		int userSelection = 0; // The compiler claims that userSelection may not have been initialised, we know however that it will be.
-		boolean selectedCallerOption = false; // The 
+		boolean selectedCallerOption = false;
 
 		/*
 		 * At any time we want the user to be able to reprint out the board, their remaining moves, view their 
@@ -966,6 +1038,10 @@ public class TextUserInterface
 		return userSelection;
 	}
 
+	/**
+	 * Prompt the user for a suggestion, and modify the game state based on their response.
+	 * The state is not changed if the user declines to make a suggestion.
+	 */
 	private void promptMakeSuggestion()
 	{
 		SuspectCard murderer = (SuspectCard) promptCard("I suggest the crime was committed in the " + game.getCurrentRoom().getName() + " by ...", game.getSuspectCards());
@@ -1023,6 +1099,7 @@ public class TextUserInterface
 	}
 
 	/**
+	 * Prompt the user for a suggestion, and modify the game state based on their response.
 	 * Note that, if the player goes through with the accusation, true is returned whether or not the accusation was correct.
 	 * @return True if the player went through with the accusation, false otherwise.
 	 */
@@ -1038,7 +1115,9 @@ public class TextUserInterface
 
 		String verificationQuestion = String.format("Are you sure you want to accuse %s of killing John Boddy in the %s with the %s?", murderer.getName(), murderRoom.getName(), murderWeapon.getName());
 
-		if (!promptMenuBoolean(verificationQuestion, "I'm sure", "On second thought...")) { return false; // The user decided not to go through with the accusation.
+		if (!promptMenuBoolean(verificationQuestion, "I'm sure", "On second thought..."))
+		{
+			return false; // The user decided not to go through with the accusation.
 		}
 
 		boolean accusationCorrect = game.makeAccusation(accusingPlayer, murderWeapon, murderRoom, murderer);
@@ -1050,12 +1129,19 @@ public class TextUserInterface
 		else
 		{
 			println(accusingPlayer.getName() + ", you've made a very serious accusation and we have evidence to the contrary. You will no longer be able to participate in this investigation.");
-			continuePromptMenu();
 		}
+		
+		continuePromptMenu(); // Let the user reflect on the outcome of the accusation.
 
-		return true;
+		return true; // Went through with the accusation.
 	}
 
+	/**
+	 * Wrapper for executeMenu.
+	 * @param question The question to be asked to the user.
+	 * @param cards The cards that they may select from.
+	 * @return The card that was selected.
+	 */
 	private Card promptCard(String question, List<Card> cards)
 	{
 		int userSelection;
@@ -1071,11 +1157,21 @@ public class TextUserInterface
 		return cards.get(userSelection - 1);
 	}
 
+	/**
+	 * Give back an empty regex list.
+	 * Should be used in place of new ArrayList<String>() when calling executeMenu because this is clearer.
+	 * @return An empty list of strings.
+	 */
 	private List<String> emptyRegex()
 	{
 		return new ArrayList<String>();
 	}
 
+	/**
+	 * Wrapper for executeMenu
+	 * @param question The question to about the active players.
+	 * @return The player that was selected.
+	 */
 	private Player promptActivePlayer(String question)
 	{
 		int userSelection;
@@ -1091,19 +1187,21 @@ public class TextUserInterface
 		return game.getActivePlayers().get(userSelection - 1);
 	}
 
+	/**
+	 * Wrapper for promptActivePlayer used to find who is making the accusatin.
+	 * @return Same as promptActivePlayer.
+	 */
 	private Player promptAccusingPlayer()
 	{
 		String question = "Who is making the accusation?";
 		return promptActivePlayer(question);
 	}
 
+	/**
+	 * Prints out the card that the player has yet to remove from suspicion.
+	 */
 	private void promptReviewEvidence()
 	{
-		/*
-		 * The case file is provided to us by Suspect, Room, and Weapon cards.
-		 * We print out the cards that are in the global set but have not been
-		 * marked off the player's case file. 
-		 */
 		println("You haven't found evidence that removes the following from suspicion...\n");
 
 		List<String> caseFile = new ArrayList<String>();
@@ -1136,6 +1234,11 @@ public class TextUserInterface
 		printBlankLines(2); // Give a bit of room before the turn menu prompt.
 	}
 
+	/**
+	 * Used for creating players and weapon tokens.
+	 * @param count The number of tokens needed.
+	 * @return A list of Pieces with empty display methods.
+	 */
 	private List<Piece> createEmptyPiece(int count)
 	{
 		List<Piece> pieces = new ArrayList<Piece>();
@@ -1143,7 +1246,7 @@ public class TextUserInterface
 		for (int piece = 0; piece < count; piece++)
 		{
 			Piece p = new Piece()
-			{
+			{ // We can't use lambdas because they have the same reference.
 				public void display()
 				{
 
@@ -1155,6 +1258,10 @@ public class TextUserInterface
 		return pieces;
 	}
 
+	/**
+	 * Create empty room cards, for the text interface the name is used instead.
+	 * @return The list of room cards.
+	 */
 	private List<Displayable> createRoomCards()
 	{
 		List<Displayable> roomCards = new ArrayList<Displayable>();
@@ -1174,6 +1281,9 @@ public class TextUserInterface
 		return roomCards;
 	}
 
+	/**
+	 * As per createRoomCards.
+	 */
 	private List<Displayable> createWeaponCards()
 	{
 		List<Displayable> weaponCards = new ArrayList<Displayable>();
@@ -1193,6 +1303,9 @@ public class TextUserInterface
 		return weaponCards;
 	}
 
+	/**
+	 * As per createRoomCards.
+	 */
 	private List<Displayable> createSuspectCards()
 	{
 		List<Displayable> suspectCards = new ArrayList<Displayable>();
@@ -1212,21 +1325,37 @@ public class TextUserInterface
 		return suspectCards;
 	}
 
+	/**
+	 * Wrapper for System.out.print.
+	 * Allows for easy switching of output method.
+	 * @param s The string to be printed.
+	 */
 	private void print(String s)
 	{
 		System.out.print(s);
 	}
 
+	/**
+	 * Wrapper for print.
+	 * @param s Same as print.
+	 */
 	private void println(String s)
 	{
 		print(s + "\n");
 	}
 
+	/**
+	 * Print an empty new line.
+	 */
 	private void println()
 	{
 		println("");
 	}
 
+	/**
+	 * The main menu, as presented to the user.
+	 * Branches off into instructions, new game, options, and quiting. 
+	 */
 	public void mainMenu()
 	{
 		int userSelection;
@@ -1276,6 +1405,9 @@ public class TextUserInterface
 		}
 	}
 
+	/**
+	 * Print the banner and byline.
+	 */
 	private void printGreeting()
 	{
 		// Banner courtesy of http://www.desmoulins.fr/index_us.php?pg=scripts!online!asciiart
@@ -1388,11 +1520,19 @@ public class TextUserInterface
 		return min + (executeMenu(prompt, options, regex) - 1);
 	}
 
+	/**
+	 * Output the instructions.
+	 * More options, such as gameRules should be added here.
+	 */
 	private void printInstructions()
 	{
 		printControls();
 	}
 
+	/**
+	 * A tutorial for playing the game.
+	 * Any additional controls should include examples.
+	 */
 	private void printControls()
 	{
 		println("There are a number of ways you can interact with the menus in Cluedo.");
@@ -1441,6 +1581,10 @@ public class TextUserInterface
 		continuePromptMenu();
 	}
 
+	/**
+	 * Wait for user input.
+	 * Wrapper for executeMenu.
+	 */
 	private void continuePromptMenu()
 	{
 		List<String> menu = new ArrayList<String>();
@@ -1452,12 +1596,21 @@ public class TextUserInterface
 		printBlankLines(15); // So the previous text isn't available
 	}
 
+	/**
+	 * Output regular expressions in a reasonable manner.
+	 * The regex is wrapped in {} to distinguish it from other text.
+	 * @param regex The regex that is to be printed.
+	 * @return The reasonable rendering of regex.
+	 */
 	private String humanReadableFromRegex(String regex)
 	{
-		// TODO transform the regex into something readable.
 		return " {" + regex + "}";
 	}
 
+	/**
+	 * Output the canon background to the game to the user.
+	 * This increases immersion, and hopefully user experience.
+	 */
 	private void printCanonBackground()
 	{
 		println("It's the morning of Sunday June 6th, 1926; and you're being investigated for murder.\n");
@@ -1466,6 +1619,11 @@ public class TextUserInterface
 		println("Although you don't remember much from the night before, you decide to make an effort to retrace your steps...\n");
 	}
 
+	/**
+	 * Output blank lines.
+	 * Saves writing println(); n times.
+	 * @param lines The number of new lines to print.
+	 */
 	private void printBlankLines(int lines)
 	{
 		for (int i = 0; i < lines; i++)
