@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import cluedo.board.Board;
+import cluedo.exceptions.IllegalMethodCallException;
 import cluedo.exceptions.InvalidMoveException;
 import cluedo.exceptions.NoAvailableExitException;
 import cluedo.game.Game;
@@ -84,7 +85,21 @@ public class TextUserInterface
 
 		game = new Game(numberOfPlayers, playerTokens, weaponTokens, suspectCards, weaponCards, roomCards);
 
-		runGame();
+		try
+		{
+			runGame();
+		}
+		catch (IllegalMethodCallException e)
+		{
+			
+		}
+		
+		println("Game over.\nThe solution was:");
+		
+		for (Card c : game.getAnswer())
+		{
+			println(c.getName());
+		}
 	}
 
 	/**
@@ -108,9 +123,7 @@ public class TextUserInterface
 			// The state for this user may have changed, so we need to reevaluate our options
 			nextAction = 0;
 			actions.clear();
-			actions.put(nextAction, () ->
-			{
-			/* Do nothing, the player is either eliminated or the game is over */ }); // 0 is an accusation that has been fulfilled.
+			actions.put(nextAction, () -> { /* Do nothing, the player is either eliminated or the game is over */ }); // 0 is an accusation that has been fulfilled.
 			nextAction++;
 
 			int userSelection;
@@ -129,7 +142,7 @@ public class TextUserInterface
 					actions.put(nextAction, () -> promptMakeSuggestion());
 					nextAction++;
 				}
-				else if (!game.canMove())
+				else if (game.canMove())
 				{
 					options.add("Exit the " + game.getRoom(game.getPosition(game.getCurrentPlayer().getPiece())).getName());
 					regex.add("exit|leave|go");
@@ -138,7 +151,7 @@ public class TextUserInterface
 					nextAction++;
 				}
 			}
-			else if (game.getRemainingMoves() > 0 && !game.canMove())
+			else if (game.canMove())
 			{
 				options.add("Move");
 				regex.add("m|"); // Make movement the default
@@ -176,10 +189,11 @@ public class TextUserInterface
 
 			printRemainingMoves();
 
-			if (game.canMove())
+			if (!game.canMove() && game.getRemainingMoves() != 0)
 			{
 				println("You recall being stuck!");
 			}
+			
 
 			userSelection = executeDefaultMenu(game.getCurrentPlayer().getName(), options, regex);
 
@@ -255,11 +269,24 @@ public class TextUserInterface
 	private void makeMoves(String movement) throws InvalidMoveException
 	{
 		List<Direction> moves = Heading.convertStringToDirection(movement);
-
+		
 		for (Direction d : moves)
 		{
-			game.move(d);
+			if (game.getRemainingMoves() >= 1 && game.canMove())
+			{
+				game.move(d);
+			}
 		}
+		
+		try
+		{
+			println(String.format("%s, you are now in the %s", game.getCurrentPlayer().getName(), game.getCurrentRoom().getName())); 
+		}
+		catch (IllegalMethodCallException e) // User is not in a room, so do nothing
+		{
+			
+		}
+		
 	}
 
 	/**
@@ -338,7 +365,7 @@ public class TextUserInterface
 	 */
 	private void promptExitRoom() // TODO refactor
 	{
-		if (!game.canMove())
+		if (game.canMove())
 		{
 			try
 			{
@@ -977,6 +1004,8 @@ public class TextUserInterface
 				disprovingHandList.add(c);
 			}
 
+			
+			println(String.format("%s, you can disprove the suggestion...", disprovingPlayer.getName()));
 			continuePromptMenu();
 
 			String question = String.format("%s choose a card to reveal to %s:", disprovingPlayer.getName(), game.getCurrentPlayer().getName());
@@ -1081,7 +1110,7 @@ public class TextUserInterface
 
 		for (Card suspect : game.getSuspectCards())
 		{
-			if (!game.getPlayerSuspectCards().contains(suspect))
+			if (game.getPlayerSuspectCards().contains(suspect))
 			{
 				caseFile.add(suspect.getName());
 			}
@@ -1089,7 +1118,7 @@ public class TextUserInterface
 
 		for (Card room : game.getRoomCards())
 		{
-			if (!game.getPlayerRoomCards().contains(room))
+			if (game.getPlayerRoomCards().contains(room))
 			{
 				caseFile.add(room.getName());
 			}
@@ -1097,7 +1126,7 @@ public class TextUserInterface
 
 		for (Card weapon : game.getWeaponCards())
 		{
-			if (!game.getPlayerWeaponCards().contains(weapon))
+			if (game.getPlayerWeaponCards().contains(weapon))
 			{
 				caseFile.add(weapon.getName());
 			}
