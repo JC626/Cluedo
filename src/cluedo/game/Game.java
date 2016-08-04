@@ -357,7 +357,7 @@ public class Game
 
 	/**
 	 * Checks if the player can move by calling the move method in the Board
-	 * class. Assigns new player’s moves using rollDice()
+	 * class. Assigns new player's moves using rollDice()
 	 * 
 	 * @param direction
 	 *            - direction player is moving towards from their current cell

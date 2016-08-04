@@ -5,7 +5,7 @@ import java.util.List;
 
 
 /**
- * A CaseFile is either an answer case file, or a player’s case file,
+ * A CaseFile is either an answer case file, or a player's case file,
  * although there is no technical distinction. 
  * For a player's CaseFile, it contains the cards that have not been eliminated
  * from the case and could therefore could still be part of the answer
