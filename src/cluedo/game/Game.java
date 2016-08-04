@@ -335,24 +335,24 @@ public class Game
 				 * without throwing an exception
 				 */
 				remainingMoves = 0;
-				return true;
+				return false;
 			}
 		}
 		else
 		{
 			try 
 			{
-				return getAvailableExits().isEmpty();
+				return !getAvailableExits().isEmpty();
 			} 
 			catch (NoAvailableExitException e) {
 				remainingMoves = 0;
-				return true;
+				return false;
 			} 
 			catch (InvalidMoveException e)
 			{	
 			}
 		}
-		return false;
+		return true;
 	}
 
 	/**
