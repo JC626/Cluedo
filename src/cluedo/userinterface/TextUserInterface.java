@@ -1557,27 +1557,32 @@ public class TextUserInterface
 		println(userPrompt + "settings");
 		println();
 
-		println("As a final tip, when you're in a hallway, instead of selecting Move you can just enter the direction you want to go.");
+		println("As a final tip, when you're in a hallway the default action is to move so you can press enter instead of typing 'move' or 'm'.");
 
 		// Movement example
 		println();
 		printMenuItem(menuFormat, 4, "Move" + humanReadableFromRegex("m|move"));
+		println(userPrompt + "[RET]");
+		println("Where did you go to?");
 		println(userPrompt + "n");
-		println();
-
+		
 		println("This will move you one step to the north.");
 		println("You can also string together multiple moves at once!");
 
 		// Movement example
 		println();
 		printMenuItem(menuFormat, 4, "Move" + humanReadableFromRegex("m|move"));
+		println(userPrompt + "[RET]");
+		println("Where did you go to?");
 		println(userPrompt + "nnneeews");
 		println();
 
 		println("That will move your character north three steps, east three steps, then west and finally south.");
 		println("You'll be warned if you don't have enough remaining moves or you've entered an invalid direction.");
 		println("Keep in mind, if your path leads you into a wall your movement will stop and you'll be asked for a different set of moves having already made the moves to get to this point.");
-
+		println();
+		println("Try using shortcuts here! You'll get the default (name of the menu item), and of course you can press 1, but here you can also press enter.");
+		
 		continuePromptMenu();
 	}
 
