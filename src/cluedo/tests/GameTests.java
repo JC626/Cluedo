@@ -665,10 +665,10 @@ public class GameTests {
 	public void testInvalidMovePathBlocked() throws InvalidMoveException
 	{
 		getSpecificPlayer("Mrs. Peacock");
-		assertFalse(game.canMove());
+		assertTrue(game.canMove());
 		teleportPlayer(getSpecificPlayer("Mrs. White"),22,6);
 		getSpecificPlayer("Mrs. Peacock");
-		assertTrue(game.canMove());
+		assertFalse(game.canMove());
 		game.move(Direction.West);
 	}
 	
