@@ -3,6 +3,7 @@ package cluedo.tests;
 import static org.junit.Assert.*;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -55,7 +56,11 @@ public class GameTests {
 	}
 	public void setupGame(int numPlayers)
 	{
-		game = new Game(numPlayers);
+		List<Player> activePlayers = new ArrayList<Player>(Game.allPlayers);
+		for(int i = Game.MAX_HUMAN_PLAYERS; i > numPlayers; i--){
+			activePlayers.remove(0);
+		}
+		game = new Game(activePlayers);
 	}
 	/**
 	 * Using reflection to set remainingMoves to zero for testing purposes
@@ -296,14 +301,14 @@ public class GameTests {
 	{
 		try
 		{
-			game = new Game(Game.MIN_HUMAN_PLAYERS-1);
+			setupGame(Game.MIN_HUMAN_PLAYERS-1);
 		}
 		catch(IllegalArgumentException e)
 		{	
 		}
 		try
 		{
-			game = new Game(Game.MAX_HUMAN_PLAYERS+1);
+			setupGame(Game.MAX_HUMAN_PLAYERS+1);
 			fail("Cannot have over " + Game.MAX_HUMAN_PLAYERS + " players");
 		}
 		catch(IllegalArgumentException e)
