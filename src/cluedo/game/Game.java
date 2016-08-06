@@ -24,7 +24,6 @@ import cluedo.model.cards.RoomCard;
 import cluedo.model.cards.SuspectCard;
 import cluedo.model.cards.WeaponCard;
 import cluedo.utility.Heading.Direction;
-import sun.font.CreatedFontTracker;
 import cluedo.utility.Heading;
 import cluedo.utility.Turn;
 
