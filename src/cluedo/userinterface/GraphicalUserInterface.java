@@ -6,4 +6,8 @@ public class GraphicalUserInterface
 	{
 		new MenuFrame();
 	}
+	public static void main(String args[])
+	{
+		new GraphicalUserInterface();
+	}
 }
