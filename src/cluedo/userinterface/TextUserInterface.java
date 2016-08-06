@@ -1298,7 +1298,7 @@ public class TextUserInterface
 	 */
 	private void addPlayerLayerDrawingBuffer()
 	{
-		List<Player> players = game.getAllPlayers();
+		List<Player> players = Game.allPlayers;;
 
 		for (Player p : players)
 		{

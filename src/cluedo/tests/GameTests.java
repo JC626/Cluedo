@@ -244,7 +244,7 @@ public class GameTests {
 	@Test 
 	public void testStartingPlayerPosition()
 	{
-		List<Player> players = game.getAllPlayers();
+		List<Player> players = Game.allPlayers;
 		Cell[][] cells = game.getCells();
 		int pCount = 0;
 		for(int i = 0; i < STARTINGPOSITION.length;i+=2)
@@ -347,7 +347,7 @@ public class GameTests {
 	public void testNumberPlayers()
 	{
 		setupGame(6);
-		assertEquals(6, game.getAllPlayers().size());
+		assertEquals(6, Game.allPlayers.size());
 		assertEquals(6, game.getActivePlayers().size());
 		setupGame(5);
 		assertEquals(5, game.getActivePlayers().size());

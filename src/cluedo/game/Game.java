@@ -24,6 +24,7 @@ import cluedo.model.cards.RoomCard;
 import cluedo.model.cards.SuspectCard;
 import cluedo.model.cards.WeaponCard;
 import cluedo.utility.Heading.Direction;
+import sun.font.CreatedFontTracker;
 import cluedo.utility.Heading;
 import cluedo.utility.Turn;
 
@@ -79,7 +80,7 @@ public class Game
 	/**
 	 * All the players in Cluedo (human and non-human)
 	 */
-	private final List<Player> allPlayers;
+	public static final List<Player> allPlayers = Collections.unmodifiableList(GameBuilder.createPlayers());
 	/**
 	 * All the human players in the game Does not include eliminated players
 	 * from the game.
@@ -147,7 +148,7 @@ public class Game
 		CellBuilder cellBuilder = new CellBuilder();
 		board = new Board(cellBuilder.getCells());
 		//Players
-		allPlayers = GameBuilder.createPlayers();
+		//allPlayers = GameBuilder.createPlayers();
 		activeHumanPlayers = GameBuilder.createHumanPlayers(numPlayers,allPlayers);
 		/*
 		 * Cannot have the same references as removing a player from active players
@@ -896,14 +897,6 @@ public class Game
 	public List<Player> getActivePlayers() 
 	{
 		return Collections.unmodifiableList(activeHumanPlayers);
-	}
-
-	/**
-	 * @return All the players (human and non-human) in the Cluedo game
-	 */
-	public List<Player> getAllPlayers() 
-	{
-		return Collections.unmodifiableList(allPlayers);
 	}
 
 	/**

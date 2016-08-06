@@ -48,7 +48,7 @@ import cluedo.model.cards.WeaponCard;
 	 * 
 	 * @return All the players in the Cluedo game
 	 */
-	public static List<Player> createPlayers() 
+	static List<Player> createPlayers() 
 	{
 		List<Player> players = new ArrayList<Player>();
 		int i = 0;
