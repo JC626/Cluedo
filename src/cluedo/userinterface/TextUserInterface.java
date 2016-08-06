@@ -1602,15 +1602,4 @@ public class TextUserInterface
 
 		return result;
 	}
-
-	
-	/*
-	 * MAIN
-	 */
-	
-	public static void main(String[] args)
-	{
-		TextUserInterface t = new TextUserInterface();
-		t.mainMenu();
-	}
 }
