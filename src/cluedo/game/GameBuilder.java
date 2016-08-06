@@ -20,7 +20,7 @@ import cluedo.model.cards.WeaponCard;
  * and casefiles.
  *
  */
- class GameBuilder {
+ public class GameBuilder {
 	
 	 //Constants
 	 public static final String[] ROOM_NAMES = new String[] { "Ballroom", "Billiard Room", "Conservatory",
@@ -48,7 +48,7 @@ import cluedo.model.cards.WeaponCard;
 	 * 
 	 * @return All the players in the Cluedo game
 	 */
-	static List<Player> createPlayers() 
+	public static List<Player> createPlayers() 
 	{
 		List<Player> players = new ArrayList<Player>();
 		int i = 0;
