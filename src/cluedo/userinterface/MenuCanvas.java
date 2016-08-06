@@ -20,9 +20,7 @@ public class MenuCanvas extends JPanel
 
 		quit.addActionListener(
 				e -> {
-					int answer = JOptionPane.showConfirmDialog(this, new JLabel("Do you want to quit?"), "Do you want to quit?",
-							JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-					if(answer == 0)
+					if(ConfirmationDialog.yesNo("Do you want to quit?", "Do you want to quit?"))
 					{
 						System.exit(0);
 					}
