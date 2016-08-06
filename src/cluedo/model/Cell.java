@@ -10,7 +10,7 @@ import cluedo.utility.Heading.Direction;
  * The basic unit within a Board.
  * Each Cell has final x and y position, which can be used to distinguish one Cell from another.
  */
-public abstract class Cell
+public class Cell
 {
 	/*
 	 * x and y are represent the position of this Cell.

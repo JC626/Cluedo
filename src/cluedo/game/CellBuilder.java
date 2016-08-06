@@ -71,7 +71,7 @@ class CellBuilder
 			{
 				String s = map[y][x].toUpperCase();
 				
-				cells[x][y] = new CellImpl(x, y, wallsFromString(s));
+				cells[x][y] = new Cell(x, y, wallsFromString(s));
 			}
 		}
 	}
@@ -106,14 +106,5 @@ class CellBuilder
 		}
 
 		return walls.toArray(new Direction[walls.size()]);
-	}
-
-
-	private class CellImpl extends Cell
-	{
-		public CellImpl(int x, int y, Direction[] walls)
-		{
-			super(x, y, walls);
-		}
 	}
 }

@@ -16,7 +16,7 @@ public class Cell
 		int x = random.nextInt(Board.WIDTH);
 		int y = random.nextInt(Board.HEIGHT);
 		
-		return new cluedo.model.Cell(x, y, getRandomWalls()){};
+		return new cluedo.model.Cell(x, y, getRandomWalls());
 	}
 	
 	/**
