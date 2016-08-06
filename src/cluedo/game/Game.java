@@ -142,8 +142,9 @@ public class Game
 	private final Board board;
 	private boolean gameOver;
 
-	public Game(int numPlayers) 
+	public Game(List<Player> activePlayers) 
 	{
+		int numPlayers = activePlayers.size();
 		if (numPlayers < MIN_HUMAN_PLAYERS || numPlayers > MAX_HUMAN_PLAYERS) 
 		{
 			throw new IllegalArgumentException(
@@ -152,7 +153,7 @@ public class Game
 		CellBuilder cellBuilder = new CellBuilder();
 		board = new Board(cellBuilder.getCells());
 		//Players
-		activeHumanPlayers = GameBuilder.createHumanPlayers(numPlayers,allPlayers);
+		activeHumanPlayers = activePlayers;
 		/*
 		 * Cannot have the same references as removing a player from active players
 		 * should not remove it from a turn (as nextTurn will check if the player is active or not)
