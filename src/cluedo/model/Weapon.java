@@ -2,10 +2,9 @@ package cluedo.model;
 
 /**
  * A potential murder weapon, found in one of the Rooms.
- * Contains a Displayable aspect that is drawn by the UI.
  * Each Weapon has a final unique ID, which can be used to distinguish one Weapon from another.
  */
-public class Weapon
+public class Weapon implements Piece
 {
 	/**
 	 * Used to generate unique IDs for the weapons - will increment by one per Weapon created.
@@ -26,19 +25,12 @@ public class Weapon
 	private final String name;
 
 	/**
-	 * The Piece that represents the Weapon on the Board.
-	 * May not be null.
-	 */
-	private final Piece piece;
-
-	/**
 	 * A potential murder Weapon.
 	 * @param name The human readable name of the Weapon. May not be empty, or null.
-	 * @param piece The Piece that represents the Weapon on the Board. May not be null.
 	 */
-	public Weapon(String name, Piece piece)
+	public Weapon(String name)
 	{
-		if (name == null || piece == null)
+		if (name == null)
 		{
 			throw new IllegalArgumentException("Arguments may not be null");
 		}
@@ -49,7 +41,6 @@ public class Weapon
 		}
 
 		this.name = name;
-		this.piece = piece;
 		
 		this.uniqueID = generateID;
 		generateID++;
@@ -74,17 +65,8 @@ public class Weapon
 	}
 	
 	/**
-	 * Will not be null.
-	 * @return The Piece associated with this Weapon.
-	 */
-	public Piece getPiece()
-	{
-		return piece;
-	}
-	
-	/**
 	 * Two Weapons are considered equal iff their IDs are are equal.
-	 * Note that this allows for safe name and Piece reuse between Weapons.
+	 * Note that this allows for safe name reuse between Weapons.
 	 */
 	@Override
 	public boolean equals(Object o)
@@ -109,7 +91,6 @@ public class Weapon
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((piece == null) ? 0 : piece.hashCode());
 		return result;
 	}
 }

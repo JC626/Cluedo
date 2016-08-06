@@ -139,7 +139,7 @@ public class TextUserInterface
 				}
 				else if (game.canMove())
 				{
-					options.add("Exit the " + game.getRoom(game.getPosition(game.getCurrentPlayer().getPiece())).getName());
+					options.add("Exit the " + game.getRoom(game.getPosition(game.getCurrentPlayer())).getName());
 					regex.add("exit|leave|go");
 
 					actions.put(nextAction, () -> promptExitRoom());
@@ -1302,7 +1302,7 @@ public class TextUserInterface
 
 		for (Player p : players)
 		{
-			addCentreDrawingBuffer(game.getPosition(p.getPiece()), getPlayerDisplayable(p));
+			addCentreDrawingBuffer(game.getPosition(p), getPlayerDisplayable(p));
 		}
 	}
 
@@ -1319,7 +1319,7 @@ public class TextUserInterface
 
 		for (Weapon w : weapons)
 		{
-			addCentreDrawingBuffer(game.getPosition(w.getPiece()), getWeaponDisplayable(w));
+			addCentreDrawingBuffer(game.getPosition(w), getWeaponDisplayable(w));
 		}
 	}
 

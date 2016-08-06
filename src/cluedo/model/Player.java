@@ -4,7 +4,7 @@ package cluedo.model;
  * A character in the game of Cluedo.
  * Note that this class does not refer to the human players that play the game.
  */
-public class Player
+public class Player implements Piece
 {
 	/**
 	 * The human readable name of this character.
@@ -13,16 +13,10 @@ public class Player
 	 * Example: Miss Scarlett
 	 */
 	private final String name;
-	
-	/**
-	 * The Piece that represents the Player on the Board.
-	 * May not be null.
-	 */
-	private final Piece piece;
 
-	public Player(String name, Piece piece)
+	public Player(String name)
 	{
-		if (name == null || piece == null)
+		if (name == null)
 		{
 			throw new IllegalArgumentException("Arguments may not be null");
 		}
@@ -33,7 +27,6 @@ public class Player
 		}
 
 		this.name = name;
-		this.piece = piece;
 	}
 
 	/**
@@ -46,16 +39,7 @@ public class Player
 	}
 
 	/**
-	 * The Piece associated with this Player.
-	 * Will not be null.
-	 */
-	public Piece getPiece()
-	{
-		return piece;
-	}
-
-	/**
-	 * Two players are considered equal iff their names are equal, and their Pieces are equal.
+	 * Two players are considered equal iff their names are equal.
 	 */
 	@Override
 	public boolean equals(Object o)
@@ -65,8 +49,7 @@ public class Player
 		if (o instanceof Player)
 		{
 			Player p = (Player) o;
-			isEqual = this.getName().equals(p.getName())
-					&& this.getPiece().equals(p.getPiece());
+			isEqual = this.getName().equals(p.getName());
 		}
 		
 		return isEqual;
@@ -81,7 +64,6 @@ public class Player
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((piece == null) ? 0 : piece.hashCode());
 		return result;
 	}
 }
