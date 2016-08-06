@@ -57,6 +57,11 @@ public class Game
 	 */
 	private int remainingMoves;
 	/**
+	 * The values of the dice roll.
+	 * There are exactly two dice.
+	 */
+	private int[] diceRoll = new int[2];
+	/**
 	 * The cells the current player moved to during their turn
 	 */
 	private Set<Cell> playerPath;
@@ -147,7 +152,6 @@ public class Game
 		CellBuilder cellBuilder = new CellBuilder();
 		board = new Board(cellBuilder.getCells());
 		//Players
-		//allPlayers = GameBuilder.createPlayers();
 		activeHumanPlayers = GameBuilder.createHumanPlayers(numPlayers,allPlayers);
 		/*
 		 * Cannot have the same references as removing a player from active players
@@ -863,10 +867,26 @@ public class Game
 		assert remainingMoves == 0 : "Last player must not have any remaining moves ";
 		int d1 = (int) (Math.random() * 6 + 1);
 		int d2 = (int) (Math.random() * 6 + 1);
+		
+		// Update our diceRoll values for the calling class.
+		diceRoll[0] = d1;
+		diceRoll[1] = d2;
+		
 		remainingMoves = d1 + d2;
 	}
 
 	// Getters
+	
+	/**
+	 * The dice that made the remainingMoves value.
+	 * @return The two values that the dice turned up.
+	 * Will have exactly two values between 1 and 6 inclusive.
+	 */
+	public int[] getDiceRoll()
+	{
+		assert diceRoll.length == 2;
+		return diceRoll;
+	}
 	
 	/**
 	 * Gets the answer casefile of the game when the game is over
