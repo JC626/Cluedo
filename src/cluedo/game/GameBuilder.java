@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cluedo.model.Displayable;
 import cluedo.model.Piece;
 import cluedo.model.Player;
 import cluedo.model.Weapon;

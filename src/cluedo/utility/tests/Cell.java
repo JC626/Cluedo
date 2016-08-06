@@ -16,14 +16,7 @@ public class Cell
 		int x = random.nextInt(Board.WIDTH);
 		int y = random.nextInt(Board.HEIGHT);
 		
-		return new cluedo.model.Cell(x, y, getRandomWalls())
-		{
-			@Override
-			public void display()
-			{
-				System.out.println("TEST random valid cell");
-			}
-		};
+		return new cluedo.model.Cell(x, y, getRandomWalls()){};
 	}
 	
 	/**

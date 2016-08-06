@@ -115,11 +115,5 @@ class CellBuilder
 		{
 			super(x, y, walls);
 		}
-
-		@Override
-		public void display()
-		{
-			// The cell, for the text UI, doesn't display anything itself, but that task is instead handled by the UI.
-		}
 	}
 }

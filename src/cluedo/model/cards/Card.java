@@ -1,7 +1,5 @@
 package cluedo.model.cards;
 
-import cluedo.model.Displayable;
-
 /**
  * A game prop, used as a part of each human player's hand.
  * A card allows the player to reason about what may be in the answer,
@@ -9,10 +7,6 @@ import cluedo.model.Displayable;
  * 
  * There are three types of Cards (Weapon, Room, and Suspect) all of which
  * will be used to ensure type safety and will rely on this class for functionality.
- * 
- * Contains a Displayable aspect that is drawn by the UI.
- * Note, that unlike Pieces, this Displayable is likely to  be drawn off the Board
- * as Cards (in the physical game) would be held within the player's hands.
  * 
  * Note that the Pieces on the Board are separate from their Cards representations. 
  */
@@ -39,20 +33,12 @@ public abstract class Card
 	private final String name;
 
 	/**
-	 * The Displayable aspect of this Card.
-	 * May or may not be Displayed on the Board.
-	 * May not be null.
-	 */
-	private final Displayable face;
-
-	/**
 	 * A Card held by at most one human player.
 	 * @param name The human readable name of the Card. May not be empty, or null.
-	 * @param face The Displayable that is the face of the Card. May not be null.
 	 */
-	public Card(String name, Displayable face)
+	public Card(String name)
 	{
-		if (name == null || face == null)
+		if (name == null)
 		{
 			throw new IllegalArgumentException("Arguments may not be null");
 		}
@@ -63,7 +49,6 @@ public abstract class Card
 		}
 
 		this.name = name;
-		this.face = face;
 
 		this.uniqueID = generateID;
 		generateID++;
@@ -88,17 +73,7 @@ public abstract class Card
 	}
 
 	/**
-	 * Will not be null.
-	 * @return The Displayable aspect associated with this Card.
-	 */
-	public Displayable getFace()
-	{
-		return face;
-	}
-
-	/**
 	 * Two Cards are considered equal iff their IDs are are equal.
-	 * Note that this allows for safe name and Displayable reuse between Cards.
 	 */
 	public boolean equals(Object o)
 	{
@@ -122,7 +97,6 @@ public abstract class Card
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((face == null) ? 0 : face.hashCode());
 		return result;
 	}
 }

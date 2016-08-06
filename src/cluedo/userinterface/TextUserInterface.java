@@ -18,7 +18,6 @@ import cluedo.exceptions.NoAvailableExitException;
 import cluedo.game.Game;
 
 import cluedo.model.Cell;
-import cluedo.model.Displayable;
 import cluedo.model.Piece;
 import cluedo.model.Player;
 import cluedo.model.Weapon;
@@ -74,11 +73,7 @@ public class TextUserInterface
 		List<Piece> weaponTokens = createEmptyPiece(Game.NUM_WEAPONS);
 		List<Piece> playerTokens = createEmptyPiece(Game.MAX_PLAYERS);
 
-		List<Displayable> suspectCards = createSuspectCards();
-		List<Displayable> weaponCards = createWeaponCards();
-		List<Displayable> roomCards = createRoomCards();
-
-		game = new Game(numberOfPlayers, playerTokens, weaponTokens, suspectCards, weaponCards, roomCards);
+		game = new Game(numberOfPlayers);
 
 		try
 		{
@@ -1239,74 +1234,6 @@ public class TextUserInterface
 		return pieces;
 	}
 
-	/**
-	 * Create empty room cards, for the text interface the name is used instead.
-	 * @return The list of room cards.
-	 */
-	private List<Displayable> createRoomCards()
-	{
-		List<Displayable> roomCards = new ArrayList<Displayable>();
-
-		for (int room = 0; room < Game.NUM_ROOMS; room++)
-		{
-			Displayable dis = new Displayable()
-			{
-				public void display()
-				{
-
-				}
-			};
-			roomCards.add(dis);
-		}
-
-		return roomCards;
-	}
-
-	/**
-	 * As per createRoomCards.
-	 */
-	private List<Displayable> createWeaponCards()
-	{
-		List<Displayable> weaponCards = new ArrayList<Displayable>();
-
-		for (int weapon = 0; weapon < Game.NUM_WEAPONS; weapon++)
-		{
-			Displayable dis = new Displayable()
-			{
-				public void display()
-				{
-
-				}
-			};
-			weaponCards.add(dis);
-		}
-
-		return weaponCards;
-	}
-
-	/**
-	 * As per createRoomCards.
-	 */
-	private List<Displayable> createSuspectCards()
-	{
-		List<Displayable> suspectCards = new ArrayList<Displayable>();
-
-		for (int suspect = 0; suspect < Game.MAX_PLAYERS; suspect++)
-		{
-			Displayable dis = new Displayable()
-			{
-				public void display()
-				{
-
-				}
-			};
-			suspectCards.add(dis);
-		}
-
-		return suspectCards;
-	}
-
-	
 	/*
 	 * BOARD GENERATION
 	 */

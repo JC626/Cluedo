@@ -1,14 +1,12 @@
 package cluedo.model.cards;
 
-import cluedo.model.Displayable;
-
 /**
  * One of the three implementing types for Card.
  */
 public class RoomCard extends Card
 {
-	public RoomCard(String name, Displayable face)
+	public RoomCard(String name)
 	{
-		super(name, face);
+		super(name);
 	}
 }

@@ -8,10 +8,9 @@ import cluedo.utility.Heading.Direction;
 
 /**
  * The basic unit within a Board.
- * Contains a Displayable aspect that is displayed when no other Displayable is in this Cell.
  * Each Cell has final x and y position, which can be used to distinguish one Cell from another.
  */
-public abstract class Cell implements Displayable
+public abstract class Cell
 {
 	/*
 	 * x and y are represent the position of this Cell.
@@ -36,7 +35,6 @@ public abstract class Cell implements Displayable
 	 * The basic unit within a Board.
 	 * @param x The x position of the Cell on the board. May not be negative.
 	 * @param y The y position of the Cell on the board. May not be negative.
-	 * @param background The Displayable aspect of this cell. May not be null.
 	 * @param walls The walls that this cell has. May not be null or, contain null or duplicate items.
 	 * @throws IllegalArgumentException if any of the above conditions are not met.
 	 */
