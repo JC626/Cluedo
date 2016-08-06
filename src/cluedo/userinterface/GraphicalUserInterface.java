@@ -75,7 +75,7 @@ public class GraphicalUserInterface extends JFrame
 	private void setLayoutTitle()
 	{
 		title.setSize(200, 200);
-		title.setFont(title.getFont().deriveFont(70.0f));
+		setFontSize(title, 70);
 	}
 	
 	private Iterator<Component> getMainMenuComponents()
@@ -133,17 +133,6 @@ public class GraphicalUserInterface extends JFrame
 		return new ButtonDialog(this, title).getUserSelection(buttons);
 	}
 
-
-
-	
-
-
-
-
-	
-
-	
-
 	public void buttonNewGameListener(ActionListener a)
 	{
 		newGame.addActionListener(a);
@@ -152,5 +141,15 @@ public class GraphicalUserInterface extends JFrame
 	public void buttonQuitListener(ActionListener a)
 	{
 		quit.addActionListener(a);
+	}
+	
+	/**
+	 * A wrapper method for setFont, which changes the font size of a component.
+	 * @param component The component that needs size changing.
+	 * @param size The size to change it to.
+	 */
+	public static void setFontSize(Component component, int size)
+	{
+		component.setFont(component.getFont().deriveFont(size));
 	}
 }
