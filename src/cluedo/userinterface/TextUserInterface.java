@@ -68,12 +68,12 @@ public class TextUserInterface
 	 */
 	private void newGame()
 	{
-		int numberOfPlayers = promptMenuNumber("Select players: ", Game.MIN_HUMAN_PLAYERS, Game.MAX_PLAYERS, " players");
+		println("Not currently functioning");
+		return;
+		// Need to get user input about how many players and what characters they want.
+		/*int numberOfPlayers = promptMenuNumber("Select players: ", Game.MIN_HUMAN_PLAYERS, Game.MAX_PLAYERS, " players");
 
-		List<Piece> weaponTokens = createEmptyPiece(Game.NUM_WEAPONS);
-		List<Piece> playerTokens = createEmptyPiece(Game.MAX_PLAYERS);
-
-		game = new Game(numberOfPlayers);
+		game = new Game(new ArrayList<Player>());
 
 		try
 		{
@@ -91,7 +91,7 @@ public class TextUserInterface
 		for (Card c : game.getAnswer())
 		{
 			println(c.getName());
-		}
+		}*/
 	}
 
 	/**
