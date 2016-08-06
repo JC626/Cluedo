@@ -150,6 +150,6 @@ public class GraphicalUserInterface extends JFrame
 	 */
 	public static void setFontSize(Component component, int size)
 	{
-		component.setFont(component.getFont().deriveFont(size));
+		component.setFont(component.getFont().deriveFont((float) size));
 	}
 }
