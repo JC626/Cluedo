@@ -306,14 +306,14 @@ public class GameTests {
 		catch(IllegalArgumentException e)
 		{	
 		}
-		try
+		/*try
 		{
 			setupGame(Game.MAX_HUMAN_PLAYERS+1);
 			fail("Cannot have over " + Game.MAX_HUMAN_PLAYERS + " players");
 		}
 		catch(IllegalArgumentException e)
 		{
-		}
+		}*/
 	}
 	/**
 	 * Ensure all cards are distributed and each player
