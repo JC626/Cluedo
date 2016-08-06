@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cluedo.model.Piece;
 import cluedo.model.Player;
 import cluedo.model.Weapon;
 import cluedo.model.cards.CaseFile;
@@ -47,17 +46,16 @@ import cluedo.model.cards.WeaponCard;
 	/**
 	 * Create all the players in the Cluedo game
 	 * 
-	 * @param playerTokens
 	 * @return All the players in the Cluedo game
 	 */
-	static List<Player> createPlayers(List<Piece> playerTokens) 
+	static List<Player> createPlayers() 
 	{
 		List<Player> players = new ArrayList<Player>();
 		int i = 0;
 		for (String playerName : SUSPECT_NAMES) 
 		{
 			assert i < Game.MAX_PLAYERS : "Exceeded the total number of players";
-			Player p = new Player(playerName, playerTokens.get(i));
+			Player p = new Player(playerName);
 			players.add(p);
 			i++;
 		}
@@ -125,15 +123,14 @@ import cluedo.model.cards.WeaponCard;
 	/**
 	 * Create the weapons in the Cluedo Game
 	 * 
-	 * @param weaponTokens
 	 * @return All the weapons in the Cluedo Game
 	 */
-	static List<Weapon> createWeapons(List<Piece> weaponTokens) 
+	static List<Weapon> createWeapons() 
 	{
 		List<Weapon> weapons = new ArrayList<Weapon>();
 		for (int i = 0; i < Game.NUM_WEAPONS; i++) 
 		{
-			Weapon w = new Weapon(WEAPON_NAMES[i], weaponTokens.get(i));
+			Weapon w = new Weapon(WEAPON_NAMES[i]);
 			weapons.add(w);
 		}
 		return weapons;
@@ -142,15 +139,14 @@ import cluedo.model.cards.WeaponCard;
 	/**
 	 * Create the weapon cards in the Cluedo Game
 	 * 
-	 * @param weaponCardFaces
 	 * @return All the weapon cards in the Cluedo Game
 	 */
-	static List<WeaponCard> createWeaponCards(List<Displayable> weaponCardFaces) 
+	static List<WeaponCard> createWeaponCards() 
 	{
 		List<WeaponCard> weaponCards = new ArrayList<WeaponCard>();
 		for (int i = 0; i < Game.NUM_WEAPONS; i++)
 		{
-			WeaponCard card = new WeaponCard(WEAPON_NAMES[i], weaponCardFaces.get(i));
+			WeaponCard card = new WeaponCard(WEAPON_NAMES[i]);
 			weaponCards.add(card);
 		}
 		return weaponCards;
@@ -159,17 +155,16 @@ import cluedo.model.cards.WeaponCard;
 	/**
 	 * Create the suspect cards in the Cluedo Game
 	 * 
-	 * @param suspectCardFaces
 	 * @return All the suspect cards in the Cluedo Game
 	 */
-	static List<SuspectCard> createSuspectCards(List<Displayable> suspectCardFaces) 
+	static List<SuspectCard> createSuspectCards() 
 	{
 		List<SuspectCard> suspectCards = new ArrayList<SuspectCard>();
 		int i = 0;
 		for (String suspectName : SUSPECT_NAMES) 
 		{
 			assert i < Game.MAX_PLAYERS : "Exceeded the total number of suspects";
-			SuspectCard p = new SuspectCard(suspectName, suspectCardFaces.get(i));
+			SuspectCard p = new SuspectCard(suspectName);
 			suspectCards.add(p);
 			i++;
 		}
@@ -179,15 +174,14 @@ import cluedo.model.cards.WeaponCard;
 	/**
 	 * Create the room cards in the Cluedo Game
 	 * 
-	 * @param roomCardFaces
 	 * @return All the room cards in the Cluedo Game
 	 */
-	static List<RoomCard> createRoomCards(List<Displayable> roomCardFaces) 
+	static List<RoomCard> createRoomCards() 
 	{
 		List<RoomCard> roomCards = new ArrayList<RoomCard>();
 		for (int i = 0; i < Game.NUM_ROOMS; i++) 
 		{
-			RoomCard card = new RoomCard(ROOM_NAMES[i], roomCardFaces.get(i));
+			RoomCard card = new RoomCard(ROOM_NAMES[i]);
 			roomCards.add(card);
 		}
 		return roomCards;

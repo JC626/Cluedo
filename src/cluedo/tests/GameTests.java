@@ -3,7 +3,6 @@ package cluedo.tests;
 import static org.junit.Assert.*;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,8 +19,6 @@ import cluedo.exceptions.InvalidMoveException;
 import cluedo.exceptions.NoAvailableExitException;
 import cluedo.game.Game;
 import cluedo.model.Cell;
-import cluedo.model.Displayable;
-import cluedo.model.Piece;
 import cluedo.model.Player;
 import cluedo.model.Room;
 import cluedo.model.Weapon;
@@ -40,11 +37,6 @@ public class GameTests {
 	private final String[] SUSPECT_NAMES = new String[]{ "Miss Scarlett","Colonel Mustard",
 			 "Mrs. White","Reverend Green","Mrs. Peacock","Professor Plum"};
 	private Map<String, Integer> SUSPECT_ORDER;
-	private List<Piece> playerTokens;
-	private List<Piece> weaponTokens;
-	private List<Displayable> suspectCardFaces;
-	private List<Displayable> weaponCardFaces;
-	private List<Displayable> roomCardFaces;
 	 public void setupSuspectOrder(){
 		 SUSPECT_ORDER = new HashMap<String, Integer>();
 		 SUSPECT_ORDER.put("Miss Scarlett", 0);
@@ -59,100 +51,11 @@ public class GameTests {
 	public void setup()
 	{
 		setupSuspectOrder();
-		playerTokens = createPlayerTokens();
-		weaponTokens = createWeaponTokens();
-		suspectCardFaces = createSuspectCardFaces();
-		weaponCardFaces = createWeaponCardFaces();
-		roomCardFaces = createRoomCardFaces();
 	 	setupGame(6);
 	}
 	public void setupGame(int numPlayers)
 	{
-		game = new Game(numPlayers,playerTokens,weaponTokens,suspectCardFaces,weaponCardFaces,roomCardFaces);
-	}
-	private List<Piece> createPlayerTokens()
-	{
-		List<Piece> players = new ArrayList<Piece>();
-
-		for (int player = 0; player < Game.MAX_HUMAN_PLAYERS; player++)
-		{
-			Piece p = new Piece(){
-				public void display(){
-					
-				}
-			};
-			players.add(p);
-		}
-
-		return players;
-	}
-
-	private List<Piece> createWeaponTokens()
-	{
-		List<Piece> weapons = new ArrayList<Piece>();
-
-		for (int weapon = 0; weapon < Game.NUM_WEAPONS; weapon++)
-		{
-			Piece p = new Piece(){
-				public void display(){
-					
-				}
-			};
-			weapons.add(p);
-		}
-
-		return weapons;
-	}
-
-	private List<Displayable> createRoomCardFaces()
-	{
-		List<Displayable> roomCards = new ArrayList<Displayable>();
-
-		for (int room = 0; room < Game.NUM_ROOMS; room++)
-		{
-			Displayable dis = new Displayable(){
-				public void display(){
-					
-				}
-			};
-			roomCards.add(dis);
-		}
-
-		return roomCards;
-	}
-
-	private List<Displayable> createWeaponCardFaces()
-	{
-		List<Displayable> weaponCards = new ArrayList<Displayable>();
-
-		for (int weapon = 0; weapon < Game.NUM_WEAPONS; weapon++)
-		{
-			Displayable dis = new Displayable(){
-				public void display(){
-					
-				}
-			};
-			weaponCards.add(dis);
-		}
-
-		return weaponCards;
-	}
-
-	private List<Displayable> createSuspectCardFaces()
-	{
-		List<Displayable> suspectCards = new ArrayList<Displayable>();
-
-		for (int suspect = 0; suspect < Game.MAX_PLAYERS; suspect++)
-		{
-			Displayable dis = new Displayable(){
-				public void display(){
-					
-				}
-			};
-			suspectCards.add(dis);
-		}
-
-		return suspectCards;
+		game = new Game(numPlayers);
 	}
 	/**
 	 * Using reflection to set remainingMoves to zero for testing purposes
@@ -299,7 +202,7 @@ public class GameTests {
 			boardField = Game.class.getDeclaredField("board");
 			boardField.setAccessible(true);
 			Board board = (Board) boardField.get(game);
-			board.setPosition(player.getPiece(), x, y);
+			board.setPosition(player, x, y);
 		} 
 		catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) 
 		{
@@ -318,7 +221,7 @@ public class GameTests {
 		List<Weapon> weapons = game.getWeapons();
 		for(Weapon w : weapons)
 		{
-			Cell cell = game.getPosition(w.getPiece());
+			Cell cell = game.getPosition(w);
 			assertNotNull("Weapon piece must be on a cell",cell);
 			try
 			{
@@ -350,7 +253,7 @@ public class GameTests {
 			int y = STARTINGPOSITION[i+1];
 			Player player = players.get(pCount);
 			assertEquals("Player should match order",player.getName(), SUSPECT_NAMES[pCount]);
-			Cell cell = game.getPosition(player.getPiece());
+			Cell cell = game.getPosition(player);
 			assertEquals(cell, cells[x][y]);
 			pCount++;
 		}
@@ -393,15 +296,14 @@ public class GameTests {
 	{
 		try
 		{
-			game = new Game(Game.MIN_HUMAN_PLAYERS-1,playerTokens,weaponTokens,suspectCardFaces,weaponCardFaces,roomCardFaces);
-			fail("Cannot have less than " + Game.MIN_HUMAN_PLAYERS + " players");
+			game = new Game(Game.MIN_HUMAN_PLAYERS-1);
 		}
 		catch(IllegalArgumentException e)
 		{	
 		}
 		try
 		{
-			game = new Game(Game.MAX_HUMAN_PLAYERS+1,playerTokens,weaponTokens,suspectCardFaces,weaponCardFaces,roomCardFaces);
+			game = new Game(Game.MAX_HUMAN_PLAYERS+1);
 			fail("Cannot have over " + Game.MAX_HUMAN_PLAYERS + " players");
 		}
 		catch(IllegalArgumentException e)
@@ -537,7 +439,7 @@ public class GameTests {
 		}
 		try
 		{
-			game.takeExit(game.getPosition(playerTokens.get(0)));
+			game.takeExit(game.getPosition(game.getActivePlayers().get(0)));
 			fail("Cannot continue playing when the game is over");
 		}
 		catch(IllegalMethodCallException e)
@@ -560,7 +462,7 @@ public class GameTests {
 	{
 		Player currentPlayer = game.getCurrentPlayer();
 		int remainingMoves = game.getRemainingMoves();
-		Cell pos = game.getPosition(currentPlayer.getPiece());
+		Cell pos = game.getPosition(currentPlayer);
 		int x = pos.getX();
 		int y = pos.getY();
 		Direction dir = Direction.West;
@@ -680,7 +582,7 @@ public class GameTests {
 	{
 		putPeacockInRoom();
 		Player peacock = getSpecificPlayer("Mrs. Peacock");
-		Cell playerPos = game.getPosition(peacock.getPiece());
+		Cell playerPos = game.getPosition(peacock);
 		assertTrue(game.isInRoom());
 		assertEquals(0,game.getRemainingMoves());
 		assertEquals("Conservatory",game.getRoom(playerPos).getName());
@@ -700,7 +602,7 @@ public class GameTests {
 		assertFalse(exits.isEmpty());
 		game.takeExit(exits.get(0)); //Not the secret passage
 		assertFalse(game.isInRoom());
-		Cell playerPos = game.getPosition(peacock.getPiece());
+		Cell playerPos = game.getPosition(peacock);
 		assertEquals(18, playerPos.getX());
 		assertEquals(5, playerPos.getY());
 	}
@@ -726,8 +628,8 @@ public class GameTests {
 		catch (NoAvailableExitException e) 
 		{
 		}
-		Cell exitOne = game.getPosition(white.getPiece());
-		Cell exitTwo = game.getPosition(plum.getPiece());
+		Cell exitOne = game.getPosition(white);
+		Cell exitTwo = game.getPosition(plum);
 		try
 		{
 			game.takeExit(exitOne);
@@ -760,7 +662,7 @@ public class GameTests {
 		assertFalse(exits.isEmpty());
 		game.takeExit(exits.get(0)); //Not the secret passage
 		assertFalse(game.isInRoom());
-		Cell playerPos = game.getPosition(peacock.getPiece());
+		Cell playerPos = game.getPosition(peacock);
 		assertEquals(18, playerPos.getX());
 		assertEquals(5, playerPos.getY());
 		game.move(Direction.North);
@@ -781,7 +683,7 @@ public class GameTests {
 		game.takeExit(exits.get(1));
 		assertTrue(game.isInRoom());
 		assertEquals(0, game.getRemainingMoves());
-		Cell playerPos = game.getPosition(peacock.getPiece());
+		Cell playerPos = game.getPosition(peacock);
 		assertEquals("Lounge",game.getRoom(playerPos).getName());
 		assertTrue(game.canMakeSuggestion());
 		WeaponCard guessWeapon = (WeaponCard) game.getWeaponCards().get(0);
@@ -1144,7 +1046,6 @@ public class GameTests {
 	@Test
 	public void testSuggestionTransferred() throws InvalidMoveException
 	{
-		RoomCard answerRoom = null;
 		Field answerField = null;
 		CaseFile answer = null;
 			try 
@@ -1158,7 +1059,6 @@ public class GameTests {
 				fail("Field access error");
 			}
 		assert answer != null;
-		answerRoom = answer.getRoomCards().get(0);
 		WeaponCard answerWeapon = answer.getWeaponCards().get(0);
 		SuspectCard answerSuspect = answer.getSuspectCards().get(0);
 		putPeacockInRoom();

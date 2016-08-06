@@ -11,12 +11,13 @@ import cluedo.exceptions.IllegalMethodCallException;
 import cluedo.exceptions.InvalidMoveException;
 import cluedo.model.Cell;
 import cluedo.model.Piece;
+import cluedo.model.Weapon;
 import cluedo.utility.Heading.Direction;
 
 public class BoardTests
 {
 	private Board board;
-	private Piece validPiece = () -> { System.out.println("TEST: A valid piece"); };
+	private Piece validPiece = new Weapon("Dagger");
 
 	private Cell validCell;
 
@@ -62,18 +63,10 @@ public class BoardTests
 				{
 					cells[x][y] = new Cell(x, y)
 					{
-						@Override
-						public void display()
-						{
-							// An empty Cell, doesn't do anything.
-						}
 					};
 				}
 			}
 		}
-
-
-
 		return cells;
 	}
 
@@ -116,7 +109,7 @@ public class BoardTests
 	@Test (expected = IllegalMethodCallException.class)
 	public void invalidMoveNonexistentPiece() throws InvalidMoveException 
 	{
-		board.move(() -> {}, getRandomDirection());
+		board.move(new Weapon("Lead Pipe"), getRandomDirection());
 	}
 
 	/*@Test (expected = InvalidMoveException.class)

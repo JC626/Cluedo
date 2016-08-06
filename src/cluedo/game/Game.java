@@ -14,7 +14,6 @@ import cluedo.exceptions.IllegalMethodCallException;
 import cluedo.exceptions.InvalidMoveException;
 import cluedo.exceptions.NoAvailableExitException;
 import cluedo.model.Cell;
-import cluedo.model.Displayable;
 import cluedo.model.Piece;
 import cluedo.model.Player;
 import cluedo.model.Room;
@@ -138,8 +137,7 @@ public class Game
 	private final Board board;
 	private boolean gameOver;
 
-	public Game(int numPlayers, List<Piece> playerTokens, List<Piece> weaponTokens,
-			List<Displayable> suspectCardFaces, List<Displayable> weaponCardFaces, List<Displayable> roomCardFaces) 
+	public Game(int numPlayers) 
 	{
 		if (numPlayers < MIN_HUMAN_PLAYERS || numPlayers > MAX_HUMAN_PLAYERS) 
 		{
@@ -149,7 +147,7 @@ public class Game
 		CellBuilder cellBuilder = new CellBuilder();
 		board = new Board(cellBuilder.getCells());
 		//Players
-		allPlayers = GameBuilder.createPlayers(playerTokens);
+		allPlayers = GameBuilder.createPlayers();
 		activeHumanPlayers = GameBuilder.createHumanPlayers(numPlayers,allPlayers);
 		/*
 		 * Cannot have the same references as removing a player from active players
@@ -159,11 +157,11 @@ public class Game
 		turn = new Turn<Player>(allHumanPlayers,allHumanPlayers.size()-1); //Ensure turn starts on the first player
 		allHumanIterator = new Turn<Player>(allHumanPlayers);
 		//Weapons
-		weapons = GameBuilder.createWeapons(weaponTokens);
+		weapons = GameBuilder.createWeapons();
 		// Cards
-		suspectCards = GameBuilder.createSuspectCards(suspectCardFaces);
-		weaponCards = GameBuilder.createWeaponCards(weaponCardFaces);
-		roomCards = GameBuilder.createRoomCards(roomCardFaces);
+		suspectCards = GameBuilder.createSuspectCards();
+		weaponCards = GameBuilder.createWeaponCards();
+		roomCards = GameBuilder.createRoomCards();
 		answer = GameBuilder.createCaseFiles(suspectCards, weaponCards, roomCards,playerToCasefile,activeHumanPlayers);
 		extraCards = distributeCards(suspectCards, weaponCards, roomCards);
 		//Room
@@ -260,7 +258,7 @@ public class Game
 		{
 			int x = STARTINGPOSITION[i];
 			int y = STARTINGPOSITION[i+1];
-			board.setPosition(allPlayers.get(playerCount).getPiece(), x, y);
+			board.setPosition(allPlayers.get(playerCount), x, y);
 			playerCount++;
 		}
 		List<Room> randRooms = new ArrayList<Room>(rooms);
@@ -272,7 +270,7 @@ public class Game
 			{
 				break;
 			}
-			Piece piece = weapons.get(i).getPiece();
+			Piece piece = weapons.get(i);
 			this.putInRoom(piece, room);
 			i++;
 		}
@@ -297,7 +295,7 @@ public class Game
 		directions.add(Direction.East);
 		if(!isInRoom())
 		{
-			Cell pos = getPosition(currentPlayer.getPiece());
+			Cell pos = getPosition(currentPlayer);
 			Set<Direction> walls = pos.getWalls();
 			directions.removeAll(walls);
 			int x = pos.getX();
@@ -387,7 +385,7 @@ public class Game
 		{
 			throw new InvalidMoveException("Cannot move as no moves left");
 		}
-		Cell oldPos = getPosition(currentPlayer.getPiece());
+		Cell oldPos = getPosition(currentPlayer);
 		/*
 		 * Walls are not defined in both cells 
 		 * (i.e. cell may not have a South wall
@@ -420,14 +418,14 @@ public class Game
 				throw new InvalidMoveException("Did not enter the room through a valid entrance");
 			}
 			//Reallocate the player to a cell in the room
-			this.putInRoom(currentPlayer.getPiece(), room);
+			this.putInRoom(currentPlayer, room);
 			remainingMoves = 0;
 		}
 		else
 		{
 			playerPath.add(newPos);
 			//Actually move the player to the cell
-			board.move(currentPlayer.getPiece(), direction);
+			board.move(currentPlayer, direction);
 			remainingMoves--;
 		}
 		return newPos;
@@ -540,7 +538,7 @@ public class Game
 				if(playerToRoom.get(p) != getCurrentRoom())
 				{
 					//Put in the room
-					this.putInRoom(p.getPiece(),getCurrentRoom());
+					this.putInRoom(p,getCurrentRoom());
 					playerToRoom.put(p, getCurrentRoom());
 					transferred.put(p, true);
 				}
@@ -553,12 +551,12 @@ public class Game
 		{
 			if(w.getName().equals(weaponCard.getName())) 
 			{ 
-				Cell weaponPos = getPosition(w.getPiece());
+				Cell weaponPos = getPosition(w);
 				//Weapon is not in this room
 				if(cellToRoom.containsKey(weaponPos) &&
  						!cellToRoom.get(weaponPos).equals(getCurrentRoom()))
 				{
-					this.putInRoom(w.getPiece(),getCurrentRoom());
+					this.putInRoom(w,getCurrentRoom());
 					break; 
 				}	
 			} 
@@ -764,11 +762,11 @@ public class Game
 		{
 			remainingMoves = 0;
 			Room newRoom = cellToRoom.get(cell);
-			putInRoom(currentPlayer.getPiece(), newRoom);
+			putInRoom(currentPlayer, newRoom);
 		}
 		else
 		{
-			board.setPosition(currentPlayer.getPiece(), cell);
+			board.setPosition(currentPlayer, cell);
 			lastRoom = getCurrentRoom();
 			playerToRoom.put(currentPlayer, null);
 			remainingMoves--;
@@ -807,7 +805,7 @@ public class Game
 			lastRoom = null;
 		}
 		playerPath = new HashSet<Cell>();
-		Cell playerPos = getPosition(currentPlayer.getPiece());
+		Cell playerPos = getPosition(currentPlayer);
 		playerPath.add(playerPos);
 		hasMadeSuggestion = false;
 		rollDice();

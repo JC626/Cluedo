@@ -51,19 +51,19 @@ public class CellTests
 	@Test (expected = IllegalArgumentException.class)
 	public void xNegative()
 	{
-		new Cell(-1, validY, validWalls){public void display(){}};
+		new Cell(-1, validY, validWalls);
 	}
 	
 	@Test (expected = IllegalArgumentException.class)
 	public void yNegative()
 	{
-		new Cell(validX, -1, validWalls){public void display(){}};
+		new Cell(validX, -1, validWalls);
 	}
 
 	@Test (expected = IllegalArgumentException.class)
 	public void wallsNull()
 	{
-		new Cell(validX, validY, null){public void display(){}};
+		new Cell(validX, validY, null);
 	}
 	
 	@Test (expected = IllegalArgumentException.class)
@@ -71,20 +71,20 @@ public class CellTests
 	{
 		Direction[] invalidWalls = {Direction.South, null, Direction.East};
 
-		new Cell(validX, validY, invalidWalls){public void display(){}};
+		new Cell(validX, validY, invalidWalls){};
 	}
 	
 	@Test (expected = IllegalArgumentException.class)
 	public void wallsContainingDuplicate()
 	{
 		Direction[] invalidWalls = {Direction.North, Direction.East, Direction.North};
-		new Cell(validX, validY, invalidWalls){public void display(){}};
+		new Cell(validX, validY, invalidWalls){};
 	}
 	
 	@Test (expected = IllegalArgumentException.class)
 	public void wallsContainingDuplicateSize()
 	{
 		Direction[] invalidWalls = {Direction.North, Direction.West, Direction.East, Direction.South, Direction.North};
-		new Cell(validX, validY, invalidWalls){public void display(){}};
+		new Cell(validX, validY, invalidWalls){};
 	}
 }
