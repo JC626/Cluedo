@@ -5,8 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import javax.swing.JButton;
-
 import cluedo.game.Game;
 import cluedo.game.GameBuilder;
 import cluedo.model.Player;

@@ -1,11 +1,8 @@
 package cluedo.userinterface;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;

@@ -15,8 +15,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
-import com.sun.glass.events.KeyEvent;
-
 
 public class BoardFrame extends JFrame{
 	private static final long serialVersionUID = 1L;
