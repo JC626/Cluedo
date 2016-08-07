@@ -37,7 +37,6 @@ public class ButtonDialog extends JDialog
 			}
 		});
 
-		this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		panel = new JPanel();
 	}
 
