@@ -1,12 +1,15 @@
 package cluedo.userinterface;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import cluedo.board.Board;
 import cluedo.game.Game;
 import cluedo.game.GameBuilder;
+import cluedo.model.Cell;
 import cluedo.model.Player;
 
 public class Controller
@@ -57,4 +60,27 @@ public class Controller
 		});
 
 	}
+	/*public Color[][] getColouredCells()
+	{
+		assert model != null : "Cannot get cells for an empty game";
+		Cell[][] cells = model.getCells();
+		Color[][] coloured = new Color[Board.WIDTH][Board.HEIGHT];
+		for(int x = 0; x < Board.WIDTH; x++)
+		{
+			for(int y = 0; y < Board.HEIGHT; y++)
+			{
+				Cell c= cells[x][y];
+				try
+				{
+					model.getRoom(c);
+					coloured[x][y] = Color.YELLOW;
+				}
+				catch(IllegalArgumentException e)
+				{
+					coloured[x][y] = Color.LIGHT_GRAY;
+				}
+			}
+		}
+		return coloured;
+	}*/
 }

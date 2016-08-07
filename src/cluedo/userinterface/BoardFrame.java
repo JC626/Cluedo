@@ -2,6 +2,7 @@ package cluedo.userinterface;
 
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.ArrayList;
@@ -15,19 +16,21 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
+import cluedo.board.Board;
+
 
 public class BoardFrame extends JFrame{
 	private static final long serialVersionUID = 1L;
 	static final int WIDTH = 1000;
 	static final int HEIGHT = 1000;
 	BoardCanvas board;
-	public BoardFrame()
+	public BoardFrame(Color[][] colourForCells)
 	{
 		this.setTitle("Cluedo Game");
 		this.setMinimumSize(new Dimension(WIDTH,HEIGHT));
 		JMenuBar menuBar = createMenu();
 		this.setJMenuBar(menuBar);
-		board = new BoardCanvas();
+		board = new BoardCanvas(colourForCells);
 		List<JButton> buttons = createButtons();
 		setFontSizeButtons(buttons);
 		JPanel bottom = createBottomPanel(buttons);
@@ -68,6 +71,10 @@ public class BoardFrame extends JFrame{
 		menu.add(actions);
 		return menu;
 	}
+	/**
+	 * Create buttons for the lower panel
+	 * @return List buttons for the lower panel
+	 */
 	private List<JButton> createButtons()
 	{
 		List<JButton> buttons = new ArrayList<JButton>();
@@ -88,6 +95,11 @@ public class BoardFrame extends JFrame{
 		}
 		return panel;
 	}
+	
+	/**
+	 * Set font size for all the buttons to be consistent
+	 * @param buttons
+	 */
 	private void setFontSizeButtons(List<JButton> buttons)
 	{
 		for(JButton button : buttons)
@@ -95,7 +107,27 @@ public class BoardFrame extends JFrame{
 			button.setFont(button.getFont().deriveFont(18.0f));	
 		}
 	}
-	public static void main(String[] args){
-		new BoardFrame();
-	}
+		public static void main(String[] args){
+			//Testing
+			Color[][] coloured = new Color[Board.WIDTH][Board.HEIGHT];
+			boolean alternate = false;
+			for(int x = 0; x < Board.WIDTH; x++)
+			{
+				for(int y = 0; y < Board.HEIGHT; y++)
+				{
+					if(alternate)
+					{
+						coloured[x][y] = Color.lightGray;
+
+					}
+					else
+					{
+						coloured[x][y] = Color.GRAY;
+					}
+					alternate = !alternate;
+				}
+			}
+			new BoardFrame(coloured);
+		}
+	
 }
