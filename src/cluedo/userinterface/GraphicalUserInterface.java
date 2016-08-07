@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -110,18 +111,31 @@ public class GraphicalUserInterface extends JFrame
 
 
 
-	public int dialogRadioButtons(String windowTitle, String question, List<String> options, List<Boolean> available)
+	public Optional<Integer> dialogRadioButtons(String windowTitle, String question, List<String> options, List<Boolean> available)
 	{
 		ErrorChecking.ensureNonEmpty(options, available);
 		
 		List<JRadioButton> buttons = ButtonDialog.createRadioButtons(options, available);
 		
-		int selectedOption = new ButtonDialog(this, windowTitle).getUserSelection(buttons);
+		Optional<Integer> selectedOption = new ButtonDialog(this, windowTitle).getUserSelection(buttons);
 		
-		assert selectedOption >= 0 && selectedOption < options.size() : "Selected option was not in options";
-		assert available.get(selectedOption) : "Selected an unavailable option"; 
+		if (selectedOption.isPresent())
+		{
+			assert selectedOption.get() >= 0 && selectedOption.get() < options.size() : "Selected option was not in options";
+			assert available.get(selectedOption.get()) : "Selected an unavailable option";
+		}
+		 
 		return selectedOption;
 	}
+	
+	public Optional<String> dialogTextInput(String windowTitle, String question, boolean emptyAllowed)
+	{
+		return null;
+		//return Optional.of(new TextDialog(this, windowTitle).getUserInput());
+	}
+	
+	
+	
 
 	public void buttonNewGameListener(ActionListener a)
 	{

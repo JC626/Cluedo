@@ -3,8 +3,11 @@ package cluedo.userinterface;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -20,24 +23,33 @@ import cluedo.utility.ErrorChecking;
 public class ButtonDialog extends JDialog
 {
 	private JPanel panel;
-	private int selectedIndex;
+	private Optional<Integer> selectedIndex;
 
 	public ButtonDialog(Frame owner, String title)
 	{
 		super(owner, title, true);
+
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				selectedIndex = Optional.empty();
+				cleanupDialog();
+			}
+		});
+
 		this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		panel = new JPanel();
 	}
 
-	public int getUserSelection(List<? extends AbstractButton> buttons)
+	public Optional<Integer> getUserSelection(List<? extends AbstractButton> buttons)
 	{
 		this.getContentPane().add(panel);
 
 		this.setMinimumSize(new Dimension(600,600));
 		panel.setLayout(new GridLayout(buttons.size(), 1));
 		panel.setBorder(BorderFactory.createEmptyBorder(20, 0, 60, 75));
-		
-		
+
+
 		ButtonGroup group = new ButtonGroup();
 
 		for (int i = 0; i < buttons.size(); i++)
@@ -50,32 +62,37 @@ public class ButtonDialog extends JDialog
 
 		JButton myButton = new JButton("Ok");
 		myButton.addActionListener((a) -> {
-			this.dispose();
-			this.setVisible(false);
 			selectedIndex =  getSelectedIndex(buttons);
+			cleanupDialog();
 		});
 		GraphicalUserInterface.setFontSize(myButton, 25);
 
 		panel.add(myButton);
 		pack();
 		this.setVisible(true);
-		
+
 		return selectedIndex;
 	}
-	
-	private int getSelectedIndex(List<? extends AbstractButton> buttons)
+
+	private void cleanupDialog()
+	{
+		this.dispose();
+		this.setVisible(false);
+	}
+
+	private Optional<Integer> getSelectedIndex(List<? extends AbstractButton> buttons)
 	{
 		ErrorChecking.ensureNonEmpty(buttons);
-		
+
 		for (int i = 0; i < buttons.size(); i++)
 		{
 			if (buttons.get(i).isSelected())
 			{
-				return i;
+				return Optional.of(i);
 			}
 		}
-		
-		throw new IllegalArgumentException("Argument must have a selected item");
+
+		return Optional.empty();
 	}
 
 	public static List<JRadioButton> createRadioButtons(List<String> options, List<Boolean> available)
@@ -99,7 +116,7 @@ public class ButtonDialog extends JDialog
 				currentButton.setSelected(true);
 				haveDefaultSelection = true;
 			}
-			
+
 			buttons.add(currentButton);
 		}
 
