@@ -44,21 +44,14 @@ public class Controller
 				int selectedPlayerIndex = optionalSelectedPlayerIndex.get();
 				Player currentPlayer = Game.allPlayers.get(selectedPlayerIndex);
 				
-			
-				
 				activePlayers.add(currentPlayer);
 			
-				System.out.println(Arrays.toString(activePlayers.toArray()));
-				
 				availablePlayers.remove(selectedPlayerIndex);
 				availablePlayers.add(selectedPlayerIndex, false);
 			}
 		});
 
-
-
-
-		view.buttonQuitListener((a) -> { 
+		view.buttonQuitListener((a) -> {
 			if (view.yesNo("Are you sure?", "Do you want to quit?"))
 			{
 				System.exit(0);
