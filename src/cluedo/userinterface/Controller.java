@@ -39,6 +39,11 @@ public class Controller
 
 	}
 	
+	/**
+	 * Get user input on the characters that each player wants to play.
+	 * @return Optional.of the players in turn order that each player wants to play.
+	 * Optiona.empty() if the user canceled.
+	 */
 	private Optional<List<Player>> createPlayers()
 	{
 		List<Player> activePlayers =  new ArrayList<Player>();
@@ -73,6 +78,10 @@ public class Controller
 		return Optional.of(activePlayers);
 	}
 	
+	/**
+	 * Creates the board as it is to be drawn, based on Cells and their properties.
+	 * @return The array of Images that represent each Cell.
+	 */
 	public Image[][] getImages()
 	{
 		assert model != null : "Cannot get cells for an empty game";
@@ -126,6 +135,12 @@ public class Controller
 		return images;
 	}
 	
+	/**
+	 * Convert a rectangle and colour into an image.
+	 * @param rectangle The rectangle to convert into an image.
+	 * @param colour The colour of the image.
+	 * @return The resulting image.
+	 */
 	private Image convertToImage(Rectangle rectangle, Color colour)
 	{
 		BufferedImage image = new BufferedImage(BoardCanvas.cellWidth, BoardCanvas.cellHeight, BufferedImage.TYPE_INT_ARGB);
@@ -137,6 +152,12 @@ public class Controller
 		return image;
 	}
 	
+	/**
+	 * As with convertToImage, but the resulting image has a black outline.
+	 * @param rectangle The rectangle to convert to an image.
+	 * @param colour The colour of the image.
+	 * @return The resulting image.
+	 */
 	private Image convertToImageWithOutline(Rectangle rectangle, Color colour)
 	{
 		BufferedImage image = new BufferedImage(BoardCanvas.cellWidth, BoardCanvas.cellHeight, BufferedImage.TYPE_INT_ARGB);
@@ -150,7 +171,4 @@ public class Controller
 		
 		return image;
 	}
-
-
-
 }
