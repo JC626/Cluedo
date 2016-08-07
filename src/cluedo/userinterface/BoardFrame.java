@@ -10,7 +10,12 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+
+import com.sun.glass.events.KeyEvent;
 
 
 public class BoardFrame extends JFrame{
@@ -22,6 +27,8 @@ public class BoardFrame extends JFrame{
 	{
 		this.setTitle("Cluedo Game");
 		this.setMinimumSize(new Dimension(WIDTH,HEIGHT));
+		JMenuBar menuBar = createMenu();
+		this.setJMenuBar(menuBar);
 		board = new BoardCanvas();
 		List<JButton> buttons = createButtons();
 		setFontSizeButtons(buttons);
@@ -34,10 +41,39 @@ public class BoardFrame extends JFrame{
 		setVisible(true);
 		setResizable(false);
 	}
+	
+	/**
+	 * Create menu options
+	 * @return MenuBar for the frame
+	 */
+	private JMenuBar createMenu()
+	{
+		JMenuBar menu = new JMenuBar();
+		JMenu file = new JMenu("File");
+		//file.setMnemonic(KeyEvent.VK_A); //Setting shortcut
+		JMenuItem newGame = new JMenuItem("New Game");
+		JMenuItem quit = new JMenuItem("Quit");
+		JMenuItem casefile = new JMenuItem("View CaseFile");
+		JMenuItem suggestion = new JMenuItem("Make Suggestion");
+		JMenuItem accusation = new JMenuItem("Make Accusation");
+		JMenuItem endTurn = new JMenuItem("End Turn");
+		
+		file.add(newGame);
+		file.add(quit);
+		menu.add(file);
+		
+		JMenu actions = new JMenu("Game Actions");
+		actions.add(casefile);
+		actions.add(suggestion);
+		actions.add(accusation);
+		actions.add(endTurn);
+		menu.add(actions);
+		return menu;
+	}
 	private List<JButton> createButtons()
 	{
 		List<JButton> buttons = new ArrayList<JButton>();
-		buttons.add(new JButton("Review CaseFile"));
+		buttons.add(new JButton("View CaseFile"));
 		buttons.add(new JButton("Make Suggestion"));
 		buttons.add(new JButton("Make Accusation"));
 		buttons.add(new JButton("End Turn"));
