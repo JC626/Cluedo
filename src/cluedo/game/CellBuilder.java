@@ -99,12 +99,43 @@ class CellBuilder
 		return secretPassage;
 	}
 	
+	public Set<Cell> getDoorCells()
+	{
+		Set<Cell> doors = new HashSet<Cell>();
+		
+		for (int x = 0; x < cells.length; x++)
+		{
+			for (int y = 0; y < cells[0].length; y++)
+			{
+				String s = map[y][x].toUpperCase();
+				if (s.contains("D"))
+				{
+					doors.add(cells[x][y]);
+				}
+			}
+		}
+		
+		return doors;
+	}
 	
-	
-	
-	
-	
-	
+	public Set<Cell> getOutOfBoundsCells()
+	{
+		Set<Cell> outOfBounds = new HashSet<Cell>();
+		
+		for (int x = 0; x < cells.length; x++)
+		{
+			for (int y = 0; y < cells[0].length; y++)
+			{
+				String s = map[y][x].toUpperCase();
+				if (s.contains("B"))
+				{
+					outOfBounds.add(cells[x][y]);
+				}
+			}
+		}
+		
+		return outOfBounds;
+	}
 	
 	public Cell[][] getCells()
 	{
