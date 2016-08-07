@@ -1,5 +1,6 @@
 package cluedo.userinterface;
 
+import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridLayout;
 import java.util.ArrayList;
@@ -30,9 +31,9 @@ public class ButtonDialog extends JDialog
 	{
 		this.getContentPane().add(panel);
 
-		panel.setSize(600, 600);
+		this.setMinimumSize(new Dimension(600,600));
 		panel.setLayout(new GridLayout(buttons.size(), 1));
-		panel.setBorder(BorderFactory.createEmptyBorder(20, 0, 50, 75));
+		panel.setBorder(BorderFactory.createEmptyBorder(20, 0, 60, 75));
 
 		ButtonGroup group = new ButtonGroup();
 
@@ -50,7 +51,7 @@ public class ButtonDialog extends JDialog
 			this.setVisible(false);
 			selectedIndex =  getSelectedIndex(buttons);
 		});
-
+		GraphicalUserInterface.setFontSize(myButton, 25);
 
 		panel.add(myButton);
 		pack();
@@ -86,7 +87,7 @@ public class ButtonDialog extends JDialog
 		for (int i = 0; i < options.size(); i++)
 		{
 			JRadioButton currentButton = new JRadioButton(options.get(i));
-
+			GraphicalUserInterface.setFontSize(currentButton, 25);
 			currentButton.setEnabled(available.get(i));
 
 			// Make the first available option the default.

@@ -1,6 +1,7 @@
 package cluedo.userinterface;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class GraphicalUserInterface extends JFrame
 		addAllPanels();
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setSize(600, 600);
+		this.setMinimumSize(new Dimension(600, 600));
 		
 		pack();
 		setResizable(false);
@@ -56,7 +57,7 @@ public class GraphicalUserInterface extends JFrame
 	{
 		createMainMenu();
 		setLayoutMainMenu();
-		setLayoutTitle();
+		setLayoutSizes();
 		addToPanel(mainMenu, getMainMenuComponents());
 	}
 	
@@ -68,14 +69,15 @@ public class GraphicalUserInterface extends JFrame
 	
 	private void setLayoutMainMenu()
 	{
-		mainMenu.setLayout(new GridLayout(0,1,0,40));
+		mainMenu.setLayout(new GridLayout(0,1,0,80));
 		mainMenu.setBorder(BorderFactory.createEmptyBorder(20, 75, 50, 75));
 	}
 
-	private void setLayoutTitle()
+	private void setLayoutSizes()
 	{
-		title.setSize(200, 200);
-		setFontSize(title, 70);
+		setFontSize(title, 100);
+		setFontSize(newGame, 25);
+		setFontSize(quit, 25);
 	}
 	
 	private Iterator<Component> getMainMenuComponents()
@@ -148,8 +150,8 @@ public class GraphicalUserInterface extends JFrame
 	 * @param component The component that needs size changing.
 	 * @param size The size to change it to.
 	 */
-	public static void setFontSize(Component component, int size)
+	public static void setFontSize(Component component, float size)
 	{
-		component.setFont(component.getFont().deriveFont((float) size));
+		component.setFont(component.getFont().deriveFont(size));
 	}
 }
