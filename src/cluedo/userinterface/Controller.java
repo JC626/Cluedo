@@ -76,22 +76,27 @@ public class Controller
 	public Image[][] getImages()
 	{
 		assert model != null : "Cannot get cells for an empty game";
+		
 		Image[][] images = new Image[Board.WIDTH][Board.HEIGHT];
 		Cell[][] cells = model.getCells();
+		
 		Set<Cell> outOfBounds = model.getOutOfBoundCells();
 		Set<Cell> roomCells = model.getRoomCells();
 		Set<Cell> secretPassage = model.getSecretPassageCells();
 		Set<Cell> doorCells = model.getDoorCells();
-		for(int x = 0; x < Board.WIDTH; x++)
+		
+		for (int x = 0; x < Board.WIDTH; x++)
 		{
-			for(int y = 0; y < Board.HEIGHT; y++)
+			for (int y = 0; y < Board.HEIGHT; y++)
 			{
-				//Create rectangles here
 				Image image = null;
+				
 				Cell cell = cells[x][y];
 				int startX = x * BoardCanvas.cellWidth;
 				int startY = y * BoardCanvas.cellHeight;
-				Rectangle rec = new Rectangle(startX,startY,BoardCanvas.cellWidth,BoardCanvas.cellHeight);
+				
+				Rectangle rec = new Rectangle(startX, startY, BoardCanvas.cellWidth, BoardCanvas.cellHeight);
+				
 				if(secretPassage.contains(cell))
 				{
 					image = convertToImage(rec, Color.MAGENTA);
@@ -112,28 +117,37 @@ public class Controller
 				{
 					image = convertToImageWithOutline(rec, Color.YELLOW);
 				}
-				assert image != null: "Should have an image to add into the arrya";
+				
+				assert image != null: "Should have an image to add into the array";
+				
 				images[x][y] = image;
 			}
 		}
 		return images;
 	}
+	
 	private Image convertToImage(Rectangle rectangle, Color colour)
 	{
 		BufferedImage image = new BufferedImage(BoardCanvas.cellWidth, BoardCanvas.cellHeight, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D graphics = image.createGraphics();
+		
 		graphics.setColor(colour);
 		graphics.fill(rectangle);
+		
 		return image;
 	}
+	
 	private Image convertToImageWithOutline(Rectangle rectangle, Color colour)
 	{
 		BufferedImage image = new BufferedImage(BoardCanvas.cellWidth, BoardCanvas.cellHeight, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D graphics = image.createGraphics();
+		
 		graphics.setColor(colour);
 		graphics.fill(rectangle);
 		graphics.setColor(Color.BLACK);
+		
 		graphics.draw(rectangle);
+		
 		return image;
 	}
 
