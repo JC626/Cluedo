@@ -110,20 +110,13 @@ public class GraphicalUserInterface extends JFrame
 
 
 
-	public Player selectPlayer(List<Player> options, List<Boolean> available)
+	public String selectPlayer(List<String> options, List<Boolean> available)
 	{
 		ErrorChecking.ensureNonEmpty(options, available);
 		
 		String windowTitle = "Select a player";
 		
-		List<String> playerNames = new ArrayList<String>();
-		for (Player p : options)
-		{
-			playerNames.add(p.getName());
-		}
-		
-		
-		Player selectedPlayer = options.get(dialogRadioButtons(windowTitle, ButtonDialog.createRadioButtons(playerNames, available)));
+		String selectedPlayer = options.get(dialogRadioButtons(windowTitle, ButtonDialog.createRadioButtons(options, available)));
 		
 		assert options.contains(selectedPlayer) : "Selected player was not in options";
 		assert available.get(options.indexOf(selectedPlayer)) : "Selected an unavailable player"; 

@@ -1,9 +1,13 @@
 package cluedo.userinterface;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.JButton;
+
 import cluedo.game.Game;
+import cluedo.game.GameBuilder;
 import cluedo.model.Player;
 
 public class Controller
@@ -16,7 +20,6 @@ public class Controller
 		this.view = new GraphicalUserInterface();
 
 		view.buttonNewGameListener((a) -> {
-
 			List<Player> activePlayers = new ArrayList<Player>();
 			List<Boolean> availablePlayers = new ArrayList<Boolean>(Game.allPlayers.size());
 
@@ -24,13 +27,22 @@ public class Controller
 			{
 				availablePlayers.add(true);
 			}
-
-
+			List<String> playerNames = Arrays.asList(GameBuilder.SUSPECT_NAMES);
+			
 			while (activePlayers.size() < Game.MIN_HUMAN_PLAYERS // Always ask until we have the minimum number
 					// Once we have the min, and less than the max, only continue if the players want to
 					|| (activePlayers.size() < Game.MAX_HUMAN_PLAYERS && view.yesNo("Any more players?", "Do you want to add more players? You currently have " + activePlayers.size())))
 			{
-				Player currentPlayer = view.selectPlayer(Game.allPlayers, availablePlayers);
+				String currentPlayerName = view.selectPlayer(playerNames, availablePlayers);
+				Player currentPlayer = null;
+				for(Player p : Game.allPlayers)
+				{
+					if(p.getName().equals(currentPlayerName))
+					{
+						currentPlayer = p;
+						break;
+					}
+				}
 				int currentPlayerIndex = Game.allPlayers.indexOf(currentPlayer);
 				
 				activePlayers.add(currentPlayer);
