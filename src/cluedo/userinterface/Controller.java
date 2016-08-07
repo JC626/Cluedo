@@ -34,15 +34,8 @@ public class Controller
 					|| (activePlayers.size() < Game.MAX_HUMAN_PLAYERS && view.yesNo("Any more players?", "Do you want to add more players? You currently have " + activePlayers.size())))
 			{
 				String currentPlayerName = view.selectPlayer(playerNames, availablePlayers);
-				Player currentPlayer = null;
-				for(Player p : Game.allPlayers)
-				{
-					if(p.getName().equals(currentPlayerName))
-					{
-						currentPlayer = p;
-						break;
-					}
-				}
+				
+				Player currentPlayer = getPlayer(currentPlayerName);
 				int currentPlayerIndex = Game.allPlayers.indexOf(currentPlayer);
 				
 				activePlayers.add(currentPlayer);
@@ -62,5 +55,18 @@ public class Controller
 			}
 		});
 
+	}
+
+	private Player getPlayer(String name)
+	{
+		for(Player p : Game.allPlayers)
+		{
+			if(p.getName().equals(name))
+			{
+				return p;
+			}
+		}
+		
+		throw new IllegalArgumentException("Name must be one of the players");
 	}
 }
