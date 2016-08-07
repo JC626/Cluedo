@@ -97,10 +97,9 @@ public class ButtonDialog extends JDialog
 			if (!haveDefaultSelection && currentButton.isEnabled())
 			{
 				currentButton.setSelected(true);
-				currentButton.doClick(); // Set the default selection.
 				haveDefaultSelection = true;
 			}
-
+			
 			buttons.add(currentButton);
 		}
 
