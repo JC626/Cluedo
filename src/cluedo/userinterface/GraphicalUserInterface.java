@@ -128,9 +128,9 @@ public class GraphicalUserInterface extends JFrame
 		return selectedOption;
 	}
 	
-	public Optional<String> dialogTextInput(String windowTitle, String question, boolean emptyAllowed)
+	public Optional<String> dialogTextInput(String windowTitle, String question)
 	{
-		return new TextDialog(this, windowTitle).getUserInput(question, emptyAllowed);
+		return new TextDialog(this, windowTitle).getUserInput(question);
 	}
 	
 	
