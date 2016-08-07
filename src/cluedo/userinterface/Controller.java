@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import cluedo.board.Board;
 import cluedo.game.Game;
@@ -68,21 +69,65 @@ public class Controller
 	{
 		assert model != null : "Cannot get cells for an empty game";
 		Image[][] images = new Image[Board.WIDTH][Board.HEIGHT];
+		Cell[][] cells = model.getCells();
+		Set<Cell> outOfBounds = model.getOutOfBoundCells();
+		Set<Cell> roomCells = model.getRoomCells();
+		Set<Cell> secretPassage = model.getSecretPassageCells();
+		Set<Cell> doorCells = model.getDoorCells();
+		int startX = 0;
+		int startY = 0;
 		for(int x = 0; x < Board.WIDTH; x++)
 		{
 			for(int y = 0; y < Board.HEIGHT; y++)
 			{
 				//Create rectangles here
-				//Add images here
-				//images[x][y] = convertToImage(rectangle);
+				Image image = null;
+				Cell cell = cells[x][y];
+				Rectangle rec = new Rectangle(startX,startY,BoardCanvas.cellWidth,BoardCanvas.cellHeight);
+				if(secretPassage.contains(cell))
+				{
+					image = convertToImage(rec, Color.MAGENTA);
+				}
+				else if(roomCells.contains(cell))
+				{
+					image = convertToImage(rec, Color.LIGHT_GRAY);
+				}
+				else if(doorCells.contains(cell))
+				{
+					image = convertToImage(rec, Color.GREEN);
+				}
+				else if(outOfBounds.contains(cell))
+				{
+					image = convertToImageWithOutline(rec, Color.BLACK);
+				}
+				else
+				{
+					image = convertToImageWithOutline(rec, Color.YELLOW);
+				}
+				assert image != null: "Should have an image to add into the arrya";
+				startY += BoardCanvas.cellHeight;
+				images[x][y] = image;
 			}
+			startY = 0;
+			startX+= BoardCanvas.cellWidth;
 		}
 		return images;
 	}
-	private Image convertToImage(Rectangle rectangle)
+	private Image convertToImage(Rectangle rectangle, Color colour)
 	{
 		BufferedImage image = new BufferedImage(BoardCanvas.cellWidth, BoardCanvas.cellHeight, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D graphics = image.createGraphics();
+		graphics.setColor(colour);
+		graphics.fill(rectangle);
+		return image;
+	}
+	private Image convertToImageWithOutline(Rectangle rectangle, Color colour)
+	{
+		BufferedImage image = new BufferedImage(BoardCanvas.cellWidth, BoardCanvas.cellHeight, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D graphics = image.createGraphics();
+		graphics.setColor(colour);
+		graphics.fill(rectangle);
+		graphics.setColor(Color.BLACK);
 		graphics.draw(rectangle);
 		return image;
 	}

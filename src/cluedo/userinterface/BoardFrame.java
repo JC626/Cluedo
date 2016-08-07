@@ -5,6 +5,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,13 +25,13 @@ public class BoardFrame extends JFrame{
 	static final int WIDTH = 1000;
 	static final int HEIGHT = 1000;
 	BoardCanvas board;
-	public BoardFrame(Color[][] colourForCells)
+	public BoardFrame(Image[][] boardImages)
 	{
 		this.setTitle("Cluedo Game");
 		this.setMinimumSize(new Dimension(WIDTH,HEIGHT));
 		JMenuBar menuBar = createMenu();
 		this.setJMenuBar(menuBar);
-		board = new BoardCanvas(colourForCells);
+		board = new BoardCanvas(boardImages);
 		List<JButton> buttons = createButtons();
 		setFontSizeButtons(buttons);
 		JPanel bottom = createBottomPanel(buttons);
@@ -107,27 +108,5 @@ public class BoardFrame extends JFrame{
 			button.setFont(button.getFont().deriveFont(18.0f));	
 		}
 	}
-		public static void main(String[] args){
-			//Testing
-			Color[][] coloured = new Color[Board.WIDTH][Board.HEIGHT];
-			boolean alternate = false;
-			for(int x = 0; x < Board.WIDTH; x++)
-			{
-				for(int y = 0; y < Board.HEIGHT; y++)
-				{
-					if(alternate)
-					{
-						coloured[x][y] = Color.lightGray;
-
-					}
-					else
-					{
-						coloured[x][y] = Color.GRAY;
-					}
-					alternate = !alternate;
-				}
-			}
-			new BoardFrame(coloured);
-		}
 	
 }

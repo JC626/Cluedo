@@ -2,6 +2,7 @@ package cluedo.userinterface;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -16,29 +17,16 @@ public class BoardCanvas extends JPanel {
 	static final int HEIGHT = 800;
 	public static final int cellWidth = BoardFrame.WIDTH/24;
 	public static final int cellHeight = HEIGHT/25;
-	private Rectangle[][] rectangles;
-	private Color[][] rectangleColours;
+	private Image[][] boardImages;
 	
 	
-	public BoardCanvas(Color[][] colors) {
+	public BoardCanvas(Image[][] boardImages) {
 		super();
-		this.rectangleColours = colors;
-		rectangles = new Rectangle[Board.WIDTH][Board.HEIGHT];
-		int x = 0;
-		int y = 0;
-		for(int i = 0; i < Board.WIDTH; i++){
-			for(int j = 0; j < Board.HEIGHT; j++){
-				Rectangle rec = new Rectangle(x,y,cellWidth,cellHeight);
-				rectangles[i][j] = rec;
-				y+= cellHeight;
-			}
-			y = 0;
-			x+= cellWidth;
-		}
+		this.boardImages = boardImages;
 	}
 
 	protected void paintComponent(Graphics g){
-		int x = 0;	
+		/*int x = 0;	
 		int y = 0;
 		for(int i = 0; i < Board.WIDTH; i++){
 			for(int j = 0; j < Board.HEIGHT; j++){
@@ -52,6 +40,6 @@ public class BoardCanvas extends JPanel {
 			}
 			y = 0;
 			x+= cellWidth;
-		}
+		}*/
 	}
 }
