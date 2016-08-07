@@ -1,7 +1,9 @@
 package cluedo.game;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import cluedo.model.Cell;
 import cluedo.utility.Heading.Direction;
@@ -78,6 +80,24 @@ class CellBuilder
 		}
 	}
 	
+	public Set<Cell> getSecretPassageCells()
+	{
+		Set<Cell> secretPassage = new HashSet<Cell>();
+		
+		for (int x = 0; x < cells.length; x++)
+		{
+			for (int y = 0; y < cells[0].length; y++)
+			{
+				String s = map[y][x].toUpperCase();
+				if (s.contains("X"))
+				{
+					secretPassage.add(cells[x][y]);
+				}
+			}
+		}
+		
+		return secretPassage;
+	}
 	
 	
 	
@@ -86,8 +106,7 @@ class CellBuilder
 	
 	
 	
-	
-	Cell[][] getCells()
+	public Cell[][] getCells()
 	{
 		return cells;
 	}
