@@ -1,10 +1,10 @@
 package cluedo.userinterface;
 
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-public class ConfirmationDialog extends JFrame
+public class ConfirmationDialog extends JDialog
 {
 	/**
 	 * Wrapper for dialog boxes with some useful defaults.
