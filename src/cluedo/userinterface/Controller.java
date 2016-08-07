@@ -33,15 +33,13 @@ public class Controller
 					// Once we have the min, and less than the max, only continue if the players want to
 					|| (activePlayers.size() < Game.MAX_HUMAN_PLAYERS && view.yesNo("Any more players?", "Do you want to add more players? You currently have " + activePlayers.size())))
 			{
-				String currentPlayerName = view.selectPlayer(playerNames, availablePlayers);
-				
-				Player currentPlayer = getPlayer(currentPlayerName);
-				int currentPlayerIndex = Game.allPlayers.indexOf(currentPlayer);
+				int selectedPlayerIndex = view.dialogRadioButtons("Select a player", "Which player would you like?", playerNames, availablePlayers);
+				Player currentPlayer = Game.allPlayers.get(selectedPlayerIndex);
 				
 				activePlayers.add(currentPlayer);
 				
-				availablePlayers.remove(currentPlayerIndex);
-				availablePlayers.add(currentPlayerIndex, false);
+				availablePlayers.remove(selectedPlayerIndex);
+				availablePlayers.add(selectedPlayerIndex, false);
 			}
 		});
 
@@ -55,18 +53,5 @@ public class Controller
 			}
 		});
 
-	}
-
-	private Player getPlayer(String name)
-	{
-		for(Player p : Game.allPlayers)
-		{
-			if(p.getName().equals(name))
-			{
-				return p;
-			}
-		}
-		
-		throw new IllegalArgumentException("Name must be one of the players");
 	}
 }

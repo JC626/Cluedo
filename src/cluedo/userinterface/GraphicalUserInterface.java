@@ -110,22 +110,17 @@ public class GraphicalUserInterface extends JFrame
 
 
 
-	public String selectPlayer(List<String> options, List<Boolean> available)
+	public int dialogRadioButtons(String windowTitle, String question, List<String> options, List<Boolean> available)
 	{
 		ErrorChecking.ensureNonEmpty(options, available);
 		
-		String windowTitle = "Select a player";
+		List<JRadioButton> buttons = ButtonDialog.createRadioButtons(options, available);
 		
-		String selectedPlayer = options.get(dialogRadioButtons(windowTitle, ButtonDialog.createRadioButtons(options, available)));
+		int selectedOption = new ButtonDialog(this, windowTitle).getUserSelection(buttons);
 		
-		assert options.contains(selectedPlayer) : "Selected player was not in options";
-		assert available.get(options.indexOf(selectedPlayer)) : "Selected an unavailable player"; 
-		return selectedPlayer;
-	}
-
-	private int dialogRadioButtons(String title, List<JRadioButton> buttons)
-	{
-		return new ButtonDialog(this, title).getUserSelection(buttons);
+		assert selectedOption >= 0 && selectedOption < options.size() : "Selected option was not in options";
+		assert available.get(selectedOption) : "Selected an unavailable option"; 
+		return selectedOption;
 	}
 
 	public void buttonNewGameListener(ActionListener a)
