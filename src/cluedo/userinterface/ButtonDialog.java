@@ -13,6 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.WindowConstants;
 
 import cluedo.utility.ErrorChecking;
 
@@ -24,6 +25,7 @@ public class ButtonDialog extends JDialog
 	public ButtonDialog(Frame owner, String title)
 	{
 		super(owner, title, true);
+		this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		panel = new JPanel();
 	}
 
@@ -34,7 +36,8 @@ public class ButtonDialog extends JDialog
 		this.setMinimumSize(new Dimension(600,600));
 		panel.setLayout(new GridLayout(buttons.size(), 1));
 		panel.setBorder(BorderFactory.createEmptyBorder(20, 0, 60, 75));
-
+		
+		
 		ButtonGroup group = new ButtonGroup();
 
 		for (int i = 0; i < buttons.size(); i++)
@@ -94,6 +97,7 @@ public class ButtonDialog extends JDialog
 			if (!haveDefaultSelection && currentButton.isEnabled())
 			{
 				currentButton.setSelected(true);
+				currentButton.doClick(); // Set the default selection.
 				haveDefaultSelection = true;
 			}
 
