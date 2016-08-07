@@ -10,7 +10,7 @@ import javax.swing.JPanel;
 
 public class BoardCanvas extends JPanel {
 	private static final long serialVersionUID = 1L;
-	static final int HEIGHT = 700;
+	static final int HEIGHT = 800;
 	
 	protected void paintComponent(Graphics g){
 		List<Rectangle> rectangles = new ArrayList<Rectangle>();
