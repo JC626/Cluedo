@@ -27,34 +27,7 @@ public class Controller
 		this.view = new GraphicalUserInterface();
 
 		view.buttonNewGameListener((a) -> {
-			List<Player> activePlayers = new ArrayList<Player>();
-			List<Boolean> availablePlayers = new ArrayList<Boolean>(Game.allPlayers.size());
-
-			for (Player p : Game.allPlayers)
-			{
-				availablePlayers.add(true);
-			}
-			List<String> playerNames = Arrays.asList(GameBuilder.SUSPECT_NAMES);
-			
-			while (activePlayers.size() < Game.MIN_HUMAN_PLAYERS // Always ask until we have the minimum number
-					// Once we have the min, and less than the max, only continue if the players want to
-					|| (activePlayers.size() < Game.MAX_HUMAN_PLAYERS && view.yesNo("Any more players?", "Do you want to add more players? You currently have " + activePlayers.size())))
-			{
-				Optional<Integer> optionalSelectedPlayerIndex = view.dialogRadioButtons("Select a player", "Which player would you like?", playerNames, availablePlayers);
-
-				if (!optionalSelectedPlayerIndex.isPresent())
-				{
-					return;
-				}
-				
-				int selectedPlayerIndex = optionalSelectedPlayerIndex.get();
-				Player currentPlayer = Game.allPlayers.get(selectedPlayerIndex);
-				
-				activePlayers.add(currentPlayer);
-			
-				availablePlayers.remove(selectedPlayerIndex);
-				availablePlayers.add(selectedPlayerIndex, false);
-			}
+			Optional<List<Player>> activePlayers = createPlayers();
 		});
 
 		view.buttonQuitListener((a) -> {
@@ -65,6 +38,41 @@ public class Controller
 		});
 
 	}
+	
+	private Optional<List<Player>> createPlayers()
+	{
+		List<Player> activePlayers =  new ArrayList<Player>();
+		List<Boolean> availablePlayers = new ArrayList<Boolean>(Game.allPlayers.size());
+
+		for (Player p : Game.allPlayers)
+		{
+			availablePlayers.add(true);
+		}
+		List<String> playerNames = Arrays.asList(GameBuilder.SUSPECT_NAMES);
+
+		while (activePlayers.size() < Game.MIN_HUMAN_PLAYERS // Always ask until we have the minimum number
+				// Once we have the min, and less than the max, only continue if the players want to
+				|| (activePlayers.size() < Game.MAX_HUMAN_PLAYERS && view.yesNo("Any more players?", "Do you want to add more players? You currently have " + activePlayers.size())))
+		{
+			Optional<Integer> optionalSelectedPlayerIndex = view.dialogRadioButtons("Select a player", "Which player would you like?", playerNames, availablePlayers);
+
+			if (!optionalSelectedPlayerIndex.isPresent())
+			{
+				return Optional.empty();
+			}
+
+			int selectedPlayerIndex = optionalSelectedPlayerIndex.get();
+			Player currentPlayer = Game.allPlayers.get(selectedPlayerIndex);
+
+			activePlayers.add(currentPlayer);
+
+			availablePlayers.remove(selectedPlayerIndex);
+			availablePlayers.add(selectedPlayerIndex, false);
+		}
+		
+		return Optional.of(activePlayers);
+	}
+	
 	public Image[][] getImages()
 	{
 		assert model != null : "Cannot get cells for an empty game";
@@ -131,4 +139,7 @@ public class Controller
 		graphics.draw(rectangle);
 		return image;
 	}
+
+
+
 }
