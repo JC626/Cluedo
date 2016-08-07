@@ -141,6 +141,9 @@ public class Game
 	private final List<Room> rooms;
 	private final Board board;
 	private boolean gameOver;
+	private Set<Cell> doorCells;
+	private Set<Cell> outOfBoundCells;
+	private Set<Cell> secretPassageCells;
 
 	public Game(List<Player> activePlayers) 
 	{
@@ -151,6 +154,9 @@ public class Game
 					"Must have between: " + MIN_HUMAN_PLAYERS + " and " + MAX_HUMAN_PLAYERS + " human players");
 		}
 		CellBuilder cellBuilder = new CellBuilder();
+		doorCells = cellBuilder.getDoorCells();
+		outOfBoundCells = cellBuilder.getOutOfBoundsCells();
+		secretPassageCells = cellBuilder.getSecretPassageCells();
 		board = new Board(cellBuilder.getCells());
 		//Players
 		activeHumanPlayers = activePlayers;
@@ -1115,6 +1121,31 @@ public class Game
 		return board.getCells();
 	}
 	
+	public Set<Cell> getDoorCells() 
+	{
+		return doorCells;
+	}
+
+	public Set<Cell> getOutOfBoundCells() 
+	{
+		return outOfBoundCells;
+	}
+
+	public Set<Cell> getSecretPassageCells() 
+	{
+		return secretPassageCells;
+	}
+	
+	public Set<Cell> getRoomCells()
+	{
+		Set<Cell> cellsInRoom = new HashSet<Cell>();
+		for(Set<Cell> cells : roomCells.values())
+		{
+			cellsInRoom.addAll(cells);
+		}
+		return cellsInRoom;
+	}
+
 	/**
 	 * @return true if the game is over (finished) false if the game is still going
 	 */

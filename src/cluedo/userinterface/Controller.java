@@ -1,6 +1,10 @@
 package cluedo.userinterface;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -60,27 +64,26 @@ public class Controller
 		});
 
 	}
-	/*public Color[][] getColouredCells()
+	public Image[][] getImages()
 	{
 		assert model != null : "Cannot get cells for an empty game";
-		Cell[][] cells = model.getCells();
-		Color[][] coloured = new Color[Board.WIDTH][Board.HEIGHT];
+		Image[][] images = new Image[Board.WIDTH][Board.HEIGHT];
 		for(int x = 0; x < Board.WIDTH; x++)
 		{
 			for(int y = 0; y < Board.HEIGHT; y++)
 			{
-				Cell c= cells[x][y];
-				try
-				{
-					model.getRoom(c);
-					coloured[x][y] = Color.YELLOW;
-				}
-				catch(IllegalArgumentException e)
-				{
-					coloured[x][y] = Color.LIGHT_GRAY;
-				}
+				//Create rectangles here
+				//Add images here
+				//images[x][y] = convertToImage(rectangle);
 			}
 		}
-		return coloured;
-	}*/
+		return images;
+	}
+	private Image convertToImage(Rectangle rectangle)
+	{
+		BufferedImage image = new BufferedImage(BoardCanvas.cellWidth, BoardCanvas.cellHeight, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D graphics = image.createGraphics();
+		graphics.draw(rectangle);
+		return image;
+	}
 }
