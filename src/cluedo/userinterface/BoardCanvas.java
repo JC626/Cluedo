@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
+import java.awt.image.ImageObserver;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,20 +27,12 @@ public class BoardCanvas extends JPanel {
 	}
 
 	protected void paintComponent(Graphics g){
-		/*int x = 0;	
-		int y = 0;
-		for(int i = 0; i < Board.WIDTH; i++){
-			for(int j = 0; j < Board.HEIGHT; j++){
-				Rectangle rec = rectangles[i][j];
-				g.setColor(rectangleColours[i][j]);
-				g.fillRect(x,y,(int)rec.getWidth(),(int)rec.getHeight());
-				g.setColor(Color.BLACK);
-				//if color != cellColour . do not draw outline
-				g.drawRect(x,y,(int)rec.getWidth(),(int)rec.getHeight());
-				y+= cellHeight;
+		for(int x = 0; x < Board.WIDTH; x++){
+			for(int y = 0; y < Board.HEIGHT; y++){
+				Image image = boardImages[x][y];
+				g.drawImage(image, x*cellWidth, y*cellHeight, null);
 			}
-			y = 0;
-			x+= cellWidth;
-		}*/
+
+		}
 	}
 }

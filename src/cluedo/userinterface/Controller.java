@@ -82,8 +82,6 @@ public class Controller
 		Set<Cell> roomCells = model.getRoomCells();
 		Set<Cell> secretPassage = model.getSecretPassageCells();
 		Set<Cell> doorCells = model.getDoorCells();
-		int startX = 0;
-		int startY = 0;
 		for(int x = 0; x < Board.WIDTH; x++)
 		{
 			for(int y = 0; y < Board.HEIGHT; y++)
@@ -91,6 +89,8 @@ public class Controller
 				//Create rectangles here
 				Image image = null;
 				Cell cell = cells[x][y];
+				int startX = x * BoardCanvas.cellWidth;
+				int startY = y * BoardCanvas.cellHeight;
 				Rectangle rec = new Rectangle(startX,startY,BoardCanvas.cellWidth,BoardCanvas.cellHeight);
 				if(secretPassage.contains(cell))
 				{
@@ -113,11 +113,8 @@ public class Controller
 					image = convertToImageWithOutline(rec, Color.YELLOW);
 				}
 				assert image != null: "Should have an image to add into the arrya";
-				startY += BoardCanvas.cellHeight;
 				images[x][y] = image;
 			}
-			startY = 0;
-			startX+= BoardCanvas.cellWidth;
 		}
 		return images;
 	}
