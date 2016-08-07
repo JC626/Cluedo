@@ -16,7 +16,6 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.WindowConstants;
 
 import cluedo.utility.ErrorChecking;
 
@@ -25,6 +24,11 @@ public class ButtonDialog extends JDialog
 	private JPanel panel;
 	private Optional<Integer> selectedIndex;
 
+	/**
+	 * A dialog box that contains buttons, as defined by getUserSelection.
+	 * @param owner The owner of this window.
+	 * @param title The title of the window.
+	 */
 	public ButtonDialog(Frame owner, String title)
 	{
 		super(owner, title, true);
@@ -40,7 +44,13 @@ public class ButtonDialog extends JDialog
 		panel = new JPanel();
 	}
 
-	public Optional<Integer> getUserSelection(List<? extends AbstractButton> buttons)
+	/**
+	 * Create the window and get user selection for the list of buttons.
+	 * @param buttons The radio buttons that are to be displayed.
+	 * These buttons can be created by the static createRadioButtons.
+	 * @return The integer selected, or Optional.empty() if close was selected.
+	 */
+	public Optional<Integer> getUserSelection(List<? extends JRadioButton> buttons)
 	{
 		this.getContentPane().add(panel);
 
@@ -73,13 +83,21 @@ public class ButtonDialog extends JDialog
 		return selectedIndex;
 	}
 
+	/**
+	 * Destroy the window, and set visible to false.
+	 */
 	private void cleanupDialog()
 	{
 		this.dispose();
 		this.setVisible(false);
 	}
 
-	private Optional<Integer> getSelectedIndex(List<? extends AbstractButton> buttons)
+	/**
+	 * Find the selected button in buttons.
+	 * @param buttons The buttons from which to find the selected item.
+	 * @return Optional.of(buttonIndex) starting from O, or Optional.empty() if there is no selected button.
+	 */
+	private Optional<Integer> getSelectedIndex(List<? extends JRadioButton> buttons)
 	{
 		ErrorChecking.ensureNonEmpty(buttons);
 
@@ -94,6 +112,14 @@ public class ButtonDialog extends JDialog
 		return Optional.empty();
 	}
 
+	/**
+	 * Create a list of radio buttons.
+	 * Input arguments must be of the same length.
+	 * The first available item starts off as being selected.
+	 * @param options The strings to present after each button. Need not be unique.
+	 * @param available The availability status of each option. True if can be selected, false otherwise.
+	 * @return The newly created radio buttons. Can be used with getUserSelection.
+	 */
 	public static List<JRadioButton> createRadioButtons(List<String> options, List<Boolean> available)
 	{
 		assert options.size() == available.size() : "Lists are of differing sizes";
