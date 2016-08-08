@@ -37,7 +37,7 @@ public class BoardCanvas extends JPanel
 			for (int y = 0; y < Board.HEIGHT; y++)
 			{
 				Image image = boardImages[x][y];
-				g.drawImage(image, x * cellWidth, y * cellHeight, null);
+				g.drawImage(image, x * cellWidth, y * cellHeight, this);
 			}
 
 		}
