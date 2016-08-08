@@ -19,6 +19,9 @@ import javax.swing.JRadioButton;
 
 import cluedo.utility.ErrorChecking;
 
+/**
+ * Displays a number of Radio buttons as defined by the caller.
+ */
 public class ButtonDialog extends JDialog
 {
 	private JPanel panel;
