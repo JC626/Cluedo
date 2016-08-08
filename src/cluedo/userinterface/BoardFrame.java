@@ -134,7 +134,7 @@ public class BoardFrame extends JFrame
 	private JPanel createBottomRightPanel(List<JButton> buttons)
 	{
 		JPanel panel = new JPanel();
-		panel.setMinimumSize(new Dimension((int)(WIDTH*0.7), HEIGHT - BoardCanvas.HEIGHT));
+		panel.setMinimumSize(new Dimension((int)(WIDTH*0.7), HEIGHT - BoardCanvas.HEIGHT)); // FIXME magic numbers
 		panel.setLayout(new GridLayout(0, buttons.size(),15,0));
 		for(JButton button : buttons)
 		{
@@ -151,7 +151,7 @@ public class BoardFrame extends JFrame
 	{
 		for(JButton button : buttons)
 		{
-			GraphicalUserInterface.setFontSize(button, 18);
+			GraphicalUserInterface.setFontSize(button, 18); // FIXME magic numbers
 		}
 	}
 }
