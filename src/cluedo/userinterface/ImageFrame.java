@@ -8,6 +8,7 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -16,7 +17,12 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.text.JTextComponent;
 
+/**
+ * A generic frame for displaying images.
+ * Does NOT take focus, so users can open other windows or dialogs.
+ */
 public class ImageFrame extends JFrame
 {
 	private JPanel panel;
@@ -38,26 +44,44 @@ public class ImageFrame extends JFrame
 		this.setMinimumSize(new Dimension(400,700));
 	}
 	
-	public void display(String imagePath) throws IOException
+	/**
+	 * Create the window, and display it to the user.
+	 * @param imagePath The path of the image to be displayed.
+	 * Catches IO exception and displays text in place of the image
+	 * informing the user of the failing read.
+	 */
+	public void display(String imagePath)
 	{
 		panel.setLayout(new GridLayout(0, 1, 10, 10));
 		panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 		
-		BufferedImage image = ImageIO.read(new File(imagePath));
-		JLabel imageLabel = new JLabel(new ImageIcon(image));
+		try
+		{
+			BufferedImage image = ImageIO.read(new File(imagePath));
+			JLabel imageLabel = new JLabel(new ImageIcon(image));
+			panel.add(imageLabel);
+		}
+		catch (IOException e)
+		{
+			JLabel substituteText = new JLabel("The image could not be loaded.");
+			panel.add(substituteText);
+		}
 		
 		JButton okButton = new JButton("Ok");
 		okButton.addActionListener((a) -> {
 			cleanupDialog();
 		});
 
-		panel.add(imageLabel);
+		
 		panel.add(okButton);
 		
 		pack();	
 		this.setVisible(true);
 	}
 
+	/**
+	 * Dispose of the window, and remove it from view.
+	 */
 	private void cleanupDialog()
 	{
 		this.dispose();
