@@ -14,6 +14,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+/**
+ * A generic dialog box for text input.
+ * Takes focus from the application, so users must enter something, or cancel.
+ */
 public class TextDialog extends JDialog
 {
 	private JPanel panel;
@@ -36,6 +40,12 @@ public class TextDialog extends JDialog
 		this.setMinimumSize(new Dimension(300,150));
 	}
 	
+	/**
+	 * Get the user's input with the specified question.
+	 * @param question The question to be displayed to the user.
+	 * @return Optional.of(answer) if the user gives an answer to the question,
+	 * Optional.empty() if they cancel.
+	 */
 	public Optional<String> getUserInput(String question)
 	{
 		panel.setLayout(new GridLayout(0, 2, 10,10));
@@ -67,12 +77,18 @@ public class TextDialog extends JDialog
 		return userInput;
 	}
 	
+	/**
+	 * Set our return value for canceling, and cleanup.
+	 */
 	private void cancelAction()
 	{
 		userInput = Optional.empty();
 		cleanupDialog();
 	}
 	
+	/**
+	 * Dispose of the window, and remove it from view.
+	 */
 	private void cleanupDialog()
 	{
 		this.dispose();
