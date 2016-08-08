@@ -90,6 +90,13 @@ public class Game
 	 * from the game.
 	 */
 	private List<Player> activeHumanPlayers;
+	
+	/**
+	 * The names of the human players. This is useful if the UI wants to
+	 * reference characters by their associated human name.
+	 */
+	private List<String> humanPlayerNames;
+	
 	/**
 	 * Every human player's casefile.
 	 * Includes all cards that may be part of the murder
@@ -145,14 +152,20 @@ public class Game
 	private Set<Cell> outOfBoundCells;
 	private Set<Cell> secretPassageCells;
 
-	public Game(List<Player> activePlayers) 
+	public Game(List<String> playerNames, List<Player> activePlayers) 
 	{
+		if (playerNames == null || activePlayers == null || playerNames.size() != activePlayers.size())
+		{
+			throw new IllegalArgumentException("Arguments must be non null lists of equal size");
+		}
+		
 		int numPlayers = activePlayers.size();
 		if (numPlayers < MIN_HUMAN_PLAYERS || numPlayers > MAX_HUMAN_PLAYERS) 
 		{
 			throw new IllegalArgumentException(
 					"Must have between: " + MIN_HUMAN_PLAYERS + " and " + MAX_HUMAN_PLAYERS + " human players");
 		}
+		
 		CellBuilder cellBuilder = new CellBuilder();
 		doorCells = cellBuilder.getDoorCells();
 		outOfBoundCells = cellBuilder.getOutOfBoundsCells();
@@ -160,6 +173,8 @@ public class Game
 		board = new Board(cellBuilder.getCells());
 		//Players
 		activeHumanPlayers = activePlayers;
+		humanPlayerNames = playerNames;
+		
 		/*
 		 * Cannot have the same references as removing a player from active players
 		 * should not remove it from a turn (as nextTurn will check if the player is active or not)
@@ -923,6 +938,21 @@ public class Game
 	public List<Player> getActivePlayers() 
 	{
 		return Collections.unmodifiableList(activeHumanPlayers);
+	}
+	
+	/**
+	 * 
+	 */
+	public String getHumanName(Player character)
+	{
+		int nameIndex = activeHumanPlayers.indexOf(character);
+		
+		if (nameIndex == -1)
+		{
+			throw new IllegalArgumentException("character must be an active human player");
+		}
+		
+		return humanPlayerNames.get(nameIndex);
 	}
 
 	/**
