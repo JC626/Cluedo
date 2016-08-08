@@ -152,7 +152,7 @@ public class Game
 	private Set<Cell> outOfBoundCells;
 	private Set<Cell> secretPassageCells;
 
-	public Game(List<String> playerNames, List<Player> activePlayers) 
+	public Game(List<Player> activePlayers, List<String> playerNames) 
 	{
 		if (playerNames == null || activePlayers == null || playerNames.size() != activePlayers.size())
 		{

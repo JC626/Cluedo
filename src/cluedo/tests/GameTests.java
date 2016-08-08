@@ -57,10 +57,19 @@ public class GameTests {
 	public void setupGame(int numPlayers)
 	{
 		List<Player> activePlayers = new ArrayList<Player>(Game.allPlayers);
-		for(int i = Game.MAX_HUMAN_PLAYERS; i > numPlayers; i--){
+		List<String> playerNames = new ArrayList<String>();
+		
+		for(int i = Game.MAX_HUMAN_PLAYERS; i > numPlayers; i--)
+		{
 			activePlayers.remove(0);
 		}
-		game = new Game(activePlayers);
+		
+		for (int i = 0; i < activePlayers.size(); i++)
+		{
+			playerNames.add(Integer.toString(i));
+		}
+		
+		game = new Game(activePlayers, playerNames);
 	}
 	/**
 	 * Using reflection to set remainingMoves to zero for testing purposes
