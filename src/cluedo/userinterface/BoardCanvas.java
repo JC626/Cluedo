@@ -9,7 +9,7 @@ public class BoardCanvas extends JPanel
 {
 	private static final long serialVersionUID = 1L;
 	
-	static final int HEIGHT = 800; // FIXME, why is this here? Should it be with BoardFrame.WIDTH, or should BoardFrame.WIDTH be here?
+	static final int HEIGHT = 800; // FIXME, This is the height of the Board. Height and width different for different panels why is this here? Should it be with BoardFrame.WIDTH, or should BoardFrame.WIDTH be here?
 	
 	public static final int cellWidth = BoardFrame.WIDTH / Board.WIDTH;
 	public static final int cellHeight = HEIGHT / Board.HEIGHT;

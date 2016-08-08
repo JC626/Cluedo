@@ -2,11 +2,16 @@ package cluedo.userinterface;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -15,6 +20,15 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
+/**
+ * Displays the Board window
+ * Contains:
+ * A menu bar
+ * Picture of the cluedo board
+ * Dice Images for the player to know how many moves they have
+ * Buttons for player to select game actions in the bottom right
+ *
+ */
 public class BoardFrame extends JFrame
 {
 	private static final long serialVersionUID = 1L;
@@ -23,17 +37,33 @@ public class BoardFrame extends JFrame
 	static final int HEIGHT = 1000; // FIXME same as above.
 	
 	BoardCanvas board;
-	
+	DiceCanvas dice;
+	JPanel bottom;
 	public BoardFrame(Image[][] boardImages)
 	{
 		JMenuBar menuBar = createMenu();
 		List<JButton> buttons = createButtons();
-		JPanel bottom = createBottomPanel(buttons);
-		
 		board = new BoardCanvas(boardImages);
 		
+		//Just so that diceCanvas works.
+		//TODO take dice images in BoardFrame constructor?
+		BufferedImage myPicture = null;
+		try {
+			myPicture = ImageIO.read(new File("test.jpg"));
+		} catch (IOException e) {
+			return;
+		}
+		assert myPicture != null;
+		dice = new DiceCanvas(myPicture, myPicture);
+		
+		JPanel bottomRight = createBottomRightPanel(buttons);
+		bottom = new JPanel(new FlowLayout(FlowLayout.LEADING,20,0));
+		bottom.setBorder(BorderFactory.createEmptyBorder(20, 0, 50, 0));
+
+		bottom.add(dice);
+		bottom.add(bottomRight);
+		
 		setFontSizeButtons(buttons);
-		bottom.setBorder(BorderFactory.createEmptyBorder(20, 20, 50, 20));
 	
 		this.setTitle("Cluedo Game");
 		this.setMinimumSize(new Dimension(WIDTH, HEIGHT));
@@ -82,8 +112,8 @@ public class BoardFrame extends JFrame
 	}
 	
 	/**
-	 * Create buttons for the lower panel
-	 * @return List buttons for the lower panel
+	 * Create buttons for the bottom right panel
+	 * @return List buttons for the bottom right panel
 	 */
 	private List<JButton> createButtons()
 	{
@@ -97,19 +127,22 @@ public class BoardFrame extends JFrame
 		
 		return buttons;
 	}
-	
-	private JPanel createBottomPanel(List<JButton> buttons)
+	/**
+	 * Creates a panel for the buttons
+	 * These buttons are the game actions
+	 * that users can select when playing Cluedo
+	 * @param buttons - List of Buttons for game actions
+	 * @return The bottom right panel
+	 */
+	private JPanel createBottomRightPanel(List<JButton> buttons)
 	{
 		JPanel panel = new JPanel();
-		
-		panel.setMinimumSize(new Dimension(WIDTH, HEIGHT - BoardCanvas.HEIGHT));
-		panel.setLayout(new GridLayout(0, buttons.size(), 20, 0));
-		
+		panel.setMinimumSize(new Dimension((int)(WIDTH*0.7), HEIGHT - BoardCanvas.HEIGHT));
+		panel.setLayout(new GridLayout(0, buttons.size(),15,0));
 		for(JButton button : buttons)
 		{
 			panel.add(button);
 		}
-		
 		return panel;
 	}
 	
