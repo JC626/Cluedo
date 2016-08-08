@@ -1,8 +1,6 @@
 package cluedo.userinterface;
 
-
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -17,29 +15,37 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
-import cluedo.board.Board;
-
-
-public class BoardFrame extends JFrame{
+public class BoardFrame extends JFrame
+{
 	private static final long serialVersionUID = 1L;
-	static final int WIDTH = 1000;
-	static final int HEIGHT = 1000;
+	
+	static final int WIDTH = 1000; // FIXME see comment in BoardCanvas. Should be public/private?
+	static final int HEIGHT = 1000; // FIXME same as above.
+	
 	BoardCanvas board;
+	
 	public BoardFrame(Image[][] boardImages)
 	{
-		this.setTitle("Cluedo Game");
-		this.setMinimumSize(new Dimension(WIDTH,HEIGHT));
 		JMenuBar menuBar = createMenu();
-		this.setJMenuBar(menuBar);
-		board = new BoardCanvas(boardImages);
 		List<JButton> buttons = createButtons();
-		setFontSizeButtons(buttons);
 		JPanel bottom = createBottomPanel(buttons);
-		this.add(board, BorderLayout.CENTER);
-		this.add(bottom,BorderLayout.PAGE_END);
+		
+		board = new BoardCanvas(boardImages);
+		
+		setFontSizeButtons(buttons);
 		bottom.setBorder(BorderFactory.createEmptyBorder(20, 20, 50, 20));
+	
+		this.setTitle("Cluedo Game");
+		this.setMinimumSize(new Dimension(WIDTH, HEIGHT));
+		
+		this.setJMenuBar(menuBar);
+		
+		this.add(board, BorderLayout.CENTER);
+		this.add(bottom, BorderLayout.PAGE_END);
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		pack();
+		
 		setVisible(true);
 		setResizable(false);
 	}
@@ -50,6 +56,7 @@ public class BoardFrame extends JFrame{
 	 */
 	private JMenuBar createMenu()
 	{
+		// TODO is order important? If not, rearrange
 		JMenuBar menu = new JMenuBar();
 		JMenu file = new JMenu("File");
 		//file.setMnemonic(KeyEvent.VK_A); //Setting shortcut
@@ -69,31 +76,40 @@ public class BoardFrame extends JFrame{
 		actions.add(suggestion);
 		actions.add(accusation);
 		actions.add(endTurn);
+		
 		menu.add(actions);
 		return menu;
 	}
+	
 	/**
 	 * Create buttons for the lower panel
 	 * @return List buttons for the lower panel
 	 */
 	private List<JButton> createButtons()
 	{
+		// TODO should be in group?
 		List<JButton> buttons = new ArrayList<JButton>();
+		
 		buttons.add(new JButton("View CaseFile"));
 		buttons.add(new JButton("Make Suggestion"));
 		buttons.add(new JButton("Make Accusation"));
 		buttons.add(new JButton("End Turn"));
+		
 		return buttons;
 	}
+	
 	private JPanel createBottomPanel(List<JButton> buttons)
 	{
 		JPanel panel = new JPanel();
+		
 		panel.setMinimumSize(new Dimension(WIDTH, HEIGHT - BoardCanvas.HEIGHT));
-		panel.setLayout(new GridLayout(0, buttons.size(),20,0));
+		panel.setLayout(new GridLayout(0, buttons.size(), 20, 0));
+		
 		for(JButton button : buttons)
 		{
 			panel.add(button);
 		}
+		
 		return panel;
 	}
 	
@@ -105,8 +121,7 @@ public class BoardFrame extends JFrame{
 	{
 		for(JButton button : buttons)
 		{
-			button.setFont(button.getFont().deriveFont(18.0f));	
+			button.setFont(button.getFont().deriveFont(18.0f));	// TODO Use GUI.setFont? 
 		}
 	}
-	
 }
