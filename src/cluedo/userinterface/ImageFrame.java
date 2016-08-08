@@ -26,6 +26,12 @@ import javax.swing.text.JTextComponent;
 public class ImageFrame extends JFrame
 {
 	private JPanel panel;
+	
+	private final String affirmativeButtonLabel = "Ok";
+	private final String missingImageText = "The image could not be loaded.";
+	
+	private final int minimumFrameWidth = 400;
+	private final int minimumFrameHeight = 700; 
 
 	public ImageFrame(Frame owner, String title)
 	{
@@ -41,7 +47,7 @@ public class ImageFrame extends JFrame
 		panel = new JPanel();
 
 		this.getContentPane().add(panel);
-		this.setMinimumSize(new Dimension(400,700));
+		this.setMinimumSize(new Dimension(minimumFrameWidth, minimumFrameHeight));
 	}
 	
 	/**
@@ -63,17 +69,17 @@ public class ImageFrame extends JFrame
 		}
 		catch (IOException e)
 		{
-			JLabel substituteText = new JLabel("The image could not be loaded.");
+			JLabel substituteText = new JLabel(missingImageText);
 			panel.add(substituteText);
 		}
 		
-		JButton okButton = new JButton("Ok");
-		okButton.addActionListener((a) -> {
+		JButton affirmativeButton = new JButton(affirmativeButtonLabel);
+		affirmativeButton.addActionListener((a) -> {
 			cleanupDialog();
 		});
 
 		
-		panel.add(okButton);
+		panel.add(affirmativeButton);
 		
 		pack();	
 		this.setVisible(true);
