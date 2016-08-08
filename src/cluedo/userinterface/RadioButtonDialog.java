@@ -57,7 +57,7 @@ public class RadioButtonDialog extends JDialog
 	{
 		this.getContentPane().add(panel);
 
-		this.setMinimumSize(new Dimension(600,600));
+		this.setMinimumSize(new Dimension(600, 400));
 		panel.setLayout(new GridLayout(buttons.size(), 1));
 		panel.setBorder(BorderFactory.createEmptyBorder(20, 0, 60, 75));
 
@@ -69,7 +69,7 @@ public class RadioButtonDialog extends JDialog
 			AbstractButton thisButton = buttons.get(i);
 
 			group.add(thisButton);
-			panel.add(thisButton, i);
+			panel.add(thisButton);
 		}
 
 		JButton myButton = new JButton("Ok");
