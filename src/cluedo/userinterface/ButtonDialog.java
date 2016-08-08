@@ -26,6 +26,13 @@ public class ButtonDialog extends JDialog
 	private JPanel panel;
 	private static final int buttonFontSize = 25;
 	private static final int spaceBetweenButtons = 10;
+	
+	private static final int borderSpaceTop = 20;
+	private static final int borderSpaceLeft = 20;
+	private static final int borderSpaceBottom = 0;
+	private static final int borderSpaceRight = 0;
+	
+	private final String affirmativeButtonLabel = "Ok";
 
 	/**
 	 * A dialog box that contains buttons, as defined by display.
@@ -34,7 +41,7 @@ public class ButtonDialog extends JDialog
 	 */
 	public ButtonDialog(Frame owner, String title)
 	{
-		super(owner, title, true);
+		super(owner, title, true); // Dialog is modal (retains focus)
 
 		this.addWindowListener(new WindowAdapter() {
 			@Override
@@ -55,10 +62,10 @@ public class ButtonDialog extends JDialog
 	 */
 	public void display(List<String> buttonNames, List<? extends AbstractButton> buttons, List<ActionListener> buttonActions)
 	{
-		this.setMinimumSize(new Dimension(250, (50 * buttons.size()) + 150)); // These values appear to work well.
+		this.setMinimumSize(new Dimension(250, (50 * buttons.size()) + 150)); // TODO These values appear to work well.
 		
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Vertical line format
-		panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 0, 0));
+		panel.setBorder(BorderFactory.createEmptyBorder(borderSpaceTop, borderSpaceLeft, borderSpaceBottom, borderSpaceRight));
 
 		for (int i = 0; i < buttons.size(); i++)
 		{
@@ -78,15 +85,15 @@ public class ButtonDialog extends JDialog
 		
 		addVerticalSpace(spaceBetweenButtons); // Extra space between ok button and our provided buttons
 
-		JButton myButton = new JButton("Ok");
-		myButton.addActionListener((a) -> {
+		JButton affirmativeButton = new JButton(affirmativeButtonLabel);
+		affirmativeButton.addActionListener((a) -> {
 			cleanupDialog();
 		});
 		
-		GraphicalUserInterface.setFontSize(myButton, buttonFontSize);
-		myButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+		GraphicalUserInterface.setFontSize(affirmativeButton, buttonFontSize);
+		affirmativeButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-		panel.add(myButton);
+		panel.add(affirmativeButton);
 		pack();
 		this.setVisible(true);
 	}
