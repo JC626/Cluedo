@@ -110,9 +110,9 @@ public class GraphicalUserInterface extends JFrame
 	{
 		ErrorChecking.ensureNonEmpty(options, available);
 		
-		List<JRadioButton> buttons = ButtonDialog.createRadioButtons(options, available);
+		List<JRadioButton> buttons = RadioButtonDialog.createRadioButtons(options, available);
 		
-		Optional<Integer> selectedOption = new ButtonDialog(this, windowTitle).getUserSelection(buttons);
+		Optional<Integer> selectedOption = new RadioButtonDialog(this, windowTitle).getUserSelection(buttons);
 		
 		if (selectedOption.isPresent())
 		{

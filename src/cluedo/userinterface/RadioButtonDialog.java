@@ -22,7 +22,7 @@ import cluedo.utility.ErrorChecking;
 /**
  * Displays a number of Radio buttons as defined by the caller.
  */
-public class ButtonDialog extends JDialog
+public class RadioButtonDialog extends JDialog
 {
 	private JPanel panel;
 	private Optional<Integer> selectedIndex;
@@ -32,7 +32,7 @@ public class ButtonDialog extends JDialog
 	 * @param owner The owner of this window.
 	 * @param title The title of the window.
 	 */
-	public ButtonDialog(Frame owner, String title)
+	public RadioButtonDialog(Frame owner, String title)
 	{
 		super(owner, title, true);
 
