@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,7 +28,19 @@ public class Controller
 		this.view = new GraphicalUserInterface();
 
 		view.buttonNewGameListener((a) -> {
-			Optional<List<Player>> activePlayers = createPlayers();
+			Optional<SimpleEntry<List<Player>, List<String>>> activePlayers = createPlayers();
+			
+			if (activePlayers.isPresent())
+			{
+				List<Player> p = activePlayers.get().getKey();
+				List<String> s = activePlayers.get().getValue();
+				
+				for (int i = 0; i < p.size(); i++)
+				{
+					System.out.println(String.format("%s: %s", p.get(i).getName(), s.get(i)));
+				}
+			}
+			
 		});
 
 		view.buttonQuitListener((a) -> {
@@ -44,38 +57,67 @@ public class Controller
 	 * @return Optional.of the players in turn order that each player wants to play.
 	 * Optiona.empty() if the user canceled.
 	 */
-	private Optional<List<Player>> createPlayers()
+	private Optional<SimpleEntry<List<Player>, List<String>>> createPlayers()
 	{
-		List<Player> activePlayers =  new ArrayList<Player>();
-		List<Boolean> availablePlayers = new ArrayList<Boolean>(Game.allPlayers.size());
-
-		for (Player p : Game.allPlayers)
-		{
-			availablePlayers.add(true);
-		}
-		List<String> playerNames = Arrays.asList(GameBuilder.SUSPECT_NAMES);
-
+		List<Player> activePlayers =  new ArrayList<Player>(Game.allPlayers.size());
+		List<Boolean> availablePlayers = new ArrayList<Boolean>(activePlayers.size());
+		List<String> playerNames = new ArrayList<String>(activePlayers.size());
+		
+		fillBoolean(availablePlayers, Game.allPlayers.size(), true);
+		
 		while (activePlayers.size() < Game.MIN_HUMAN_PLAYERS // Always ask until we have the minimum number
-				// Once we have the min, and less than the max, only continue if the players want to
-				|| (activePlayers.size() < Game.MAX_HUMAN_PLAYERS && view.yesNo("Any more players?", "Do you want to add more players? You currently have " + activePlayers.size())))
+		// Once we have the min, and less than the max, only continue if the players want to
+		|| (activePlayers.size() < Game.MAX_HUMAN_PLAYERS && view.yesNo("Any more players?", "Do you want to add more players? You currently have " + activePlayers.size())))
 		{
-			Optional<Integer> optionalSelectedPlayerIndex = view.dialogRadioButtons("Select a player", "Which player would you like?", playerNames, availablePlayers);
+			Optional<String> name = promptUserName();
+			Optional<Integer> selectedPlayerIndex = promptUserCharacterIndex(Arrays.asList(GameBuilder.SUSPECT_NAMES), availablePlayers);
+			Optional<Player> currentPlayer = getPlayerFromIndex(selectedPlayerIndex);
 
-			if (!optionalSelectedPlayerIndex.isPresent())
+			if (!selectedPlayerIndex.isPresent() || !currentPlayer.isPresent() || !name.isPresent())
 			{
-				return Optional.empty();
+				break;
 			}
+			
+			activePlayers.add(currentPlayer.get());
+			playerNames.add(name.get());
 
-			int selectedPlayerIndex = optionalSelectedPlayerIndex.get();
-			Player currentPlayer = Game.allPlayers.get(selectedPlayerIndex);
-
-			activePlayers.add(currentPlayer);
-
-			availablePlayers.remove(selectedPlayerIndex);
-			availablePlayers.add(selectedPlayerIndex, false);
+			availablePlayers.remove((int) selectedPlayerIndex.get()); // Integer is treated as .remove(Object x) but we want .remove(int x) so we need a cast.
+			availablePlayers.add(selectedPlayerIndex.get(), false);
 		}
 		
-		return Optional.of(activePlayers);
+		if (activePlayers.size() >= Game.MIN_HUMAN_PLAYERS)
+		{
+			assert activePlayers.size() == playerNames.size();
+			SimpleEntry<List<Player>, List<String>> pair = new SimpleEntry<List<Player>, List<String>>(activePlayers, playerNames);
+			return Optional.of(pair);
+		}
+		else
+		{
+			return Optional.empty();
+		}
+	}
+	
+	private Optional<String> promptUserName()
+	{
+		return view.dialogTextInput("Player name", "What is your name?");
+	}
+	
+	private Optional<Integer> promptUserCharacterIndex(List<String> playerNames, List<Boolean> availablePlayers)
+	{
+		return view.dialogRadioButtons("Select a player", "Which player would you like?", playerNames, availablePlayers);
+	}
+	
+	private Optional<Player> getPlayerFromIndex(Optional<Integer> index)
+	{
+		return index.isPresent() ? Optional.of(Game.allPlayers.get(index.get())) : Optional.empty();
+	}
+	
+	private void fillBoolean(List<Boolean> list, int size, boolean value)
+	{
+		for (int i = 0; i < size; i++)
+		{
+			list.add(value);
+		}
 	}
 	
 	/**
