@@ -51,7 +51,7 @@ public class BoardFrame extends JFrame
 		try {
 			myPicture = ImageIO.read(new File("test.jpg"));
 		} catch (IOException e) {
-			return;
+			e.printStackTrace();
 		}
 		assert myPicture != null;
 		dice = new DiceCanvas(myPicture, myPicture);
