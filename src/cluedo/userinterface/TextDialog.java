@@ -1,6 +1,7 @@
 package cluedo.userinterface;
 
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
@@ -37,7 +38,7 @@ public class TextDialog extends JDialog
 		panel = new JPanel();
 		
 		this.getContentPane().add(panel);
-		this.setMinimumSize(new Dimension(300,150));
+		this.setMinimumSize(new Dimension(600,250));
 	}
 	
 	/**
@@ -48,11 +49,10 @@ public class TextDialog extends JDialog
 	 */
 	public Optional<String> getUserInput(String question)
 	{
-		panel.setLayout(new GridLayout(0, 2, 10,10));
-		panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));//20, 0, 60, 75));
+		panel.setLayout(new GridLayout(0, 2, 30,30));
+		panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));//20, 0, 60, 75));
 		
 		JLabel questionLabel = new JLabel(question);
-		
 		JTextField input = new JTextField();
 
 		JButton okButton = new JButton("Ok");
@@ -65,7 +65,11 @@ public class TextDialog extends JDialog
 		cancelButton.addActionListener((a) -> {
 			cancelAction();
 		});
-		
+		GraphicalUserInterface.setFontSize(questionLabel, 26);
+		GraphicalUserInterface.setFontSize(input, 26);
+		GraphicalUserInterface.setFontSize(okButton, 26);
+		GraphicalUserInterface.setFontSize(cancelButton, 26);
+
 		panel.add(questionLabel);
 		panel.add(input);
 		panel.add(okButton);

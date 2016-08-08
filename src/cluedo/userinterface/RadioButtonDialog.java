@@ -58,9 +58,8 @@ public class RadioButtonDialog extends JDialog
 		this.getContentPane().add(panel);
 
 		this.setMinimumSize(new Dimension(600, 400));
-		panel.setLayout(new GridLayout(buttons.size(), 1));
-		panel.setBorder(BorderFactory.createEmptyBorder(20, 0, 60, 75));
-
+		panel.setLayout(new GridLayout(buttons.size(), 1,0,30));
+		panel.setBorder(BorderFactory.createEmptyBorder(20, 50, 20, 50));
 
 		ButtonGroup group = new ButtonGroup();
 
@@ -77,7 +76,7 @@ public class RadioButtonDialog extends JDialog
 			selectedIndex =  getSelectedIndex(buttons);
 			cleanupDialog();
 		});
-		GraphicalUserInterface.setFontSize(myButton, 25);
+		GraphicalUserInterface.setFontSize(myButton, 26);
 
 		panel.add(myButton);
 		pack();
@@ -135,7 +134,7 @@ public class RadioButtonDialog extends JDialog
 		for (int i = 0; i < options.size(); i++)
 		{
 			JRadioButton currentButton = new JRadioButton(options.get(i));
-			GraphicalUserInterface.setFontSize(currentButton, 25);
+			GraphicalUserInterface.setFontSize(currentButton, 26);
 			currentButton.setEnabled(available.get(i));
 
 			// Make the first available option the default.
