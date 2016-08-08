@@ -86,28 +86,26 @@ public class BoardFrame extends JFrame
 	 */
 	private JMenuBar createMenu()
 	{
-		// TODO is order important? If not, rearrange
 		JMenuBar menu = new JMenuBar();
 		JMenu file = new JMenu("File");
 		//file.setMnemonic(KeyEvent.VK_A); //Setting shortcut
 		JMenuItem newGame = new JMenuItem("New Game");
 		JMenuItem quit = new JMenuItem("Quit");
-		JMenuItem casefile = new JMenuItem("View CaseFile");
-		JMenuItem suggestion = new JMenuItem("Make Suggestion");
-		JMenuItem accusation = new JMenuItem("Make Accusation");
-		JMenuItem endTurn = new JMenuItem("End Turn");
-		
 		file.add(newGame);
 		file.add(quit);
 		menu.add(file);
 		
 		JMenu actions = new JMenu("Game Actions");
+		JMenuItem casefile = new JMenuItem("View CaseFile");
+		JMenuItem suggestion = new JMenuItem("Make Suggestion");
+		JMenuItem accusation = new JMenuItem("Make Accusation");
+		JMenuItem endTurn = new JMenuItem("End Turn");
 		actions.add(casefile);
 		actions.add(suggestion);
 		actions.add(accusation);
 		actions.add(endTurn);
-		
 		menu.add(actions);
+		
 		return menu;
 	}
 	
@@ -117,7 +115,6 @@ public class BoardFrame extends JFrame
 	 */
 	private List<JButton> createButtons()
 	{
-		// TODO should be in group?
 		List<JButton> buttons = new ArrayList<JButton>();
 		
 		buttons.add(new JButton("View CaseFile"));
@@ -154,7 +151,7 @@ public class BoardFrame extends JFrame
 	{
 		for(JButton button : buttons)
 		{
-			button.setFont(button.getFont().deriveFont(18.0f));	// TODO Use GUI.setFont? 
+			GraphicalUserInterface.setFontSize(button, 18);
 		}
 	}
 }
