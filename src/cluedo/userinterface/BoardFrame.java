@@ -33,12 +33,17 @@ public class BoardFrame extends JFrame
 {
 	private static final long serialVersionUID = 1L;
 	
-	static final int WIDTH = 1000; // FIXME see comment in BoardCanvas. Should be public/private?
-	static final int HEIGHT = 1000; // FIXME same as above.
+	public static final int MIN_WIDTH = 1000; 
+	public static final int MIN_HEIGHT = 1000;
+	private static final int BUTTON_SIZE = 18;
+	private static final int MIN_BOTTOM_HEIGHT = MIN_HEIGHT - BoardCanvas.HEIGHT;
+	private static final int MIN_BOTTOM_RIGHT_WIDTH = (int)(MIN_WIDTH * 0.7);
+	private static final int MIN_DICE_WIDTH = (int)(MIN_WIDTH * 0.3);
+
+	private BoardCanvas board;
+	private DiceCanvas dice;
+	private JPanel bottom;
 	
-	BoardCanvas board;
-	DiceCanvas dice;
-	JPanel bottom;
 	public BoardFrame(Image[][] boardImages)
 	{
 		JMenuBar menuBar = createMenu();
@@ -54,7 +59,7 @@ public class BoardFrame extends JFrame
 			e.printStackTrace();
 		}
 		assert myPicture != null;
-		dice = new DiceCanvas(myPicture, myPicture);
+		dice = new DiceCanvas(myPicture, myPicture, MIN_DICE_WIDTH,MIN_BOTTOM_HEIGHT);
 		
 		JPanel bottomRight = createBottomRightPanel(buttons);
 		bottom = new JPanel(new FlowLayout(FlowLayout.LEADING,20,0));
@@ -66,7 +71,7 @@ public class BoardFrame extends JFrame
 		setFontSizeButtons(buttons);
 	
 		this.setTitle("Cluedo Game");
-		this.setMinimumSize(new Dimension(WIDTH, HEIGHT));
+		this.setMinimumSize(new Dimension(MIN_WIDTH, MIN_HEIGHT));
 		
 		this.setJMenuBar(menuBar);
 		
@@ -134,7 +139,7 @@ public class BoardFrame extends JFrame
 	private JPanel createBottomRightPanel(List<JButton> buttons)
 	{
 		JPanel panel = new JPanel();
-		panel.setMinimumSize(new Dimension((int)(WIDTH*0.7), HEIGHT - BoardCanvas.HEIGHT)); // FIXME magic numbers
+		panel.setMinimumSize(new Dimension(MIN_BOTTOM_RIGHT_WIDTH, MIN_BOTTOM_HEIGHT)); 
 		panel.setLayout(new GridLayout(0, buttons.size(),15,0));
 		for(JButton button : buttons)
 		{
@@ -151,7 +156,7 @@ public class BoardFrame extends JFrame
 	{
 		for(JButton button : buttons)
 		{
-			GraphicalUserInterface.setFontSize(button, 18); // FIXME magic numbers
+			GraphicalUserInterface.setFontSize(button, BUTTON_SIZE);
 		}
 	}
 }

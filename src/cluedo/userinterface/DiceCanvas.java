@@ -19,28 +19,21 @@ import javax.swing.JPanel;
 public class DiceCanvas extends JPanel
 {
 	private static final long serialVersionUID = 1L;
-	
-	private int WIDTH = (int)(BoardFrame.WIDTH * 0.3); // FIXME why 0.3?
-	private int HEIGHT =  BoardFrame.HEIGHT - BoardCanvas.HEIGHT; // TODO is this value not stored elsewhere? Seems like it should be in the bottom panel frame
-	
+		
 	private int IMAGE_SIZE = 60;
+	private JLabel leftDieLabel;
+	private JLabel rightDieLabel;
 	
-	private JLabel dice1;
-	private JLabel dice2;
-	
-	public DiceCanvas(Image leftDie, Image rightDie) // FIXME Is my assumption on left and right correct? Was img1 img2 
+	public DiceCanvas(Image leftDie, Image rightDie, int width, int height)  
 	{
-		Image d1 = leftDie.getScaledInstance(IMAGE_SIZE, IMAGE_SIZE, Image.SCALE_DEFAULT);
-		Image d2 = rightDie.getScaledInstance(IMAGE_SIZE, IMAGE_SIZE, Image.SCALE_DEFAULT);
-		
-		dice1 = new JLabel(new ImageIcon(d1));
-		dice2  = new JLabel(new ImageIcon(d2));
-		
-		this.add(dice1);
-		this.add(dice2);
+		leftDieLabel = new JLabel();
+		rightDieLabel  = new JLabel();
+		changeDice(leftDie,rightDie);
+		this.add(leftDieLabel);
+		this.add(rightDieLabel);
 		
 		this.setLayout(new GridLayout(0, 2, 10, 0));
-		this.setMinimumSize(new Dimension(WIDTH, HEIGHT));
+		this.setMinimumSize(new Dimension(width, height));
 	}
 	/**
 	 * Changes the dice displayed when the player
@@ -48,13 +41,13 @@ public class DiceCanvas extends JPanel
 	 * @param leftDie
 	 * @param rightDie
 	 */
-	public void changeDice(Image leftDie, Image rightDie) // TODO same as constructor FIX ME
+	public void changeDice(Image leftDie, Image rightDie) 
 	{
-		Image d1 = leftDie.getScaledInstance(IMAGE_SIZE, IMAGE_SIZE, Image.SCALE_DEFAULT);
-		Image d2 = rightDie.getScaledInstance(IMAGE_SIZE, IMAGE_SIZE, Image.SCALE_DEFAULT);
+		Image left = leftDie.getScaledInstance(IMAGE_SIZE, IMAGE_SIZE, Image.SCALE_DEFAULT);
+		Image right = rightDie.getScaledInstance(IMAGE_SIZE, IMAGE_SIZE, Image.SCALE_DEFAULT);
 		
-		dice1.setIcon(new ImageIcon(d1));
-		dice2.setIcon(new ImageIcon(d2));
+		leftDieLabel.setIcon(new ImageIcon(left));
+		rightDieLabel.setIcon(new ImageIcon(right));
 	}
 	
 }
