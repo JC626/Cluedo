@@ -99,7 +99,7 @@ public class BoardFrame extends JFrame
 		file.add(newGame);
 		file.add(quit);
 		menu.add(file);
-		
+		//TODO add listeners for menu items
 		JMenu actions = new JMenu("Game Actions");
 		JMenuItem casefile = new JMenuItem("View CaseFile");
 		JMenuItem suggestion = new JMenuItem("Make Suggestion");

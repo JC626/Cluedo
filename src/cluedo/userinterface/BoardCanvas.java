@@ -2,6 +2,9 @@ package cluedo.userinterface;
 
 import java.awt.Graphics;
 import java.awt.Image;
+
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import cluedo.board.Board;
 
@@ -22,7 +25,6 @@ public class BoardCanvas extends JPanel
 		{
 			throw new IllegalArgumentException("Arguments may not be null");
 		}
-		
 		this.boardImages = boardImages;
 	}
 
@@ -36,8 +38,8 @@ public class BoardCanvas extends JPanel
 		{
 			for (int y = 0; y < Board.HEIGHT; y++)
 			{
-				Image image = boardImages[x][y];
-				g.drawImage(image, x * CELL_WIDTH, y * CELL_HEIGHT, this);
+					Image image = boardImages[x][y];
+					g.drawImage(image, x*CELL_WIDTH, y*CELL_HEIGHT, this);
 			}
 
 		}
