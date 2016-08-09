@@ -23,7 +23,12 @@ public class Controller
 {
 	Game model;
 	GraphicalUserInterface view;
-
+	private static final Color NORMAL_CELL_COLOUR = Color.YELLOW;
+	private static final Color OUT_OF_BOUNDS_COLOR = Color.DARK_GRAY;
+	private static final Color ROOM_COLOR = Color.LIGHT_GRAY;
+	private static final Color ENTRANCE_COLOR = Color.GREEN;
+	private static final Color SECRET_PASSAGE_COLOR = Color.MAGENTA;
+	
 	public Controller()
 	{
 		this.view = new GraphicalUserInterface();
@@ -41,13 +46,7 @@ public class Controller
 					System.out.println(String.format("%s: %s", p.get(i).getName(), s.get(i)));
 				}
 				model = new Game(p,s);
-				/*Image[][] images = new Image[1][1];
-				Image image = new BufferedImage(300,300, BufferedImage.TYPE_INT_ARGB);
-				Graphics graphics = image.getGraphics();
 				
-				graphics.setColor(Color.RED);
-				graphics.fillRect(100, 100, 100, 100);
-				images[0][0] = image;*/
 				BoardFrame board = new BoardFrame(getImages());
 			}
 			
@@ -145,11 +144,11 @@ public class Controller
 		Set<Cell> roomCells = model.getRoomCells();
 		Set<Cell> secretPassage = model.getSecretPassageCells();
 		Set<Cell> entranceCells = model.getDoorCells();
-		Image secretPassageImage = convertToImage(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, Color.MAGENTA);
-		Image outOfBoundsImage = convertToImageWithOutline(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, Color.DARK_GRAY);
-		Image roomCellImage = convertToImage(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, Color.LIGHT_GRAY);
-		Image entranceImage = convertToImage(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, Color.GREEN);
-		Image cellImage = convertToImageWithOutline(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, Color.YELLOW);
+		Image secretPassageImage = convertToImage(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, SECRET_PASSAGE_COLOR);
+		Image outOfBoundsImage = convertToImageWithOutline(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, OUT_OF_BOUNDS_COLOR);
+		Image roomCellImage = convertToImage(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, ROOM_COLOR);
+		Image entranceImage = convertToImage(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, ENTRANCE_COLOR);
+		Image cellImage = convertToImageWithOutline(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, NORMAL_CELL_COLOUR);
 		
 		for (int x = 0; x < Board.WIDTH; x++)
 		{
