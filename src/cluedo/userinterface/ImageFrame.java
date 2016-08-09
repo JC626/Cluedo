@@ -27,11 +27,11 @@ public class ImageFrame extends JFrame
 {
 	private JPanel panel;
 	
-	private final String affirmativeButtonLabel = "Ok";
-	private final String missingImageText = "The image could not be loaded.";
+	private final String AFFIRMATIVE_BUTTON_LABEL = "Ok";
+	private final String MISSING_IMAGE_TEXT = "The image could not be loaded.";
 	
-	private final int minimumFrameWidth = 400;
-	private final int minimumFrameHeight = 700; 
+	private final int MINIMUM_FRAME_WIDTH = 400;
+	private final int MINIMUM_FRAME_HEIGHT = 700; 
 
 	public ImageFrame(Frame owner, String title)
 	{
@@ -47,7 +47,7 @@ public class ImageFrame extends JFrame
 		panel = new JPanel();
 
 		this.getContentPane().add(panel);
-		this.setMinimumSize(new Dimension(minimumFrameWidth, minimumFrameHeight));
+		this.setMinimumSize(new Dimension(MINIMUM_FRAME_WIDTH, MINIMUM_FRAME_HEIGHT));
 	}
 	
 	/**
@@ -69,11 +69,11 @@ public class ImageFrame extends JFrame
 		}
 		catch (IOException e)
 		{
-			JLabel substituteText = new JLabel(missingImageText);
+			JLabel substituteText = new JLabel(MISSING_IMAGE_TEXT);
 			panel.add(substituteText);
 		}
 		
-		JButton affirmativeButton = new JButton(affirmativeButtonLabel);
+		JButton affirmativeButton = new JButton(AFFIRMATIVE_BUTTON_LABEL);
 		affirmativeButton.addActionListener((a) -> {
 			cleanupDialog();
 		});
