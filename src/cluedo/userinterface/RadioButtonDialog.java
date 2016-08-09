@@ -12,6 +12,7 @@ import java.util.Optional;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
@@ -26,6 +27,23 @@ public class RadioButtonDialog extends JDialog
 {
 	private JPanel panel;
 	private Optional<Integer> selectedIndex;
+	
+	private static final String AFFIRMATIVE_BUTTON_LABEL = "Ok";
+	
+	// LAYOUT_ROWS are determined by the number of buttons.
+	private static final int LAYOUT_COLS = 1;
+	private static final int LAYOUT_HORIZONTAL_GAP = 0;
+	private static final int LAYOUT_VERTICAL_GAP = 30;
+
+	private static final int BORDER_TOP = 20;
+	private static final int BORDER_LEFT = 50;
+	private static final int BORDER_BOTTOM = 20;
+	private static final int BORDER_RIGHT = 50;
+	
+	private static final int BUTTON_FONT_SIZE = 26;
+	
+	private static final int WINDOW_MINIMUM_WIDTH = 600;
+	private static final int WINDOW_MINIMUM_HEIGHT = 400;
 
 	/**
 	 * A dialog box that contains buttons, as defined by getUserSelection.
@@ -57,9 +75,9 @@ public class RadioButtonDialog extends JDialog
 	{
 		this.getContentPane().add(panel);
 
-		this.setMinimumSize(new Dimension(600, 400));
-		panel.setLayout(new GridLayout(buttons.size(), 1,0,30));
-		panel.setBorder(BorderFactory.createEmptyBorder(20, 50, 20, 50));
+		this.setMinimumSize(new Dimension(WINDOW_MINIMUM_WIDTH, WINDOW_MINIMUM_HEIGHT));
+		panel.setLayout(new GridLayout(buttons.size(), LAYOUT_COLS, LAYOUT_HORIZONTAL_GAP, LAYOUT_VERTICAL_GAP));
+		panel.setBorder(BorderFactory.createEmptyBorder(BORDER_TOP, BORDER_LEFT, BORDER_BOTTOM, BORDER_RIGHT));
 
 		ButtonGroup group = new ButtonGroup();
 
@@ -71,14 +89,14 @@ public class RadioButtonDialog extends JDialog
 			panel.add(thisButton);
 		}
 
-		JButton myButton = new JButton("Ok");
-		myButton.addActionListener((a) -> {
+		JButton affirmativeButton = new JButton(AFFIRMATIVE_BUTTON_LABEL );
+		affirmativeButton.addActionListener((a) -> {
 			selectedIndex =  getSelectedIndex(buttons);
 			cleanupDialog();
 		});
-		GraphicalUserInterface.setFontSize(myButton, 26);
+		GraphicalUserInterface.setFontSize(affirmativeButton, BUTTON_FONT_SIZE);
 
-		panel.add(myButton);
+		panel.add(affirmativeButton);
 		pack();
 		this.setVisible(true);
 
@@ -134,7 +152,7 @@ public class RadioButtonDialog extends JDialog
 		for (int i = 0; i < options.size(); i++)
 		{
 			JRadioButton currentButton = new JRadioButton(options.get(i));
-			GraphicalUserInterface.setFontSize(currentButton, 26);
+			GraphicalUserInterface.setFontSize(currentButton, BUTTON_FONT_SIZE);
 			currentButton.setEnabled(available.get(i));
 
 			// Make the first available option the default.
