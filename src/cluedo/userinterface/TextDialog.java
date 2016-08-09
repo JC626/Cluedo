@@ -37,6 +37,9 @@ public class TextDialog extends JDialog
 	private static final String AFFIRMATIVE_BUTTON_LABEL = "Ok";
 	private static final String NEGATIVE_BUTTON_LABEL = "Cancel";
 	
+	private static final int WINDOW_MINIMUM_WIDTH = 600;
+	private static final int WINDOW_MINIMUM_HEIGHT = 250;
+	
 	private static final int BUTTON_FONT_SIZE = 26;
 
 	public TextDialog(Frame owner, String title)
@@ -53,7 +56,7 @@ public class TextDialog extends JDialog
 		panel = new JPanel();
 		
 		this.getContentPane().add(panel);
-		this.setMinimumSize(new Dimension(600,250));
+		this.setMinimumSize(new Dimension(WINDOW_MINIMUM_WIDTH, WINDOW_MINIMUM_HEIGHT));
 	}
 	
 	/**
