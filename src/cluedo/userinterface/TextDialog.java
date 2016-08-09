@@ -23,6 +23,21 @@ public class TextDialog extends JDialog
 {
 	private JPanel panel;
 	private Optional<String> userInput;
+	
+	private static final int LAYOUT_ROWS = 0;
+	private static final int LAYOUT_COLS = 2;
+	private static final int LAYOUT_HORIZONTAL_GAP = 30;
+	private static final int LAYOUT_VERTICAL_GAP = 30;
+
+	private static final int BORDER_TOP = 30;
+	private static final int BORDER_LEFT = 30;
+	private static final int BORDER_BOTTOM = 30;
+	private static final int BORDER_RIGHT = 30;
+	
+	private static final String AFFIRMATIVE_BUTTON_LABEL = "Ok";
+	private static final String NEGATIVE_BUTTON_LABEL = "Cancel";
+	
+	private static final int BUTTON_FONT_SIZE = 26;
 
 	public TextDialog(Frame owner, String title)
 	{
@@ -49,31 +64,32 @@ public class TextDialog extends JDialog
 	 */
 	public Optional<String> getUserInput(String question)
 	{
-		panel.setLayout(new GridLayout(0, 2, 30,30));
-		panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));//20, 0, 60, 75));
+		panel.setLayout(new GridLayout(LAYOUT_ROWS, LAYOUT_COLS, LAYOUT_HORIZONTAL_GAP, LAYOUT_VERTICAL_GAP));
+		panel.setBorder(BorderFactory.createEmptyBorder(BORDER_TOP, BORDER_LEFT, BORDER_BOTTOM, BORDER_RIGHT));
 		
 		JLabel questionLabel = new JLabel(question);
 		JTextField input = new JTextField();
 
-		JButton okButton = new JButton("Ok");
-		okButton.addActionListener((a) -> {
+		JButton affirmativeButton = new JButton(AFFIRMATIVE_BUTTON_LABEL);
+		affirmativeButton.addActionListener((a) -> {
 			userInput = Optional.of(input.getText());
 			cleanupDialog();
 		});
 		
-		JButton cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener((a) -> {
+		JButton negativeButton = new JButton(NEGATIVE_BUTTON_LABEL);
+		negativeButton.addActionListener((a) -> {
 			cancelAction();
 		});
-		GraphicalUserInterface.setFontSize(questionLabel, 26);
-		GraphicalUserInterface.setFontSize(input, 26);
-		GraphicalUserInterface.setFontSize(okButton, 26);
-		GraphicalUserInterface.setFontSize(cancelButton, 26);
+		
+		GraphicalUserInterface.setFontSize(questionLabel, BUTTON_FONT_SIZE);
+		GraphicalUserInterface.setFontSize(input, BUTTON_FONT_SIZE);
+		GraphicalUserInterface.setFontSize(affirmativeButton, BUTTON_FONT_SIZE);
+		GraphicalUserInterface.setFontSize(negativeButton, BUTTON_FONT_SIZE);
 
 		panel.add(questionLabel);
 		panel.add(input);
-		panel.add(okButton);
-		panel.add(cancelButton);
+		panel.add(affirmativeButton);
+		panel.add(negativeButton);
 		
 		pack();	
 		this.setVisible(true);
