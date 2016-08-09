@@ -143,10 +143,10 @@ public class Controller
 				Image image = null;
 				
 				Cell cell = cells[x][y];
-				int startX = x * BoardCanvas.cellWidth;
-				int startY = y * BoardCanvas.cellHeight;
+				int startX = x * BoardCanvas.CELL_WIDTH;
+				int startY = y * BoardCanvas.CELL_HEIGHT;
 				
-				Rectangle rec = new Rectangle(startX, startY, BoardCanvas.cellWidth, BoardCanvas.cellHeight);
+				Rectangle rec = new Rectangle(startX, startY, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT);
 				
 				if(secretPassage.contains(cell))
 				{
@@ -185,7 +185,7 @@ public class Controller
 	 */
 	private Image convertToImage(Rectangle rectangle, Color colour)
 	{
-		BufferedImage image = new BufferedImage(BoardCanvas.cellWidth, BoardCanvas.cellHeight, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage image = new BufferedImage(BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D graphics = image.createGraphics();
 		
 		graphics.setColor(colour);
@@ -202,7 +202,7 @@ public class Controller
 	 */
 	private Image convertToImageWithOutline(Rectangle rectangle, Color colour)
 	{
-		BufferedImage image = new BufferedImage(BoardCanvas.cellWidth, BoardCanvas.cellHeight, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage image = new BufferedImage(BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D graphics = image.createGraphics();
 		
 		graphics.setColor(colour);

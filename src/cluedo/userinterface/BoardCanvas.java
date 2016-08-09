@@ -11,8 +11,8 @@ public class BoardCanvas extends JPanel
 	
 	public static final int HEIGHT = 800; 
 	
-	public static final int cellWidth = BoardFrame.MIN_WIDTH / Board.WIDTH;
-	public static final int cellHeight = HEIGHT / Board.HEIGHT;
+	public static final int CELL_WIDTH = BoardFrame.MIN_WIDTH / Board.WIDTH;
+	public static final int CELL_HEIGHT = HEIGHT / Board.HEIGHT;
 
 	private Image[][] boardImages;
 		
@@ -37,7 +37,7 @@ public class BoardCanvas extends JPanel
 			for (int y = 0; y < Board.HEIGHT; y++)
 			{
 				Image image = boardImages[x][y];
-				g.drawImage(image, x * cellWidth, y * cellHeight, this);
+				g.drawImage(image, x * CELL_WIDTH, y * CELL_HEIGHT, this);
 			}
 
 		}
