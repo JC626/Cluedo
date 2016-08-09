@@ -35,7 +35,7 @@ public class BoardFrame extends JFrame
 	
 	public static final int MIN_WIDTH = 1000; 
 	public static final int MIN_HEIGHT = 1000;
-	private static final int BUTTON_SIZE = 18;
+	private static final int BUTTON_FONT_SIZE = 18;
 	private static final int MIN_BOTTOM_HEIGHT = MIN_HEIGHT - BoardCanvas.HEIGHT;
 	private static final int MIN_BOTTOM_RIGHT_WIDTH = (int)(MIN_WIDTH * 0.7);
 	private static final int MIN_DICE_WIDTH = (int)(MIN_WIDTH * 0.3);
@@ -156,7 +156,7 @@ public class BoardFrame extends JFrame
 	{
 		for(JButton button : buttons)
 		{
-			GraphicalUserInterface.setFontSize(button, BUTTON_SIZE);
+			GraphicalUserInterface.setFontSize(button, BUTTON_FONT_SIZE);
 		}
 	}
 }
