@@ -22,16 +22,23 @@ public class BoardCanvas extends JPanel
 
 	private Image[][] cellImages;
 	private Image boardImage;
-	private Map<Image,Cell> pieceLocations;
-		
-	public BoardCanvas(Image[][] boardImages, Map<Image,Cell> pieces)
+	/**
+	 * Stores the original image to their scaled image.
+	 * Scaling an image creates a new image therefore cannot
+	 * check that a scaled image is the same as the original
+	 */
+	private Map<Image,Image> scaledImages = new HashMap<Image,Image>(); 
+	private Map<Image, Cell> scaledPieces = new HashMap<Image,Cell>();
+	//TODO make scaled images
+	
+	public BoardCanvas(Image[][] boardImages, Map<Image,Cell> pieceImages)
 	{
 		if (boardImages == null)
 		{
 			throw new IllegalArgumentException("Arguments may not be null");
 		}
 		this.cellImages = boardImages;
-		scalePieces(pieces);
+		scalePieces(pieceImages);
 		createBoard();
 	}
 	/**
@@ -68,13 +75,13 @@ public class BoardCanvas extends JPanel
 	 */
 	private void scalePieces(Map<Image,Cell> pieces)
 	{
-		Map<Image,Cell> map = new HashMap<Image,Cell>();
 		for(Map.Entry<Image, Cell> piece: pieces.entrySet())
 		{
-			Image scaled = piece.getKey().getScaledInstance(CELL_WIDTH, CELL_HEIGHT, Image.SCALE_DEFAULT);
-			map.put(scaled, piece.getValue());
+			Image image = piece.getKey();
+			Image scaled = image.getScaledInstance(CELL_WIDTH, CELL_HEIGHT, Image.SCALE_DEFAULT);
+			scaledImages.put(image, scaled);
+			scaledPieces.put(scaled, piece.getValue());
 		}
-		this.pieceLocations = map;
 	}
 	
 	/**
@@ -83,12 +90,22 @@ public class BoardCanvas extends JPanel
 	 */
 	private void drawPieces(Graphics g)
 	{
-		for(Map.Entry<Image, Cell> piece: pieceLocations.entrySet())
+		for(Map.Entry<Image, Cell> piece: scaledPieces.entrySet())
 		{
 			Cell location = piece.getValue();
 			int x = location.getX()*CELL_WIDTH;
 			int y = location.getY()*CELL_HEIGHT;
 			g.drawImage(piece.getKey(), x, y,this);
 		}
+	}
+	public void changePieceLocation(Image piece, Cell location)
+	{
+		if(!scaledImages.containsKey(piece))
+		{
+			throw new IllegalArgumentException("The piece image does not exist on the board");
+		}
+		Image scaled = scaledImages.get(piece);
+		scaledPieces.put(scaled, location);
+		repaint();
 	}
 }

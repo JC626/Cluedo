@@ -43,15 +43,15 @@ public class BoardFrame extends JFrame
 	private static final int MIN_BOTTOM_RIGHT_WIDTH = (int)(MIN_WIDTH * 0.7);
 	private static final int MIN_DICE_WIDTH = (int)(MIN_WIDTH * 0.3);
 
-	private BoardCanvas board;
-	private DiceCanvas dice;
+	private BoardCanvas boardPane;
+	private DiceCanvas dicePane;
 	private JPanel bottom;
 	
 	public BoardFrame(Image[][] boardImages, Map<Image,Cell> pieceLocations)
 	{
 		JMenuBar menuBar = createMenu();
 		List<JButton> buttons = createButtons();
-		board = new BoardCanvas(boardImages,pieceLocations);
+		boardPane = new BoardCanvas(boardImages,pieceLocations);
 		
 		//Just so that diceCanvas works.
 		//TODO take dice images in BoardFrame constructor?
@@ -62,13 +62,13 @@ public class BoardFrame extends JFrame
 			e.printStackTrace();
 		}
 		assert myPicture != null;
-		dice = new DiceCanvas(myPicture, myPicture, MIN_DICE_WIDTH,MIN_BOTTOM_HEIGHT);
+		dicePane = new DiceCanvas(myPicture, myPicture, MIN_DICE_WIDTH,MIN_BOTTOM_HEIGHT);
 		
 		JPanel bottomRight = createBottomRightPanel(buttons);
 		bottom = new JPanel(new FlowLayout(FlowLayout.LEADING,20,0));
 		bottom.setBorder(BorderFactory.createEmptyBorder(20, 0, 50, 0));
 
-		bottom.add(dice);
+		bottom.add(dicePane);
 		bottom.add(bottomRight);
 		
 		setFontSizeButtons(buttons);
@@ -78,7 +78,7 @@ public class BoardFrame extends JFrame
 		
 		this.setJMenuBar(menuBar);
 		
-		this.add(board, BorderLayout.CENTER);
+		this.add(boardPane, BorderLayout.CENTER);
 		this.add(bottom, BorderLayout.PAGE_END);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -161,5 +161,13 @@ public class BoardFrame extends JFrame
 		{
 			GraphicalUserInterface.setFontSize(button, BUTTON_FONT_SIZE);
 		}
+	}
+
+	public BoardCanvas getBoardPane() {
+		return boardPane;
+	}
+
+	public DiceCanvas getDicePane() {
+		return dicePane;
 	}
 }

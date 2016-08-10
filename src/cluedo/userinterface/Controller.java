@@ -39,6 +39,8 @@ public class Controller
 	private static final Color ENTRANCE_COLOR = Color.GREEN;
 	private static final Color SECRET_PASSAGE_COLOR = Color.MAGENTA;
 	
+	private static final Map<String,Image> PIECE_IMAGES = new HashMap<String,Image>();	
+	
 	public Controller()
 	{
 		this.view = new GraphicalUserInterface();
@@ -237,17 +239,21 @@ public class Controller
 		for(Weapon weapon : weapons)
 		{
 			String weaponName = weapon.getName();
-			pieces.put(getPieceImage(weaponName), model.getPosition(weapon));
+			Image image = initialisePieceImage(weaponName);
+			PIECE_IMAGES.put(weaponName,image);
+			pieces.put(image, model.getPosition(weapon));
 		}
 		for(Player player : Game.allPlayers)
 		{
 			String playerName = player.getName();
-			pieces.put(getPieceImage(playerName), model.getPosition(player));
+			Image image = initialisePieceImage(playerName);
+			PIECE_IMAGES.put(playerName,image);
+			pieces.put(image, model.getPosition(player));
 		}
 		return pieces;
 	}
 	
-	private Image getPieceImage(String name)
+	private Image initialisePieceImage(String name)
 	{
 		String[] weaponNames = GameBuilder.WEAPON_NAMES;
 		String[] suspectNames = GameBuilder.SUSPECT_NAMES;
@@ -276,6 +282,15 @@ public class Controller
 			}
 		}
 		throw new IllegalArgumentException("No such image for that name");
+	}
+	
+	private Image getPieceImage(String name)
+	{
+		if(!PIECE_IMAGES.containsKey(name))
+		{
+			throw new IllegalArgumentException("There does not exist an image for the piece " + name);
+		}
+		return PIECE_IMAGES.get(name);
 	}
 	
 }
