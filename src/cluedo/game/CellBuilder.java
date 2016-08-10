@@ -127,7 +127,7 @@ class CellBuilder
 			for (int y = 0; y < cells[0].length; y++)
 			{
 				String s = map[y][x].toUpperCase();
-				if (s.contains("B"))
+				if (s.contains("B") || s.contains("C"))
 				{
 					outOfBounds.add(cells[x][y]);
 				}

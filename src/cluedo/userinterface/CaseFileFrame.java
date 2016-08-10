@@ -6,6 +6,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -62,13 +63,16 @@ public class CaseFileFrame extends JFrame{
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		JButton ok = new JButton("OK");
 		GraphicalUserInterface.setFontSize(ok, BUTTON_FONT_SIZE);
-		
+		JLabel title = new JLabel("Your Casefile");
+		GraphicalUserInterface.setFontSize(title, BUTTON_FONT_SIZE);
 		//Align so that OK button is on the right
-		suspects.setAlignmentX(RIGHT_ALIGNMENT);
-		weapons.setAlignmentX(RIGHT_ALIGNMENT);
-		rooms.setAlignmentX(RIGHT_ALIGNMENT);
-		ok.setAlignmentX(RIGHT_ALIGNMENT);
+		title.setAlignmentX(LEFT_ALIGNMENT);
+		suspects.setAlignmentX(LEFT_ALIGNMENT);
+		weapons.setAlignmentX(LEFT_ALIGNMENT);
+		rooms.setAlignmentX(LEFT_ALIGNMENT);
+		ok.setAlignmentX(LEFT_ALIGNMENT);
 		
+		panel.add(title);
 		panel.add(Box.createVerticalStrut(VERTICAL_GAP)); 
 		panel.add(suspects);
 		panel.add(weapons);
