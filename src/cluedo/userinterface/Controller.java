@@ -33,9 +33,9 @@ public class Controller
 {
 	Game model;
 	GraphicalUserInterface view;
-	private static final Color NORMAL_CELL_COLOUR = Color.YELLOW;
+	private static final Color NORMAL_CELL_COLOUR = new Color(255,248,111);
 	private static final Color OUT_OF_BOUNDS_COLOR = Color.DARK_GRAY;
-	private static final Color ROOM_COLOR = Color.LIGHT_GRAY;
+	private static final Color ROOM_COLOR = new Color(206,218,224);
 	private static final Color ENTRANCE_COLOR = Color.GREEN;
 	private static final Color SECRET_PASSAGE_COLOR = Color.MAGENTA;
 	
