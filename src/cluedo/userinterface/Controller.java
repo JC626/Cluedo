@@ -6,18 +6,28 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import javax.imageio.ImageIO;
+
+import com.sun.javafx.scene.paint.GradientUtils.Point;
 
 import cluedo.board.Board;
 import cluedo.game.Game;
 import cluedo.game.GameBuilder;
 import cluedo.model.Cell;
 import cluedo.model.Player;
+import cluedo.model.Weapon;
 
 public class Controller
 {
@@ -46,8 +56,7 @@ public class Controller
 					System.out.println(String.format("%s: %s", p.get(i).getName(), s.get(i)));
 				}
 				model = new Game(p,s);
-				
-				BoardFrame board = new BoardFrame(getImages());
+				BoardFrame board = new BoardFrame(getImages(),initialisePieces());
 			}
 			
 		});
@@ -215,4 +224,58 @@ public class Controller
 		graphics.drawRect(x, y, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT);
 		return image;
 	}
+	
+	/**
+	 * Get all the pieces and their locations from the game
+	 * @return the images of pieces and their locations
+	 */
+	private Map<Image,Cell> initialisePieces()
+	{
+		assert model != null;
+		Map<Image, Cell> pieces = new HashMap<Image,Cell>(); 
+		List<Weapon> weapons = model.getWeapons();
+		for(Weapon weapon : weapons)
+		{
+			String weaponName = weapon.getName();
+			pieces.put(getPieceImage(weaponName), model.getPosition(weapon));
+		}
+		for(Player player : Game.allPlayers)
+		{
+			String playerName = player.getName();
+			pieces.put(getPieceImage(playerName), model.getPosition(player));
+		}
+		return pieces;
+	}
+	
+	private Image getPieceImage(String name)
+	{
+		String[] weaponNames = GameBuilder.WEAPON_NAMES;
+		String[] suspectNames = GameBuilder.SUSPECT_NAMES;
+		for(String suspect : suspectNames)
+		{
+			if(suspect.equals(name))
+			{
+				String fileName = "cluedo_images\\" + suspect + ".png";
+				try {
+					return ImageIO.read(new File(fileName));
+				} catch (IOException e) {
+					throw new RuntimeException(fileName + " not found");
+				}
+			}
+		}
+		for(String weapon : weaponNames)
+		{
+			if(weapon.equals(name))
+			{
+				String fileName = "cluedo_images\\" + weapon + ".png";
+				try {
+					return ImageIO.read(new File(fileName));
+				} catch (IOException e) {
+					throw new RuntimeException(fileName + " not found");
+				}
+			}
+		}
+		throw new IllegalArgumentException("No such image for that name");
+	}
+	
 }

@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -19,6 +20,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+
+import cluedo.model.Cell;
 
 /**
  * Displays the Board window
@@ -44,11 +47,11 @@ public class BoardFrame extends JFrame
 	private DiceCanvas dice;
 	private JPanel bottom;
 	
-	public BoardFrame(Image[][] boardImages)
+	public BoardFrame(Image[][] boardImages, Map<Image,Cell> pieceLocations)
 	{
 		JMenuBar menuBar = createMenu();
 		List<JButton> buttons = createButtons();
-		board = new BoardCanvas(boardImages);
+		board = new BoardCanvas(boardImages,pieceLocations);
 		
 		//Just so that diceCanvas works.
 		//TODO take dice images in BoardFrame constructor?

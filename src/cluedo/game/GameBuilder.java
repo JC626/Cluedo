@@ -41,7 +41,7 @@ import cluedo.model.cards.WeaponCard;
 			SUSPECT_ORDER.put("Professor Plum", 5);
 	}
 	
-	private static final String[] WEAPON_NAMES = new String[] { "Dagger", "Candlestick", "Revolver", "Rope",
+	public static final String[] WEAPON_NAMES = new String[] { "Dagger", "Candlestick", "Revolver", "Rope",
 				"Lead Pipe", "Spanner" };
 	/**
 	 * Create all the players in the Cluedo game
