@@ -91,8 +91,17 @@ public class GraphicalUserInterface extends JFrame
 			panel.add(toAdd.next());
 		}
 	}
-
-
+	
+	public void ok(String title, String text)
+	{
+		MessageDialog.information(title, text);
+	}
+	
+	public void error(String title, String text)
+	{
+		MessageDialog.error(title, text);
+	}
+	
 	public boolean yesNo(String title, String question)
 	{
 		return ConfirmationDialog.yesNo(title, question);

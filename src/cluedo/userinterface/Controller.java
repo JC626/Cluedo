@@ -90,6 +90,11 @@ public class Controller
 		|| (activePlayers.size() < Game.MAX_HUMAN_PLAYERS && view.yesNo("Any more players?", "Do you want to add more players? You currently have " + activePlayers.size())))
 		{
 			Optional<String> name = promptUserName();
+			if(name.isPresent() && (name.get().length() == 0 || name.get().length() > 15)) //TODO character limit
+			{
+				view.error("Invalid name", "A name must be between 0 and 15 characters");
+				continue;
+			}
 			Optional<Integer> selectedPlayerIndex = promptUserCharacterIndex(Arrays.asList(GameBuilder.SUSPECT_NAMES), availablePlayers);
 			Optional<Player> currentPlayer = getPlayerFromIndex(selectedPlayerIndex);
 
@@ -148,8 +153,9 @@ public class Controller
 		Image leftDie = getDiceImage(diceRoll[0]);
 		Image rightDie = getDiceImage(diceRoll[1]);
 		board.getDicePane().changeDice(leftDie, rightDie);
-		//TODO need textdialog
+		view.ok(playerName + "'s turn", playerName + " it is your turn. You are playing as " + player.getName());
 		//TODO add button listeners here
+		
 	}
 	
 	/**
