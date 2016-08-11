@@ -2,13 +2,10 @@ package cluedo.userinterface;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
@@ -20,8 +17,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
-
-import com.sun.javafx.scene.paint.GradientUtils.Point;
 
 import cluedo.board.Board;
 import cluedo.game.Game;
@@ -61,8 +56,9 @@ public class Controller
 				{
 					System.out.println(String.format("%s: %s", p.get(i).getName(), s.get(i)));
 				}
+				//TODO dispose title window
 				model = new Game(p,s);
-				BoardFrame board = new BoardFrame(getImages(),initialisePieces());
+				setupBoard();
 			}
 			
 		});
@@ -143,6 +139,18 @@ public class Controller
 			list.add(value);
 		}
 	}
+	private void setupBoard()
+	{
+		BoardFrame board = new BoardFrame(getImages(),initialisePieces());
+		Player player = model.getCurrentPlayer();
+		String playerName = model.getHumanName(player);
+		int[] diceRoll = model.getDiceRoll();
+		Image leftDie = getDiceImage(diceRoll[0]);
+		Image rightDie = getDiceImage(diceRoll[1]);
+		board.getDicePane().changeDice(leftDie, rightDie);
+		//TODO need textdialog
+		//TODO add button listeners here
+	}
 	
 	/**
 	 * Creates the board as it is to be drawn, based on Cells and their properties.
@@ -206,7 +214,7 @@ public class Controller
 	
 	private Image convertToImageNormalCell(int x, int y, int width, int height, Cell cell)
 	{
-		BasicStroke outline = new BasicStroke(1.5f);
+		BasicStroke outline = new BasicStroke(1.0f);
 		BufferedImage image = new BufferedImage(BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, BufferedImage.TYPE_INT_RGB);
 		Graphics2D graphics = image.createGraphics();
 		graphics.setColor(NORMAL_CELL_COLOUR);
@@ -350,6 +358,16 @@ public class Controller
 			throw new IllegalArgumentException("There does not exist an image for the piece " + name);
 		}
 		return PIECE_IMAGES.get(name);
+	}
+	
+	private Image getDiceImage(int number)
+	{
+		String fileName = "cluedo_images\\die" + number + ".png";
+		try {
+			return ImageIO.read(new File(fileName));
+		} catch (IOException e) {
+			throw new RuntimeException(fileName + " not found");
+		}
 	}
 	
 }

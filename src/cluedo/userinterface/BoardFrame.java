@@ -72,7 +72,7 @@ public class BoardFrame extends JFrame
 		bottom.add(bottomRight);
 		
 		setFontSizeButtons(buttons);
-	
+
 		this.setTitle("Cluedo Game");
 		this.setMinimumSize(new Dimension(MIN_WIDTH, MIN_HEIGHT));
 		
