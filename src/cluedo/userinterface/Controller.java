@@ -4,6 +4,8 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
@@ -35,6 +37,7 @@ public class Controller
 {
 	Game model;
 	GraphicalUserInterface view;
+	BoardFrame board;
 	
 	private static final BasicStroke WALL_THICKNESS = new BasicStroke(7.0f);
 	private static final Color NORMAL_CELL_COLOUR = new Color(255,248,111);
@@ -45,35 +48,50 @@ public class Controller
 	
 	private static final Map<String,Image> PIECE_IMAGES = new HashMap<String,Image>();	
 	
+	private final ActionListener newGameListener;
+	private final ActionListener quitListener;
+	
 	public Controller()
 	{
 		this.view = new GraphicalUserInterface();
+		
+		newGameListener = new ActionListener(){
 
-		view.buttonNewGameListener((a) -> {
-			Optional<SimpleEntry<List<Player>, List<String>>> activePlayers = createPlayers();
-			
-			if (activePlayers.isPresent())
-			{
-				List<Player> p = activePlayers.get().getKey();
-				List<String> s = activePlayers.get().getValue();
-				
-				for (int i = 0; i < p.size(); i++)
-				{
-					System.out.println(String.format("%s: %s", p.get(i).getName(), s.get(i)));
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Optional<SimpleEntry<List<Player>, List<String>>> activePlayers = createPlayers();
+					
+					if (activePlayers.isPresent())
+					{
+						List<Player> p = activePlayers.get().getKey();
+						List<String> s = activePlayers.get().getValue();
+						
+						for (int i = 0; i < p.size(); i++)
+						{
+							System.out.println(String.format("%s: %s", p.get(i).getName(), s.get(i)));
+						}
+						//TODO dispose title window
+						model = new Game(p,s);
+						setupBoard();
+					}
 				}
-				//TODO dispose title window
-				model = new Game(p,s);
-				setupBoard();
-			}
-			
-		});
+			};
 
-		view.buttonQuitListener((a) -> {
-			if (view.yesNo("Are you sure?", "Do you want to quit?"))
-			{
-				System.exit(0);
+		quitListener = new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (view.yesNo("Are you sure?", "Do you want to quit?"))
+				{
+					System.exit(0);
+				}
 			}
-		});
+		};
+
+		
+		
+		view.buttonNewGameListener(newGameListener);
+
+		view.buttonQuitListener(quitListener);
 
 	}
 	
@@ -155,7 +173,7 @@ public class Controller
 	}
 	private void setupBoard()
 	{
-		BoardFrame board = new BoardFrame(getImages(),initialisePieces());
+		this.board = new BoardFrame(getImages(),initialisePieces());
 		Player startPlayer = model.getCurrentPlayer();
 		String startPlayerName = model.getHumanName(startPlayer);
 		int[] startDiceRoll = model.getDiceRoll();
@@ -166,7 +184,8 @@ public class Controller
 		view.information(startPlayerName + "'s turn", startPlayerName + " it is your turn. You are playing as " + startPlayer.getName());
 		
 		//TODO add button listeners here
-		
+		board.addNewGameListener(newGameListener);
+		board.addQuitListener(quitListener);
 		board.addEndTurnListener((a) -> {
 			if(model.getRemainingMoves() > 0)
 			{
@@ -183,6 +202,7 @@ public class Controller
 			view.information(playerName + "'s turn", playerName + " it is your turn. You are playing as " + player.getName());
 			board.requestFocus();
 		});
+		
 		//So that keyboard listener works on the window
 		board.requestFocus();
 		KeyListener keyListener = new KeyListener() {
