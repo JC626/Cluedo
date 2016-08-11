@@ -444,7 +444,7 @@ public class Game
 				throw new InvalidMoveException("Did not enter the room through a valid entrance");
 			}
 			//Reallocate the player to a cell in the room
-			this.putInRoom(currentPlayer, room);
+			newPos = this.putInRoom(currentPlayer, room);
 			remainingMoves = 0;
 		}
 		else
@@ -847,8 +847,12 @@ public class Game
 	 * @param piece - Piece to put in the room
 	 * @param room - The room to put the piece in
 	 */
-	private void putInRoom(Piece piece, Room room) 
+	private Cell putInRoom(Piece piece, Room room) 
 	{
+		if(!rooms.contains(room))
+		{
+			throw new IllegalArgumentException(room.getName()+ " is not a valid room!");
+		}
 		playerToRoom.put(currentPlayer, room);
 		for(Cell cell:roomCells.get(room))
 		{
@@ -866,10 +870,11 @@ public class Game
 				if(!board.containsPiece(cell))
 				{
 					board.setPosition(piece, cell);
-					break;
+					return cell;
 				}
 			}
 		}
+		throw new IllegalMethodCallException("No free room cells");
 	}
 
 	/**

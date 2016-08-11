@@ -8,6 +8,8 @@ import java.awt.Image;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -96,6 +98,12 @@ public class BoardFrame extends JFrame
 		this.add(boardPane, BorderLayout.CENTER);
 		this.add(bottom, BorderLayout.PAGE_END);
 		
+		//Ensure the frame has the focus so that the keyboard listener will work
+		this.addWindowFocusListener(new WindowAdapter() {
+		    public void windowGainedFocus(WindowEvent e) {
+		       BoardFrame.this.requestFocusInWindow();
+		    }
+		});
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		pack();

@@ -200,11 +200,8 @@ public class Controller
 			Image rightDie = getDiceImage(diceRoll[1]);
 			board.getDicePane().changeDice(leftDie, rightDie);
 			view.information(playerName + "'s turn", playerName + " it is your turn. You are playing as " + player.getName());
-			board.requestFocus();
 		});
 		
-		//So that keyboard listener works on the window
-		board.requestFocus();
 		KeyListener keyListener = new KeyListener() {
 
 			@Override
