@@ -156,27 +156,45 @@ public class Controller
 	private void setupBoard()
 	{
 		BoardFrame board = new BoardFrame(getImages(),initialisePieces());
-		Player player = model.getCurrentPlayer();
-		String playerName = model.getHumanName(player);
-		int[] diceRoll = model.getDiceRoll();
-		Image leftDie = getDiceImage(diceRoll[0]);
-		Image rightDie = getDiceImage(diceRoll[1]);
-		board.getDicePane().changeDice(leftDie, rightDie);
-		view.information(playerName + "'s turn", playerName + " it is your turn. You are playing as " + player.getName());
+		Player startPlayer = model.getCurrentPlayer();
+		String startPlayerName = model.getHumanName(startPlayer);
+		int[] startDiceRoll = model.getDiceRoll();
+		Image d1 = getDiceImage(startDiceRoll[0]);
+		Image d2 = getDiceImage(startDiceRoll[1]);
+		board.getDicePane().changeDice(d1, d2);
+		
+		view.information(startPlayerName + "'s turn", startPlayerName + " it is your turn. You are playing as " + startPlayer.getName());
+		
 		//TODO add button listeners here
-		//TODO add keylistener
+		
+		board.addEndTurnListener((a) -> {
+			if(model.getRemainingMoves() > 0)
+			{
+				view.error("Cannot End Turn", "Must use all your moves before ending your turn");
+				return;
+			}
+			model.nextTurn();
+			Player player = model.getCurrentPlayer();
+			String playerName = model.getHumanName(player);
+			int[] diceRoll = model.getDiceRoll();
+			Image leftDie = getDiceImage(diceRoll[0]);
+			Image rightDie = getDiceImage(diceRoll[1]);
+			board.getDicePane().changeDice(leftDie, rightDie);
+			view.information(playerName + "'s turn", playerName + " it is your turn. You are playing as " + player.getName());
+			board.requestFocus();
+		});
 		//So that keyboard listener works on the window
 		board.requestFocus();
 		KeyListener keyListener = new KeyListener() {
 
 			@Override
 			public void keyTyped(KeyEvent e) {
-				// TODO Auto-generated method stub
+				// TODO Anything?
 			}
 
 			@Override
 			public void keyReleased(KeyEvent e) {
-				// TODO Auto-generated method stub
+				// TODO Anything?
 			}
 			
 			@Override
@@ -184,18 +202,25 @@ public class Controller
 				int code = e.getKeyCode();
 				if(model.getRemainingMoves() == 0)
 				{
-					view.information("Cannot Move", "No remaining moves");
+					if(model.isInRoom())
+					{
+						view.error("Cannot Move", "You just entered a room!");
+					}
+					else
+					{
+						view.error("Cannot Move", "No remaining moves");
+					}
 				}
 				else if(!model.canMove())
 				{
 					if(model.isInRoom())
 					{
 						//TODO highlight exits
-						view.information("Cannot Move", "You cannot move in a room. Please select a exit with the mouse instead");
+						view.error("Cannot Move", "You cannot move in a room. Please select a exit with the mouse instead");
 					}
 					else 
 					{
-						view.information("Cannot Move", "You cannot move as all paths are blocked");
+						view.error("Cannot Move", "You cannot move as all paths are blocked");
 					}
 				}
 				else
@@ -221,19 +246,24 @@ public class Controller
 					{
 						return;
 					}
-					try {
+					try 
+					{
 						Cell cell = model.move(direction);
 						String playerName = model.getCurrentPlayer().getName();
 						board.getBoardPane().changePieceLocation(getPieceImage(playerName), cell);
 					} 
 					catch (InvalidMoveException e1) 
 					{
-						view.information("Cannot Move", "You cannot move in that direction");
+						view.error("Cannot Move", "You cannot move in that direction");
+					}
+					
+					if(model.isInRoom())
+					{
+						view.information("Entered a room", "You have entered the " + model.getCurrentRoom().getName());
 					}
 				}
 			}
 		};
-		
 		board.addKeyListener(keyListener);
 	}
 	
