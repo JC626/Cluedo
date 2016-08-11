@@ -95,10 +95,14 @@ public class Controller
 				view.error("Invalid name", "A name must be between 0 and 15 characters");
 				continue;
 			}
+			if(!name.isPresent())
+			{
+				break;
+			}
 			Optional<Integer> selectedPlayerIndex = promptUserCharacterIndex(Arrays.asList(GameBuilder.SUSPECT_NAMES), availablePlayers);
 			Optional<Player> currentPlayer = getPlayerFromIndex(selectedPlayerIndex);
 
-			if (!selectedPlayerIndex.isPresent() || !currentPlayer.isPresent() || !name.isPresent())
+			if (!selectedPlayerIndex.isPresent() || !currentPlayer.isPresent())
 			{
 				break;
 			}
