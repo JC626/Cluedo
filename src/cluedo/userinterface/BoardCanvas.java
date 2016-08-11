@@ -20,6 +20,7 @@ public class BoardCanvas extends JPanel
 	public static final int CELL_WIDTH = BoardFrame.MIN_WIDTH / Board.WIDTH;
 	public static final int CELL_HEIGHT = MIN_HEIGHT / Board.HEIGHT;
 
+	private static final int PIECE_SHIFT = 10;
 	private Image[][] cellImages;
 	private Image boardImage;
 	/**
@@ -29,7 +30,6 @@ public class BoardCanvas extends JPanel
 	 */
 	private Map<Image,Image> scaledImages = new HashMap<Image,Image>(); 
 	private Map<Image, Cell> scaledPieces = new HashMap<Image,Cell>();
-	//TODO make scaled images
 	
 	public BoardCanvas(Image[][] boardImages, Map<Image,Cell> pieceImages)
 	{
@@ -48,6 +48,7 @@ public class BoardCanvas extends JPanel
 	{
 		boardImage = new BufferedImage(BoardFrame.MIN_WIDTH, MIN_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 		Graphics grph = boardImage.getGraphics();
+		
 		for (int x = 0; x < Board.WIDTH; x++)
 		{
 			for (int y = 0; y < Board.HEIGHT; y++)
@@ -78,7 +79,7 @@ public class BoardCanvas extends JPanel
 		for(Map.Entry<Image, Cell> piece: pieces.entrySet())
 		{
 			Image image = piece.getKey();
-			Image scaled = image.getScaledInstance(CELL_WIDTH, CELL_HEIGHT, Image.SCALE_DEFAULT);
+			Image scaled = image.getScaledInstance(CELL_WIDTH-PIECE_SHIFT, CELL_HEIGHT-PIECE_SHIFT, Image.SCALE_DEFAULT);
 			scaledImages.put(image, scaled);
 			scaledPieces.put(scaled, piece.getValue());
 		}
@@ -93,8 +94,8 @@ public class BoardCanvas extends JPanel
 		for(Map.Entry<Image, Cell> piece: scaledPieces.entrySet())
 		{
 			Cell location = piece.getValue();
-			int x = location.getX()*CELL_WIDTH;
-			int y = location.getY()*CELL_HEIGHT;
+			int x = location.getX()*CELL_WIDTH + PIECE_SHIFT/2;
+			int y = location.getY()*CELL_HEIGHT + PIECE_SHIFT/2;
 			g.drawImage(piece.getKey(), x, y,this);
 		}
 	}

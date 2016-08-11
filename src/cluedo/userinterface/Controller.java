@@ -1,5 +1,6 @@
 package cluedo.userinterface;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -28,15 +29,18 @@ import cluedo.game.GameBuilder;
 import cluedo.model.Cell;
 import cluedo.model.Player;
 import cluedo.model.Weapon;
+import cluedo.utility.Heading.Direction;
 
 public class Controller
 {
 	Game model;
 	GraphicalUserInterface view;
+	
+	private static final BasicStroke WALL_THICKNESS = new BasicStroke(7.0f);
 	private static final Color NORMAL_CELL_COLOUR = new Color(255,248,111);
 	private static final Color OUT_OF_BOUNDS_COLOR = Color.DARK_GRAY;
 	private static final Color ROOM_COLOR = new Color(206,218,224);
-	private static final Color ENTRANCE_COLOR = Color.GREEN;
+	private static final Color EXIT_COLOR = Color.GREEN; //May require for later
 	private static final Color SECRET_PASSAGE_COLOR = Color.MAGENTA;
 	
 	private static final Map<String,Image> PIECE_IMAGES = new HashMap<String,Image>();	
@@ -154,13 +158,8 @@ public class Controller
 		Set<Cell> outOfBounds = model.getOutOfBoundCells();
 		Set<Cell> roomCells = model.getRoomCells();
 		Set<Cell> secretPassage = model.getSecretPassageCells();
-		Set<Cell> entranceCells = model.getDoorCells();
 		Image secretPassageImage = convertToImage(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, SECRET_PASSAGE_COLOR);
-		Image outOfBoundsImage = convertToImageWithOutline(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, OUT_OF_BOUNDS_COLOR);
-		Image roomCellImage = convertToImage(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, ROOM_COLOR);
-		Image entranceImage = convertToImage(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, ENTRANCE_COLOR);
-		Image cellImage = convertToImageWithOutline(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, NORMAL_CELL_COLOUR);
-		
+		Image outOfBoundsImage = convertToImage(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, OUT_OF_BOUNDS_COLOR);
 		for (int x = 0; x < Board.WIDTH; x++)
 		{
 			for (int y = 0; y < Board.HEIGHT; y++)
@@ -173,11 +172,7 @@ public class Controller
 				}
 				else if(roomCells.contains(cell))
 				{
-					images[x][y] = roomCellImage;
-				}
-				else if(entranceCells.contains(cell))
-				{
-					images[x][y] = entranceImage;
+					images[x][y] = convertToImageRoomCell(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, cell);
 				}
 				else if(outOfBounds.contains(cell))
 				{
@@ -185,7 +180,7 @@ public class Controller
 				}
 				else
 				{
-					images[x][y] = cellImage;
+					images[x][y] = convertToImageNormalCell(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, cell);
 				}		
 			}
 		}
@@ -201,7 +196,7 @@ public class Controller
 	private Image convertToImage(int x, int y, int width, int height, Color colour)
 	{
 		BufferedImage image = new BufferedImage(BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, BufferedImage.TYPE_INT_ARGB);
-		Graphics graphics = image.getGraphics();
+		Graphics2D graphics = image.createGraphics();
 		
 		graphics.setColor(colour);
 		graphics.fillRect(x, y, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT);
@@ -209,24 +204,88 @@ public class Controller
 		return image;
 	}
 	
-	/**
-	 * As with convertToImage, but the resulting image has a black outline.
-	 * @param rectangle The rectangle to convert to an image.
-	 * @param colour The colour of the image.
-	 * @return The resulting image.
-	 */
-	private Image convertToImageWithOutline(int x, int y, int width, int height, Color colour)
+	private Image convertToImageNormalCell(int x, int y, int width, int height, Cell cell)
+	{
+		BasicStroke outline = new BasicStroke(1.5f);
+		BufferedImage image = new BufferedImage(BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, BufferedImage.TYPE_INT_RGB);
+		Graphics2D graphics = image.createGraphics();
+		graphics.setColor(NORMAL_CELL_COLOUR);
+		graphics.fillRect(x, y, width, height);
+		graphics.setColor(Color.BLACK);
+		if(cell.hasWall(Direction.North))
+		{
+			graphics.setStroke(WALL_THICKNESS);
+			graphics.drawLine(x, y, x+width, y);
+		}
+		else
+		{
+			graphics.setStroke(outline);
+			graphics.drawLine(x, y, x+width, y);
+		}
+		
+		if(cell.hasWall(Direction.South))
+		{
+			graphics.setStroke(WALL_THICKNESS);
+			graphics.drawLine(x, y+height, x+width, y+height);
+		}
+		else
+		{
+			graphics.setStroke(outline);
+			graphics.drawLine(x, y+height, x+width, y+height);
+		}
+		
+		if(cell.hasWall(Direction.West))
+		{
+			graphics.setStroke(WALL_THICKNESS);
+			graphics.drawLine(x, y, x, y+height);
+		}
+		else
+		{
+			graphics.setStroke(outline);
+			graphics.drawLine(x, y, x, y+height);
+		}
+		
+		if(cell.hasWall(Direction.East))
+		{
+			graphics.setStroke(WALL_THICKNESS);
+			graphics.drawLine(x+width, y, x+width, y+height);
+		}
+		else
+		{
+			graphics.setStroke(outline);
+			graphics.drawLine(x+width, y, x+width, y+height);
+		}
+		return image;
+	}
+
+	private Image convertToImageRoomCell(int x, int y, int width, int height, Cell cell)
 	{
 		BufferedImage image = new BufferedImage(BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, BufferedImage.TYPE_INT_RGB);
-		Graphics graphics = image.getGraphics();
+		Graphics2D graphics = image.createGraphics();
 		
-		graphics.setColor(colour);
-		graphics.fillRect(x, y, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT);
+		graphics.setColor(ROOM_COLOR);
+		graphics.fillRect(x, y, width, height);
 		graphics.setColor(Color.BLACK);
-		graphics.drawRect(x, y, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT);
+		graphics.setStroke(WALL_THICKNESS);
+		
+		if(cell.hasWall(Direction.North))
+		{
+			graphics.drawLine(x, y, x+width, y);
+		}
+		if(cell.hasWall(Direction.South))
+		{
+			graphics.drawLine(x, y+height, x+width, y+height);
+		}
+		if(cell.hasWall(Direction.West))
+		{
+			graphics.drawLine(x, y, x, y+height);
+		}
+		if(cell.hasWall(Direction.East))
+		{
+			graphics.drawLine(x+width, y, x+width, y+height);
+		}
 		return image;
 	}
-	
 	/**
 	 * Get all the pieces and their locations from the game
 	 * @return the images of pieces and their locations
