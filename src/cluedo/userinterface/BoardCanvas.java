@@ -99,14 +99,14 @@ public class BoardCanvas extends JPanel
 			g.drawImage(piece.getKey(), x, y,this);
 		}
 	}
-	public void changePieceLocation(Image piece, Cell location)
+	public void changePieceLocation(Image piece, Cell newPos)
 	{
 		if(!scaledImages.containsKey(piece))
 		{
 			throw new IllegalArgumentException("The piece image does not exist on the board");
 		}
 		Image scaled = scaledImages.get(piece);
-		scaledPieces.put(scaled, location);
+		scaledPieces.put(scaled, newPos);
 		repaint();
 	}
 }

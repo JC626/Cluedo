@@ -4,6 +4,8 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +20,10 @@ import java.util.Set;
 
 import javax.imageio.ImageIO;
 
+import com.sun.corba.se.impl.oa.poa.ActiveObjectMap.Key;
+
 import cluedo.board.Board;
+import cluedo.exceptions.InvalidMoveException;
 import cluedo.game.Game;
 import cluedo.game.GameBuilder;
 import cluedo.model.Cell;
@@ -157,9 +162,79 @@ public class Controller
 		Image leftDie = getDiceImage(diceRoll[0]);
 		Image rightDie = getDiceImage(diceRoll[1]);
 		board.getDicePane().changeDice(leftDie, rightDie);
-		view.ok(playerName + "'s turn", playerName + " it is your turn. You are playing as " + player.getName());
+		view.information(playerName + "'s turn", playerName + " it is your turn. You are playing as " + player.getName());
 		//TODO add button listeners here
+		//TODO add keylistener
+		//So that keyboard listener works on the window
+		board.requestFocus();
+		KeyListener keyListener = new KeyListener() {
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				// TODO Auto-generated method stub
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				int code = e.getKeyCode();
+				if(model.getRemainingMoves() == 0)
+				{
+					view.information("Cannot Move", "No remaining moves");
+				}
+				else if(!model.canMove())
+				{
+					if(model.isInRoom())
+					{
+						//TODO highlight exits
+						view.information("Cannot Move", "You cannot move in a room. Please select a exit with the mouse instead");
+					}
+					else 
+					{
+						view.information("Cannot Move", "You cannot move as all paths are blocked");
+					}
+				}
+				else
+				{
+					//TODO remove dialog boxes if move is invalid?
+					Direction direction = null;
+					switch(code)
+					{
+					case KeyEvent.VK_UP:
+						direction = Direction.North;
+						break;
+					case KeyEvent.VK_DOWN:
+						direction = Direction.South;
+						break;
+					case KeyEvent.VK_LEFT:
+						direction = Direction.West;
+						break;
+					case KeyEvent.VK_RIGHT:
+						direction = Direction.East;
+						break;
+					}
+					if(direction == null)
+					{
+						return;
+					}
+					try {
+						Cell cell = model.move(direction);
+						String playerName = model.getCurrentPlayer().getName();
+						board.getBoardPane().changePieceLocation(getPieceImage(playerName), cell);
+					} 
+					catch (InvalidMoveException e1) 
+					{
+						view.information("Cannot Move", "You cannot move in that direction");
+					}
+				}
+			}
+		};
 		
+		board.addKeyListener(keyListener);
 	}
 	
 	/**

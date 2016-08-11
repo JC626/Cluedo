@@ -5,6 +5,9 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -47,6 +50,18 @@ public class BoardFrame extends JFrame
 	private DiceCanvas dicePane;
 	private JPanel bottom;
 	
+	private JButton casefileButton;
+	private JButton suggestionButton;
+	private JButton accusationButton;
+	private JButton endTurnButton;
+	
+	private JMenuItem casefileMenu;
+	private JMenuItem suggestionMenu;
+	private JMenuItem accusationMenu;
+	private JMenuItem endTurnMenu;
+	private JMenuItem newGame;
+	private JMenuItem quit;
+	
 	public BoardFrame(Image[][] boardImages, Map<Image,Cell> pieceLocations)
 	{
 		JMenuBar menuBar = createMenu();
@@ -81,6 +96,7 @@ public class BoardFrame extends JFrame
 		this.add(boardPane, BorderLayout.CENTER);
 		this.add(bottom, BorderLayout.PAGE_END);
 		
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		pack();
 		
@@ -97,21 +113,21 @@ public class BoardFrame extends JFrame
 		JMenuBar menu = new JMenuBar();
 		JMenu file = new JMenu("File");
 		//file.setMnemonic(KeyEvent.VK_A); //Setting shortcut
-		JMenuItem newGame = new JMenuItem("New Game");
-		JMenuItem quit = new JMenuItem("Quit");
+		this.newGame = new JMenuItem("New Game");
+		this.quit = new JMenuItem("Quit");
 		file.add(newGame);
 		file.add(quit);
 		menu.add(file);
 		//TODO add listeners for menu items
 		JMenu actions = new JMenu("Game Actions");
-		JMenuItem casefile = new JMenuItem("View CaseFile");
-		JMenuItem suggestion = new JMenuItem("Make Suggestion");
-		JMenuItem accusation = new JMenuItem("Make Accusation");
-		JMenuItem endTurn = new JMenuItem("End Turn");
-		actions.add(casefile);
-		actions.add(suggestion);
-		actions.add(accusation);
-		actions.add(endTurn);
+		this.casefileMenu = new JMenuItem("View CaseFile");
+		this.suggestionMenu = new JMenuItem("Make Suggestion");
+		this.accusationMenu = new JMenuItem("Make Accusation");
+		this.endTurnMenu = new JMenuItem("End Turn");
+		actions.add(casefileMenu);
+		actions.add(suggestionMenu);
+		actions.add(accusationMenu);
+		actions.add(endTurnMenu);
 		menu.add(actions);
 		
 		return menu;
@@ -125,13 +141,18 @@ public class BoardFrame extends JFrame
 	{
 		List<JButton> buttons = new ArrayList<JButton>();
 		
-		buttons.add(new JButton("View CaseFile"));
-		buttons.add(new JButton("Make Suggestion"));
-		buttons.add(new JButton("Make Accusation"));
-		buttons.add(new JButton("End Turn"));
+		casefileButton = new JButton("View CaseFile");
+		suggestionButton = new JButton("Make Suggestion");
+		accusationButton = new JButton("Make Accusation");
+		endTurnButton = new JButton("End Turn");
+		buttons.add(casefileButton);
+		buttons.add(suggestionButton);
+		buttons.add(accusationButton);
+		buttons.add(endTurnButton);
 		
 		return buttons;
 	}
+	
 	/**
 	 * Creates a panel for the buttons
 	 * These buttons are the game actions
@@ -162,7 +183,36 @@ public class BoardFrame extends JFrame
 			GraphicalUserInterface.setFontSize(button, BUTTON_FONT_SIZE);
 		}
 	}
-
+	
+	public void addCasefileListener(ActionListener a)
+	{
+		casefileButton.addActionListener(a);
+		casefileMenu.addActionListener(a);
+	}
+	public void addSuggestionListener(ActionListener a)
+	{
+		suggestionButton.addActionListener(a);
+		suggestionMenu.addActionListener(a);
+	}
+	public void addAccusationListener(ActionListener a)
+	{
+		accusationButton.addActionListener(a);
+		accusationMenu.addActionListener(a);
+	}
+	public void addEndTurnListener(ActionListener a)
+	{
+		endTurnButton.addActionListener(a);
+		endTurnMenu.addActionListener(a);
+	}
+	public void addNewGameListener(ActionListener a)
+	{
+		newGame.addActionListener(a);
+	}
+	public void addQuitListener(ActionListener a)
+	{
+		quit.addActionListener(a);
+	}
+	
 	public BoardCanvas getBoardPane() {
 		return boardPane;
 	}

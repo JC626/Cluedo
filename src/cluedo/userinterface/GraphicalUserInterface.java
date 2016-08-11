@@ -92,7 +92,7 @@ public class GraphicalUserInterface extends JFrame
 		}
 	}
 	
-	public void ok(String title, String text)
+	public void information(String title, String text)
 	{
 		MessageDialog.information(title, text);
 	}
