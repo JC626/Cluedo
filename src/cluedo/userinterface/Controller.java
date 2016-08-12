@@ -33,6 +33,7 @@ import cluedo.game.GameBuilder;
 import cluedo.model.Cell;
 import cluedo.model.Player;
 import cluedo.model.Weapon;
+import cluedo.model.cards.Card;
 import cluedo.utility.Heading.Direction;
 
 public class Controller
@@ -246,12 +247,60 @@ public class Controller
 		ActionListener listener = new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				
+				Map<String,Boolean> suspects = new HashMap<String,Boolean>(); 
+				Map<String,Boolean> weapons = new HashMap<String,Boolean>(); 
+				Map<String,Boolean> rooms = new HashMap<String,Boolean>(); 
+				for (Card suspectCard : model.getSuspectCards())
+				{
+					boolean outOfSuspicion  = !model.getPlayerSuspectCards().contains(suspectCard);
+					suspects.put(suspectCard.getName(), outOfSuspicion);
+				}
+
+				for (Card roomCard : model.getRoomCards())
+				{
+					boolean outOfSuspicion  = !model.getPlayerRoomCards().contains(roomCard);
+					rooms.put(roomCard.getName(), outOfSuspicion);
+					
+				}
+
+				for (Card weaponCard : model.getWeaponCards())
+				{
+					boolean outOfSuspicion  = !model.getPlayerWeaponCards().contains(weaponCard);
+					weapons.put(weaponCard.getName(), outOfSuspicion);
+				}
+				String[][] suspectRows = createRows(suspects);
+				String[][] weaponRows = createRows(weapons);
+				String[][] roomRows = createRows(rooms);
+				CaseFileFrame casefile = new CaseFileFrame(suspectRows, weaponRows, roomRows);
 			}
 		};
 		return listener;
 	}
 	
+	/**
+	 * Create the rows for this table to with made up
+	 * boolean values
+	 * @param rows
+	 * @return
+	 */
+	private String[][] createRows(Map<String,Boolean> rooms)
+	{
+		String[][] tableRows = new String[rooms.size()][2];
+		int i = 0;
+		for(Map.Entry<String, Boolean> row : rooms.entrySet())
+		{
+			assert i < tableRows.length;
+			tableRows[i][0] = row.getKey();
+			boolean crossed = row.getValue();
+			if(crossed)
+			{
+				tableRows[i][1] = "X";
+			}
+			i++;
+		}
+		return tableRows;
+	}
+
 	/**
 	 * Create a keylistener for the board
 	 * It is used for keys to be used to move 
@@ -408,30 +457,6 @@ public class Controller
 		return mouseListener;
 	}
 	
-	/**
-	 * Create the rows for this table to with made up
-	 * boolean values
-	 * @param rows
-	 * @return
-	 */
-	private String[][] createRows(Map<String,Boolean> rooms)
-	{
-		String[][] tableRows = new String[rooms.size()][2];
-		int i = 0;
-		for(Map.Entry<String, Boolean> row : rooms.entrySet())
-		{
-			assert i < tableRows.length;
-			tableRows[i][0] = row.getKey();
-			boolean crossed = row.getValue();
-			if(crossed)
-			{
-				tableRows[i][1] = "X";
-			}
-			i++;
-		}
-		return tableRows;
-	}
-
 	/**
 	 * Creates the board as it is to be drawn, based on Cells and their properties.
 	 * @return The array of Images that represent each Cell.

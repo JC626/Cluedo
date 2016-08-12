@@ -14,6 +14,7 @@ import javax.swing.WindowConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
+
 /**
  * A window that displays the current player's casefile.
  * An "X" represents the cards that the player has crossed
@@ -26,34 +27,21 @@ public class CaseFileFrame extends JFrame{
 	private static final float BUTTON_FONT_SIZE = 20;
 	private static final int VERTICAL_GAP = 30;
 
-	//TODO remove these. Should pass these into the constructor from controller
-	 String[] ROOM_NAMES = new String[] {
-			 "Ballroom",
-			 "Billiard Room", "Conservatory",
-				"Dining Room", "Hall", "Kitchen", "Library", "Lounge", "Study" };
-	 String[] SUSPECT_NAMES = new String[]{ "Miss Scarlett","Colonel Mustard",
-			 "Mrs. White","Reverend Green","Mrs. Peacock","Professor Plum"};
-	 String[] WEAPON_NAMES = new String[] { "Dagger", "Candlestick", "Revolver", "Rope",
-				"Lead Pipe", "Spanner" };
-
-	 String[] suspectHeader = new String[]{
+	//TODO Should pass these into the constructor?
+	 private String[] suspectHeader = new String[]{
 			 "Suspects","\t"
 	 };
-	 String[] weaponHeader = new String[]{
+	 private String[] weaponHeader = new String[]{
 			 "Weapons","\t"
 	 };
-	 String[] roomHeader = new String[]{
+	 private String[] roomHeader = new String[]{
 			 "Rooms","\t"
 	 };
 
-	public CaseFileFrame()
+	public CaseFileFrame(String[][] suspectRows, String[][] weaponRows, String[][] roomRows) 
 	{
 		this.setTitle("Your Casefile");
 		this.setMinimumSize(new Dimension(MIN_WIDTH,MIN_HEIGHT));
-		
-		String[][] roomRows = createRows(ROOM_NAMES);
-		String[][] weaponRows = createRows(WEAPON_NAMES);
-		String[][] suspectRows = createRows(SUSPECT_NAMES);
 
 		JScrollPane suspects = createTable(suspectHeader,suspectRows);
 		JScrollPane weapons = createTable(weaponHeader,weaponRows);
@@ -86,32 +74,7 @@ public class CaseFileFrame extends JFrame{
 		setVisible(true);
 		setResizable(false);
 	}
-	
-	//TODO get controller to do
-	/**
-	 * Create the rows for this table to with made up
-	 * boolean values
-	 * @param rows
-	 * @return
-	 */
-	private String[][] createRows(String[] rows)
-	{
-		String[][] tableRows = new String[rows.length][2];
-		boolean alternate = false;
-		for(int i = 0; i < rows.length; i++){
-			tableRows[i][0] = rows[i];
-			if(alternate)
-			{
-				tableRows[i][1] = "X";
-			}
-			else
-			{
-				tableRows[i][1] = " ";
-			}
-			alternate = !alternate;
-		}
-		return tableRows;
-	}
+		
 	/**
 	 * Create the tables using the provided columns headers 
 	 * and the values in each row
@@ -139,10 +102,5 @@ public class CaseFileFrame extends JFrame{
 		scrollPane.setPreferredSize(new Dimension(MIN_WIDTH,height));
 		return scrollPane;
 	}
-	public static void main(String[] args)
-	{
-		new CaseFileFrame();
-	}
-
 
 }
