@@ -194,12 +194,18 @@ public class Controller
 		board.addQuitListener(quitListener);
 		board.addEndTurnListener(endTurnListener());
 		board.addCasefileListener(casefileListener());
+		//TODO suggestion listener
+		//TODO accusation listener
 		
 		board.addKeyListener(keyListener());
 		//Add mouselistener to board pane so extra height from the menu bar doesn't affect clicking position
 		board.getBoardPane().addMouseListener(mouseListener());
 	}
-	
+	/**
+	 * Create a action listener for ending the turn
+	 * and switching to the next player in the game
+	 * @return A ActionListener
+	 */
 	private ActionListener endTurnListener()
 	{
 		ActionListener listener = new ActionListener(){
@@ -241,9 +247,12 @@ public class Controller
 		return listener;
 	}
 	
+	/**
+	 * Create a action listener for viewing a casefile
+	 * @return A ActionListener
+	 */
 	private ActionListener casefileListener()
 	{
-		//TODO casefile listener
 		ActionListener listener = new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -278,16 +287,15 @@ public class Controller
 	}
 	
 	/**
-	 * Create the rows for this table to with made up
-	 * boolean values
+	 * Create the rows for a table
 	 * @param rows
-	 * @return
+	 * @return The rows as a String[][] for creating the table
 	 */
-	private String[][] createRows(Map<String,Boolean> rooms)
+	private String[][] createRows(Map<String,Boolean> rows)
 	{
-		String[][] tableRows = new String[rooms.size()][2];
+		String[][] tableRows = new String[rows.size()][2];
 		int i = 0;
-		for(Map.Entry<String, Boolean> row : rooms.entrySet())
+		for(Map.Entry<String, Boolean> row : rows.entrySet())
 		{
 			assert i < tableRows.length;
 			tableRows[i][0] = row.getKey();

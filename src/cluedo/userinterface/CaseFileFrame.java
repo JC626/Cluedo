@@ -17,8 +17,8 @@ import javax.swing.table.TableModel;
 
 /**
  * A window that displays the current player's casefile.
- * An "X" represents the cards that the player has crossed
- * out as part of the murder case.
+ * An "X" represents the cards that the player has removed from
+ * suspicion.
  * A " " represents that the card may still be part of the murder
  */
 public class CaseFileFrame extends JFrame{
@@ -50,10 +50,12 @@ public class CaseFileFrame extends JFrame{
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		JButton ok = new JButton("OK");
-		GraphicalUserInterface.setFontSize(ok, BUTTON_FONT_SIZE);
 		JLabel title = new JLabel("Your Casefile");
+		
+		GraphicalUserInterface.setFontSize(ok, BUTTON_FONT_SIZE);
 		GraphicalUserInterface.setFontSize(title, BUTTON_FONT_SIZE);
-		//Align so that OK button is on the right
+		
+		//Align everything to the left
 		title.setAlignmentX(LEFT_ALIGNMENT);
 		suspects.setAlignmentX(LEFT_ALIGNMENT);
 		weapons.setAlignmentX(LEFT_ALIGNMENT);
@@ -80,7 +82,7 @@ public class CaseFileFrame extends JFrame{
 	 * and the values in each row
 	 * @param columnHeaders
 	 * @param rowItems
-	 * @return
+	 * @return A table
 	 */
 	private JScrollPane createTable(String[] columnHeaders, String[][] rowItems)
 	{

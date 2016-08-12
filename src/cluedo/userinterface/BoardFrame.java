@@ -138,6 +138,7 @@ public class BoardFrame extends JFrame
 		suggestionButton = new JButton("Make Suggestion");
 		accusationButton = new JButton("Make Accusation");
 		endTurnButton = new JButton("End Turn");
+		
 		buttons.add(casefileButton);
 		buttons.add(suggestionButton);
 		buttons.add(accusationButton);
