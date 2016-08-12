@@ -24,8 +24,6 @@ import java.util.Set;
 
 import javax.imageio.ImageIO;
 
-import com.sun.corba.se.impl.oa.poa.ActiveObjectMap.Key;
-
 import cluedo.board.Board;
 import cluedo.exceptions.IllegalMethodCallException;
 import cluedo.exceptions.InvalidMoveException;

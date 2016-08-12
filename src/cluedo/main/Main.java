@@ -1,7 +1,6 @@
 package cluedo.main;
 
 import cluedo.userinterface.Controller;
-import cluedo.userinterface.GraphicalUserInterface;
 
 public class Main
 {
