@@ -4,6 +4,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.ImageIcon;
@@ -108,5 +109,13 @@ public class BoardCanvas extends JPanel
 		Image scaled = scaledImages.get(piece);
 		scaledPieces.put(scaled, newPos);
 		repaint();
+	}
+	public void drawExitCells(List<Cell> exitCells,Image exitImage)
+	{
+		Graphics g = getGraphics();
+		for(Cell exit : exitCells)
+		{
+			g.drawImage(exitImage, exit.getX()*CELL_WIDTH, exit.getY()*CELL_HEIGHT, this);
+		}
 	}
 }

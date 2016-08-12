@@ -8,6 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +27,9 @@ import javax.imageio.ImageIO;
 import com.sun.corba.se.impl.oa.poa.ActiveObjectMap.Key;
 
 import cluedo.board.Board;
+import cluedo.exceptions.IllegalMethodCallException;
 import cluedo.exceptions.InvalidMoveException;
+import cluedo.exceptions.NoAvailableExitException;
 import cluedo.game.Game;
 import cluedo.game.GameBuilder;
 import cluedo.model.Cell;
@@ -184,6 +188,7 @@ public class Controller
 		view.information(startPlayerName + "'s turn", startPlayerName + " it is your turn. You are playing as " + startPlayer.getName());
 		
 		//TODO add button listeners here
+
 		board.addNewGameListener(newGameListener);
 		board.addQuitListener(quitListener);
 		board.addEndTurnListener((a) -> {
@@ -200,6 +205,24 @@ public class Controller
 			Image rightDie = getDiceImage(diceRoll[1]);
 			board.getDicePane().changeDice(leftDie, rightDie);
 			view.information(playerName + "'s turn", playerName + " it is your turn. You are playing as " + player.getName());
+			//Show exits if the player is in the room
+			if(model.isInRoom())
+			{
+				Image exitImage = convertToImage(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, Color.GREEN);
+				try 
+				{
+					List<Cell> exitCells = model.getAvailableExits();
+					board.getBoardPane().drawExitCells(exitCells, exitImage);
+				} 
+				catch (InvalidMoveException e1) 
+				{
+					throw new IllegalMethodCallException(e1.getMessage());
+				} 
+				catch (NoAvailableExitException e1) 
+				{
+					view.error("All exits blocked", "All exits are blocked so cannot move out of a room.");
+				}
+			}
 		});
 		
 		KeyListener keyListener = new KeyListener() {
@@ -228,17 +251,13 @@ public class Controller
 						view.error("Cannot Move", "No remaining moves");
 					}
 				}
+				else if(model.isInRoom())
+				{
+					view.error("Cannot Move With Keyboard", "You cannot move in a room. Please select a exit with the mouse instead");
+				}
 				else if(!model.canMove())
 				{
-					if(model.isInRoom())
-					{
-						//TODO highlight exits
-						view.error("Cannot Move", "You cannot move in a room. Please select a exit with the mouse instead");
-					}
-					else 
-					{
-						view.error("Cannot Move", "You cannot move as all paths are blocked");
-					}
+					view.error("Cannot Move", "You cannot move as all paths are blocked");
 				}
 				else
 				{
@@ -282,6 +301,39 @@ public class Controller
 			}
 		};
 		board.addKeyListener(keyListener);
+		
+		//TODO add mouselistener for exit
+				MouseListener mouseListener = new MouseListener() {
+
+					@Override
+					public void mouseClicked(MouseEvent arg0) {
+						// TODO Auto-generated method stub
+					}
+
+					@Override
+					public void mouseEntered(MouseEvent arg0) {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void mouseExited(MouseEvent arg0) {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void mousePressed(MouseEvent arg0) {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void mouseReleased(MouseEvent arg0) {
+						//If user clicked on an exit cell and was in a room,
+						//move player to that position
+					}
+				};
 	}
 	
 	/**
