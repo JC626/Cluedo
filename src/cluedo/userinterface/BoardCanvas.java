@@ -72,7 +72,7 @@ public class BoardCanvas extends JPanel
 	
 	/**
 	 * Scale the images of the pieces on the board
-	 * so that it fits a cell
+	 * so that it fits within a cell
 	 * @param pieces 
 	 */
 	private void scalePieces(Map<Image,Cell> pieces)
@@ -88,7 +88,7 @@ public class BoardCanvas extends JPanel
 	
 	/**
 	 * Draw the pieces on the cells on the board
-	 * @param g
+	 * @param g Board Graphics
 	 */
 	private void drawPieces(Graphics g)
 	{
@@ -100,6 +100,12 @@ public class BoardCanvas extends JPanel
 			g.drawImage(piece.getKey(), x, y,this);
 		}
 	}
+	
+	/**
+	 * Change the location of a player's piece
+	 * @param piece - The original image of the piece
+	 * @param newPos - The new position of the piece
+	 */
 	public void changePieceLocation(Image piece, Cell newPos)
 	{
 		if(!scaledImages.containsKey(piece))
@@ -110,6 +116,13 @@ public class BoardCanvas extends JPanel
 		scaledPieces.put(scaled, newPos);
 		repaint();
 	}
+	
+	/**
+	 * Draws the cells that a player can take 
+	 * to exit a room
+	 * @param exitCells - The cells that can be taken as exits
+	 * @param exitImage - The image of an exit cell
+	 */
 	public void drawExitCells(List<Cell> exitCells,Image exitImage)
 	{
 		Graphics g = getGraphics();

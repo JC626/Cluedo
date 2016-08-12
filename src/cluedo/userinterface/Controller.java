@@ -70,11 +70,11 @@ public class Controller
 						List<Player> p = activePlayers.get().getKey();
 						List<String> s = activePlayers.get().getValue();
 						
-						for (int i = 0; i < p.size(); i++)
+						/*for (int i = 0; i < p.size(); i++)
 						{
 							System.out.println(String.format("%s: %s", p.get(i).getName(), s.get(i)));
-						}
-						//TODO dispose title window
+						}*/
+						//TODO set menu to invisible
 						model = new Game(p,s);
 						setupBoard();
 					}
@@ -92,7 +92,6 @@ public class Controller
 		};
 
 		
-		
 		view.buttonNewGameListener(newGameListener);
 
 		view.buttonQuitListener(quitListener);
@@ -102,7 +101,7 @@ public class Controller
 	/**
 	 * Get user input on the characters that each player wants to play.
 	 * @return Optional.of the players in turn order that each player wants to play.
-	 * Optiona.empty() if the user canceled.
+	 * Optional.empty() if the user canceled.
 	 */
 	private Optional<SimpleEntry<List<Player>, List<String>>> createPlayers()
 	{
@@ -122,6 +121,7 @@ public class Controller
 				view.error("Invalid name", "A name must be between 0 and 15 characters");
 				continue;
 			}
+			//Cancelled or closed the dialog
 			if(!name.isPresent())
 			{
 				break;
@@ -178,6 +178,7 @@ public class Controller
 	private void setupBoard()
 	{
 		this.board = new BoardFrame(getImages(),initialisePieces());
+		//Setup initial player
 		Player startPlayer = model.getCurrentPlayer();
 		String startPlayerName = model.getHumanName(startPlayer);
 		int[] startDiceRoll = model.getDiceRoll();
@@ -187,6 +188,7 @@ public class Controller
 		
 		view.information(startPlayerName + "'s turn", startPlayerName + " it is your turn. You are playing as " + startPlayer.getName());
 		
+		//Add listeners here
 		//TODO add button listeners here
 
 		board.addNewGameListener(newGameListener);
@@ -225,6 +227,7 @@ public class Controller
 			}
 		});
 		
+		//Keyboard for moving around the board
 		KeyListener keyListener = new KeyListener() {
 
 			@Override
@@ -302,23 +305,18 @@ public class Controller
 				}
 			}
 		};		
-		//TODO add mouselistener for exit
+		//Used for selecting exits
 		MouseListener mouseListener = new MouseListener() {
-
 			@Override
 			public void mouseClicked(MouseEvent arg0) 
 			{
-				System.out.println("Click");
-				//TODO If user clicked on an exit cell and was in a room,
-				//move player to that position
 				if(model.isInRoom())
 				{ 
 					try 
 					{
-						System.out.println("Before: " + arg0.getX() + " " + arg0.getY() + " ");
+						//Find the corresponding cell 
 						int x = arg0.getX() / BoardCanvas.CELL_WIDTH;
 						int y = arg0.getY() / BoardCanvas.CELL_HEIGHT;
-						System.out.println(x + " " + y + " ");
 						List<Cell> exitCells = model.getAvailableExits();
 						for(Cell cell : exitCells)
 						{
@@ -348,26 +346,26 @@ public class Controller
 
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
-				// TODO Auto-generated method stub
+				// TODO Anything?
 			}
 
 			@Override
 			public void mouseExited(MouseEvent arg0) {
-				// TODO Auto-generated method stub
+				// TODO Anything?
 			}
 
 			@Override
 			public void mousePressed(MouseEvent arg0) {
-				// TODO Auto-generated method stub
+				// TODO Anything?
 			}
 
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
-				// TODO Auto-generated method stub
+				// TODO Anything?
 			}
 		};
 		board.addKeyListener(keyListener);
-		//Add mouselistener to board pane so don't get added y from the menu bar when clicking
+		//Add mouselistener to board pane so extra height from the menu bar doesn't affect clicking position
 		board.getBoardPane().addMouseListener(mouseListener);
 	}
 	

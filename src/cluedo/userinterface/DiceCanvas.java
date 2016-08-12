@@ -24,11 +24,10 @@ public class DiceCanvas extends JPanel
 	private JLabel leftDieLabel;
 	private JLabel rightDieLabel;
 	
-	public DiceCanvas(Image leftDie, Image rightDie, int width, int height)  
+	public DiceCanvas(int width, int height)  
 	{
 		leftDieLabel = new JLabel();
 		rightDieLabel  = new JLabel();
-		changeDice(leftDie,rightDie);
 		this.add(leftDieLabel);
 		this.add(rightDieLabel);
 		

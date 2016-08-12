@@ -69,17 +69,8 @@ public class BoardFrame extends JFrame
 		JMenuBar menuBar = createMenu();
 		List<JButton> buttons = createButtons();
 		boardPane = new BoardCanvas(boardImages,pieceLocations);
-		
-		//Just so that diceCanvas works.
-		//TODO take dice images in BoardFrame constructor?
-		BufferedImage myPicture = null;
-		try {
-			myPicture = ImageIO.read(new File("test.jpg"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		assert myPicture != null;
-		dicePane = new DiceCanvas(myPicture, myPicture, MIN_DICE_WIDTH,MIN_BOTTOM_HEIGHT);
+	
+		dicePane = new DiceCanvas(MIN_DICE_WIDTH,MIN_BOTTOM_HEIGHT);
 		
 		JPanel bottomRight = createBottomRightPanel(buttons);
 		bottom = new JPanel(new FlowLayout(FlowLayout.LEADING,20,0));
@@ -120,13 +111,13 @@ public class BoardFrame extends JFrame
 	{
 		JMenuBar menu = new JMenuBar();
 		JMenu file = new JMenu("File");
+		//TODO set shortcuts for menu buttons
 		//file.setMnemonic(KeyEvent.VK_A); //Setting shortcut
 		this.newGame = new JMenuItem("New Game");
 		this.quit = new JMenuItem("Quit");
 		file.add(newGame);
 		file.add(quit);
 		menu.add(file);
-		//TODO add listeners for menu items
 		JMenu actions = new JMenu("Game Actions");
 		this.casefileMenu = new JMenuItem("View CaseFile");
 		this.suggestionMenu = new JMenuItem("Make Suggestion");

@@ -755,6 +755,8 @@ public class Game
 	 * exit that is blocked by another player
 	 * @throws IllegalArgumentException
 	 * If cell given is not an exit cell or is null
+	 * @return The exit the player took or 
+	 * a random room cell position if the player took the secret passage
 	 */
 	public Cell takeExit(Cell cell) throws InvalidMoveException
 	{
@@ -847,6 +849,7 @@ public class Game
 	 * can enter the room
 	 * @param piece - Piece to put in the room
 	 * @param room - The room to put the piece in
+	 * @return The cell the piece is allocated to in the room
 	 */
 	private Cell putInRoom(Piece piece, Room room) 
 	{
@@ -854,7 +857,10 @@ public class Game
 		{
 			throw new IllegalArgumentException(room.getName()+ " is not a valid room!");
 		}
-		playerToRoom.put(currentPlayer, room);
+		if(piece == currentPlayer)
+		{
+			playerToRoom.put(currentPlayer, room);
+		}
 		for(Cell cell:roomCells.get(room))
 		{
 			/*
