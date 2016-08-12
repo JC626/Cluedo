@@ -756,7 +756,7 @@ public class Game
 	 * @throws IllegalArgumentException
 	 * If cell given is not an exit cell or is null
 	 */
-	public void takeExit(Cell cell) throws InvalidMoveException
+	public Cell takeExit(Cell cell) throws InvalidMoveException
 	{
 		if (gameOver) 
 		{
@@ -788,7 +788,7 @@ public class Game
 		{
 			remainingMoves = 0;
 			Room newRoom = cellToRoom.get(cell);
-			putInRoom(currentPlayer, newRoom);
+			return putInRoom(currentPlayer, newRoom);
 		}
 		else
 		{
@@ -798,6 +798,7 @@ public class Game
 			remainingMoves--;
 			playerPath.add(cell);
 		}
+		return cell;
 	}
 	
 	/**

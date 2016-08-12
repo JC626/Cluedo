@@ -262,6 +262,7 @@ public class Controller
 				else
 				{
 					//TODO remove dialog boxes if move is invalid?
+					//Find direction player moved
 					Direction direction = null;
 					switch(code)
 					{
@@ -282,6 +283,7 @@ public class Controller
 					{
 						return;
 					}
+					//Move the player
 					try 
 					{
 						Cell cell = model.move(direction);
@@ -299,41 +301,74 @@ public class Controller
 					}
 				}
 			}
+		};		
+		//TODO add mouselistener for exit
+		MouseListener mouseListener = new MouseListener() {
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) 
+			{
+				System.out.println("Click");
+				//TODO If user clicked on an exit cell and was in a room,
+				//move player to that position
+				if(model.isInRoom())
+				{ 
+					try 
+					{
+						System.out.println("Before: " + arg0.getX() + " " + arg0.getY() + " ");
+						int x = arg0.getX() / BoardCanvas.CELL_WIDTH;
+						int y = arg0.getY() / BoardCanvas.CELL_HEIGHT;
+						System.out.println(x + " " + y + " ");
+						List<Cell> exitCells = model.getAvailableExits();
+						for(Cell cell : exitCells)
+						{
+							if(cell.getX() == x && cell.getY() == y)
+							{
+								Cell toExit = model.takeExit(cell);
+								String playerName = model.getCurrentPlayer().getName();
+								board.getBoardPane().changePieceLocation(getPieceImage(playerName), toExit);
+								if(model.isInRoom())
+								{
+									view.information("Entered a room", "You used the secret passage to enter the " + model.getCurrentRoom().getName());
+								}
+							}
+						}
+					} 
+					catch (InvalidMoveException e) 
+					{
+						throw new IllegalMethodCallException(e.getMessage());
+					} 
+					catch (NoAvailableExitException e) 
+					{
+						view.error("All exits blocked", "All exits are blocked so cannot move out of a room.");
+					}
+
+				}
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+			}
 		};
 		board.addKeyListener(keyListener);
-		
-		//TODO add mouselistener for exit
-				MouseListener mouseListener = new MouseListener() {
-
-					@Override
-					public void mouseClicked(MouseEvent arg0) {
-						// TODO Auto-generated method stub
-					}
-
-					@Override
-					public void mouseEntered(MouseEvent arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void mouseExited(MouseEvent arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void mousePressed(MouseEvent arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void mouseReleased(MouseEvent arg0) {
-						//If user clicked on an exit cell and was in a room,
-						//move player to that position
-					}
-				};
+		//Add mouselistener to board pane so don't get added y from the menu bar when clicking
+		board.getBoardPane().addMouseListener(mouseListener);
 	}
 	
 	/**
