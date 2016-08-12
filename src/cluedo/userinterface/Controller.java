@@ -191,41 +191,75 @@ public class Controller
 
 		board.addNewGameListener(newGameListener);
 		board.addQuitListener(quitListener);
-		board.addEndTurnListener((a) -> {
-			if(model.getRemainingMoves() > 0)
-			{
-				view.error("Cannot End Turn", "Must use all your moves before ending your turn");
-				return;
-			}
-			model.nextTurn();
-			Player player = model.getCurrentPlayer();
-			String playerName = model.getHumanName(player);
-			int[] diceRoll = model.getDiceRoll();
-			Image leftDie = getDiceImage(diceRoll[0]);
-			Image rightDie = getDiceImage(diceRoll[1]);
-			board.getDicePane().changeDice(leftDie, rightDie);
-			view.information(playerName + "'s turn", playerName + " it is your turn. You are playing as " + player.getName());
-			//Show exits if the player is in the room
-			if(model.isInRoom())
-			{
-				Image exitImage = convertToImage(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, EXIT_COLOR);
-				try 
+		board.addEndTurnListener(endTurnListener());
+		board.addCasefileListener(casefileListener());
+		
+		board.addKeyListener(keyListener());
+		//Add mouselistener to board pane so extra height from the menu bar doesn't affect clicking position
+		board.getBoardPane().addMouseListener(mouseListener());
+	}
+	
+	private ActionListener endTurnListener()
+	{
+		ActionListener listener = new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(model.getRemainingMoves() > 0)
 				{
-					List<Cell> exitCells = model.getAvailableExits();
-					board.getBoardPane().drawExitCells(exitCells, exitImage);
-				} 
-				catch (InvalidMoveException e1) 
+					view.error("Cannot End Turn", "Must use all your moves before ending your turn");
+					return;
+				}
+				model.nextTurn();
+				Player player = model.getCurrentPlayer();
+				String playerName = model.getHumanName(player);
+				int[] diceRoll = model.getDiceRoll();
+				Image leftDie = getDiceImage(diceRoll[0]);
+				Image rightDie = getDiceImage(diceRoll[1]);
+				board.getDicePane().changeDice(leftDie, rightDie);
+				view.information(playerName + "'s turn", playerName + " it is your turn. You are playing as " + player.getName());
+				//Show exits if the player is in the room
+				if(model.isInRoom())
 				{
-					throw new IllegalMethodCallException(e1.getMessage());
-				} 
-				catch (NoAvailableExitException e1) 
-				{
-					view.error("All exits blocked", "All exits are blocked so cannot move out of a room.");
+					Image exitImage = convertToImage(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, EXIT_COLOR);
+					try 
+					{
+						List<Cell> exitCells = model.getAvailableExits();
+						board.getBoardPane().drawExitCells(exitCells, exitImage);
+					} 
+					catch (InvalidMoveException e1) 
+					{
+						throw new IllegalMethodCallException(e1.getMessage());
+					} 
+					catch (NoAvailableExitException e1) 
+					{
+						view.error("All exits blocked", "All exits are blocked so cannot move out of a room.");
+					}
 				}
 			}
-		});
-		
-		//Keyboard for moving around the board
+		};
+		return listener;
+	}
+	
+	private ActionListener casefileListener()
+	{
+		//TODO casefile listener
+		ActionListener listener = new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				
+			}
+		};
+		return listener;
+	}
+	
+	/**
+	 * Create a keylistener for the board
+	 * It is used for keys to be used to move 
+	 * around the board
+	 * @return A new keylistener
+	 */
+	private KeyListener keyListener()
+	{
 		KeyListener keyListener = new KeyListener() {
 
 			@Override
@@ -237,7 +271,7 @@ public class Controller
 			public void keyReleased(KeyEvent e) {
 				// TODO Anything?
 			}
-			
+
 			@Override
 			public void keyPressed(KeyEvent e) {
 				int code = e.getKeyCode();
@@ -295,7 +329,7 @@ public class Controller
 					{
 						view.error("Cannot Move", "You cannot move in that direction");
 					}
-					
+
 					if(model.isInRoom())
 					{
 						view.information("Entered a room", "You have entered the " + model.getCurrentRoom().getName());
@@ -303,7 +337,16 @@ public class Controller
 				}
 			}
 		};		
-		//Used for selecting exits
+		return keyListener;
+	}
+	
+	/**
+	 * Create a mouselistener for the board
+	 * Used for selecting exits
+	 * @return A new mouselistener
+	 */
+	private MouseListener mouseListener()
+	{
 		MouseListener mouseListener = new MouseListener() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) 
@@ -362,11 +405,33 @@ public class Controller
 				// TODO Anything?
 			}
 		};
-		board.addKeyListener(keyListener);
-		//Add mouselistener to board pane so extra height from the menu bar doesn't affect clicking position
-		board.getBoardPane().addMouseListener(mouseListener);
+		return mouseListener;
 	}
 	
+	/**
+	 * Create the rows for this table to with made up
+	 * boolean values
+	 * @param rows
+	 * @return
+	 */
+	private String[][] createRows(Map<String,Boolean> rooms)
+	{
+		String[][] tableRows = new String[rooms.size()][2];
+		int i = 0;
+		for(Map.Entry<String, Boolean> row : rooms.entrySet())
+		{
+			assert i < tableRows.length;
+			tableRows[i][0] = row.getKey();
+			boolean crossed = row.getValue();
+			if(crossed)
+			{
+				tableRows[i][1] = "X";
+			}
+			i++;
+		}
+		return tableRows;
+	}
+
 	/**
 	 * Creates the board as it is to be drawn, based on Cells and their properties.
 	 * @return The array of Images that represent each Cell.
