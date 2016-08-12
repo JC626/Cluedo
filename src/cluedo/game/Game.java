@@ -180,7 +180,7 @@ public class Game
 		 * should not remove it from a turn (as nextTurn will check if the player is active or not)
 		 */
 		List<Player> allHumanPlayers = new ArrayList<Player>(activeHumanPlayers);
-		turn = new Turn<Player>(allHumanPlayers,allHumanPlayers.size()-1); //Ensure turn starts on the first player
+		turn = new Turn<Player>(allHumanPlayers); //Ensure turn starts on the first player
 		allHumanIterator = new Turn<Player>(allHumanPlayers);
 		//Weapons
 		weapons = GameBuilder.createWeapons();

@@ -68,10 +68,10 @@ public class Controller
 						List<Player> p = activePlayers.get().getKey();
 						List<String> s = activePlayers.get().getValue();
 						
-						/*for (int i = 0; i < p.size(); i++)
+						for (int i = 0; i < p.size(); i++)
 						{
 							System.out.println(String.format("%s: %s", p.get(i).getName(), s.get(i)));
-						}*/
+						}
 						//TODO set menu to invisible
 						model = new Game(p,s);
 						setupBoard();
@@ -208,7 +208,7 @@ public class Controller
 			//Show exits if the player is in the room
 			if(model.isInRoom())
 			{
-				Image exitImage = convertToImage(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, Color.GREEN);
+				Image exitImage = convertToImage(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, EXIT_COLOR);
 				try 
 				{
 					List<Cell> exitCells = model.getAvailableExits();
