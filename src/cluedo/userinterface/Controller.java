@@ -122,11 +122,12 @@ public class Controller
 		|| (activePlayers.size() < Game.MAX_HUMAN_PLAYERS && view.yesNo("Any more players?", "Do you want to add more players? You currently have " + activePlayers.size())))
 		{
 			Optional<String> name = promptUserName();
-			if(name.isPresent() && (name.get().length() == 0 || name.get().length() > 15)) //TODO character limit
+			if(name.isPresent() && name.get().length() <= 0)
 			{
-				view.error("Invalid name", "A name must be between 0 and 15 characters");
+				view.error("Invalid name", "A name must be at least one character");
 				continue;
 			}
+			
 			//Cancelled or closed the dialog
 			if(!name.isPresent())
 			{
