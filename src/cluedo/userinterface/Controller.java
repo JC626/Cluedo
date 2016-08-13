@@ -202,6 +202,7 @@ public class Controller
 		board.addEndTurnListener(endTurnListener());
 		board.addCasefileListener(casefileListener());
 		board.addAccusationListener(accusationListener());
+		board.addSuggestionListener(suggestionListener());
 		//TODO suggestion listener
 		//TODO handListener
 		
@@ -491,7 +492,82 @@ public class Controller
 		ActionListener listener = new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				
+				if(!model.canMakeSuggestion())
+				{
+					if(!model.isInRoom())
+					{
+						view.error("Cannot make a suggestion", "You cannot make a suggestion as you are not in a room");
+					}
+					else
+					{
+						view.error("Cannot make a suggestion", "You cannot make a suggestion as you have already made a suggestion this turn");
+					}
+				}
+				else
+				{
+					//Get cards for suggesting
+					Optional<Card> suspectOption = chooseCard(model.getSuspectCards(), "suspect","I suggest the crime was committed in the " + model.getCurrentRoom().getName() + " by ... ");
+					if(!suspectOption.isPresent())
+					{
+						return;
+					}
+					Optional<Card> weaponOption = chooseCard(model.getWeaponCards(), "weapon", "with the ...");
+					if(!weaponOption.isPresent())
+					{
+						return;
+					}
+					SuspectCard murderer = (SuspectCard) suspectOption.get();
+					WeaponCard murderWeapon = (WeaponCard) weaponOption.get();
+					String verificationQuestion = String.format("You're suggesting %s committed the crime in the %s with the %s?", murderer.getName(), model.getCurrentRoom().getName(), murderWeapon.getName());
+					boolean confirm = view.yesNo("Are you sure?", verificationQuestion);
+					if(!confirm)
+					{
+						return;
+					}
+					Map<Player, Set<Card>> disproved = model.makeSuggestion(murderWeapon, murderer);
+					if (!disproved.isEmpty())
+					{
+						Map<Player, Card> disprover = new HashMap<Player, Card>();
+						// Given that disproved is not empty, these two variables will be initialised.
+						Player disprovingPlayer = null;
+						Set<Card> disprovingHandSet = null;
+
+						List<Card> disprovingHandList = new ArrayList<Card>();
+
+						for (Player p : disproved.keySet())
+						{
+							disprovingPlayer = p;
+							disprovingHandSet = disproved.get(p);
+							break;
+						}
+
+						assert disprovingHandSet != null;
+						assert disprovingPlayer != null;
+
+						for (Card c : disprovingHandSet)
+						{
+							disprovingHandList.add(c);
+						}
+						String disproverName = model.getHumanName(disprovingPlayer);
+						String currentPlayerName = model.getHumanName(model.getCurrentPlayer());
+
+						view.information(disproverName,String.format("%s, you can disprove the suggestion...", disproverName));
+						String question = String.format("%s choose a card to reveal to %s:", disproverName, currentPlayerName);
+						//radio buttons
+						Optional<Card> disproveCard = Optional.empty();
+						while(!disproveCard.isPresent())
+						{
+							 disproveCard = chooseCard(disprovingHandList, "card", question);
+						}
+						disprover.put(disprovingPlayer, disproveCard.get());
+						model.removeCard(disprover);
+						view.information("Suggestion disproved", disproverName + " has shown you the card, " + disproveCard.get().getName());
+					}
+					else
+					{
+						view.information("No disprovers","No one could disprove your suggestion... Maybe you're onto something here.");
+					}
+				}
 			}
 		};
 		return listener;
@@ -546,7 +622,7 @@ public class Controller
 				boolean won = model.makeAccusation(accusingPlayer, murderWeapon, murderRoom, murderer);
 				if(won)
 				{
-					view.information(playerName + " you win!", "You have won the Cluedo game");
+					view.information(playerName + " you win!", "Congratulations on finding the murderer, " + accusingPlayer.getName() + "!");
 				}
 				else
 				{
