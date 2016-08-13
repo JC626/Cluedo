@@ -567,6 +567,7 @@ public class Controller
 					{
 						view.information("No disprovers","No one could disprove your suggestion... Maybe you're onto something here.");
 					}
+					updateBoard();
 				}
 			}
 		};
@@ -662,11 +663,34 @@ public class Controller
 		Optional<Card> card = Optional.of(cards.get(option.get()));
 		return card;
 	}
+	
+	/**
+	 * Update the position of all pieces (players and weapons)
+	 * on the BoardCanvas.
+	 */
+	private void updateBoard()
+	{
+		for(Player player : Game.allPlayers)
+		{
+			Image piece = getPieceImage(player.getName());
+			Cell pos = model.getPosition(player);
+			board.getBoardPane().changePieceLocation(piece, pos);
+		}
+		for(Weapon weapon : model.getWeapons())
+		{
+			Image piece = getPieceImage(weapon.getName());
+			Cell pos = model.getPosition(weapon);
+			board.getBoardPane().changePieceLocation(piece, pos);
+		}
+		//model.getWeapons();
+		
+	}
+	
 	/**
 	 * Creates the board as it is to be drawn, based on Cells and their properties.
 	 * @return The array of Images that represent each Cell.
 	 */
-	public Image[][] getImages()
+	private Image[][] getImages()
 	{
 		assert model != null : "Cannot get cells for an empty game";
 		
