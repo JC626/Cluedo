@@ -121,7 +121,7 @@ public class GraphicalUserInterface extends JFrame
 		
 		List<JRadioButton> buttons = RadioButtonDialog.createRadioButtons(options, available);
 		
-		Optional<Integer> selectedOption = new RadioButtonDialog(this, windowTitle).getUserSelection(buttons);
+		Optional<Integer> selectedOption = new RadioButtonDialog(this, windowTitle,question).getUserSelection(buttons);
 		
 		if (selectedOption.isPresent())
 		{

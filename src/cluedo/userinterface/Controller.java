@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
 
 import com.sun.xml.internal.ws.api.policy.ModelGenerator;
 
@@ -36,6 +37,9 @@ import cluedo.model.Cell;
 import cluedo.model.Player;
 import cluedo.model.Weapon;
 import cluedo.model.cards.Card;
+import cluedo.model.cards.RoomCard;
+import cluedo.model.cards.SuspectCard;
+import cluedo.model.cards.WeaponCard;
 import cluedo.utility.Heading.Direction;
 
 public class Controller
@@ -197,9 +201,9 @@ public class Controller
 		board.addQuitListener(quitListener);
 		board.addEndTurnListener(endTurnListener());
 		board.addCasefileListener(casefileListener());
-	
+		board.addAccusationListener(accusationListener());
 		//TODO suggestion listener
-		//TODO accusation listener
+		//TODO handListener
 		
 		board.addKeyListener(keyListener());
 		//Add mouselistener to board pane so extra height from the menu bar doesn't affect clicking position
@@ -269,18 +273,19 @@ public class Controller
 					suspects.put(suspectCard.getName(), outOfSuspicion);
 				}
 
+				for (Card weaponCard : model.getWeaponCards())
+				{
+					boolean outOfSuspicion  = !model.getPlayerWeaponCards().contains(weaponCard);
+					weapons.put(weaponCard.getName(), outOfSuspicion);
+				}
+				
 				for (Card roomCard : model.getRoomCards())
 				{
 					boolean outOfSuspicion  = !model.getPlayerRoomCards().contains(roomCard);
 					rooms.put(roomCard.getName(), outOfSuspicion);
 					
 				}
-
-				for (Card weaponCard : model.getWeaponCards())
-				{
-					boolean outOfSuspicion  = !model.getPlayerWeaponCards().contains(weaponCard);
-					weapons.put(weaponCard.getName(), outOfSuspicion);
-				}
+				
 				String[][] suspectRows = createRows(suspects);
 				String[][] weaponRows = createRows(weapons);
 				String[][] roomRows = createRows(rooms);
@@ -493,17 +498,17 @@ public class Controller
 	}
 	private ActionListener accusationListener()
 	{
-		//TODO accusation
 		ActionListener listener = new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				//Get accusing player
 				List<Player> activePlayers = model.getActivePlayers();
 				List<Boolean> available = new ArrayList<Boolean>(activePlayers.size());
 				List<String> playerNames = new ArrayList<String>(activePlayers.size());
-				for(Player players :activePlayers)
+				for(Player player :activePlayers)
 				{
 					available.add(true);
-					playerNames.add(players.getName());
+					playerNames.add(model.getHumanName(player));
 				}
 				Optional<Integer> selectedPlayer = view.dialogRadioButtons("Accusation", "Who is making the accusation?", playerNames, available);
 				if(!selectedPlayer.isPresent())
@@ -511,15 +516,76 @@ public class Controller
 					return;
 				}	
 				Player accusingPlayer = activePlayers.get(selectedPlayer.get());
+				//Get cards for accusing
+				Optional<Card> suspectOption = chooseCard(model.getSuspectCards(), "suspect","I accuse ...");
+				if(!suspectOption.isPresent())
+				{
+					return;
+				}
+				Optional<Card> roomOption = chooseCard(model.getRoomCards(), "room", "of committing the crime in the ...");
+				if(!roomOption.isPresent())
+				{
+					return;
+				}
+				Optional<Card> weaponOption = chooseCard(model.getWeaponCards(), "weapon", "with the ...");
+				if(!weaponOption.isPresent())
+				{
+					return;
+				}
 				
-				
-				//TODO method for getting all suspect card, weapon card and room card names
+				SuspectCard murderer = (SuspectCard) suspectOption.get();
+				WeaponCard murderWeapon = (WeaponCard) weaponOption.get();
+				RoomCard murderRoom = (RoomCard) roomOption.get();
+				String confirmationMessage = String.format("Are you sure you want to accuse %s of killing John Boddy in the %s with the %s?", murderer.getName(), murderRoom.getName(), murderWeapon.getName());
+				boolean confirm = view.yesNo("Are you sure?", confirmationMessage);
+				if(!confirm)
+				{
+					return;
+				}
+				String playerName = model.getHumanName(accusingPlayer);
+				boolean won = model.makeAccusation(accusingPlayer, murderWeapon, murderRoom, murderer);
+				if(won)
+				{
+					view.information(playerName + " you win!", "You have won the Cluedo game");
+				}
+				else
+				{
+					view.error("Game Over " + playerName, playerName + ", you've made a very serious accusation and we have evidence to the contrary. You will no longer be able to participate in this investigation.");
+				}
+				//Go back to main menu
+				if(model.isGameOver())
+				{
+					if(!won)
+					{
+						List<Card> answer = model.getAnswer();
+						String answerText = String.format("All players have been eliminated. Answer: %s killed John Boddy in the %s with the %s",answer.get(0).getName(),answer.get(1).getName(),answer.get(2).getName());
+						view.information("No winners",answerText);
+					}
+					board.dispose();
+					board = null;
+					view.setVisible(true);
+				}
 			}
 		};
 		return listener;
 	}
-	
-	
+	private Optional<Card> chooseCard(List<Card> cards, String type,String message)
+	{
+		List<Boolean> available = new ArrayList<Boolean>(cards.size());
+		List<String> cardName = new ArrayList<String>(cards.size());
+		for(Card card : cards)
+		{
+			cardName.add(card.getName());
+			available.add(true);
+		}
+		Optional<Integer> option = view.dialogRadioButtons("Choose a " + type, message, cardName, available);
+		if(!option.isPresent())
+		{
+			return Optional.empty();
+		}
+		Optional<Card> card = Optional.of(cards.get(option.get()));
+		return card;
+	}
 	/**
 	 * Creates the board as it is to be drawn, based on Cells and their properties.
 	 * @return The array of Images that represent each Cell.
@@ -690,8 +756,9 @@ public class Controller
 	
 	private Image initialisePieceImage(String name)
 	{
-		String[] weaponNames = GameBuilder.WEAPON_NAMES;
 		String[] suspectNames = GameBuilder.SUSPECT_NAMES;
+		String[] weaponNames = GameBuilder.WEAPON_NAMES;
+
 		for(String suspect : suspectNames)
 		{
 			if(suspect.equals(name))

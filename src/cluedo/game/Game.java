@@ -936,9 +936,9 @@ public class Game
 			Card roomCard = answer.getRoomCards().get(0);
 			Card suspectCard = answer.getSuspectCards().get(0);
 			Card weaponCard = answer.getWeaponCards().get(0);
-			answerCards.add(roomCard);
 			answerCards.add(suspectCard);
 			answerCards.add(weaponCard);
+			answerCards.add(roomCard);
 			return Collections.unmodifiableList(answerCards);
 		}
 		throw new IllegalMethodCallException("Cannot access answer if game is not over");

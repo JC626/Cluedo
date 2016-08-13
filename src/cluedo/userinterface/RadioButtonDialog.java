@@ -1,5 +1,6 @@
 package cluedo.userinterface;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridLayout;
@@ -14,6 +15,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
@@ -49,7 +51,7 @@ public class RadioButtonDialog extends JDialog
 	 * @param owner The owner of this window.
 	 * @param title The title of the window.
 	 */
-	public RadioButtonDialog(Frame owner, String title)
+	public RadioButtonDialog(Frame owner, String title,String question)
 	{
 		super(owner, title, true);
 
@@ -62,6 +64,10 @@ public class RadioButtonDialog extends JDialog
 		});
 
 		panel = new JPanel();
+		JLabel message = new JLabel(question);
+		GraphicalUserInterface.setFontSize(message, BUTTON_FONT_SIZE);
+		message.setBorder(BorderFactory.createEmptyBorder(BORDER_TOP, BORDER_LEFT, BORDER_BOTTOM, BORDER_RIGHT));
+		this.add(message,BorderLayout.NORTH);
 	}
 
 	/**
