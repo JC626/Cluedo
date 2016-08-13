@@ -35,22 +35,24 @@ public class BoardFrame extends JFrame
 {
 	private static final long serialVersionUID = 1L;
 	
-	public static final int MIN_WIDTH = 1000; 
+	public static final int MIN_WIDTH = 1100; 
 	public static final int MIN_HEIGHT = 1000;
-	private static final int BUTTON_FONT_SIZE = 18;
+	private static final int BUTTON_FONT_SIZE = 16;
 	private static final int MIN_BOTTOM_HEIGHT = MIN_HEIGHT - BoardCanvas.MIN_HEIGHT;
-	private static final int MIN_BOTTOM_RIGHT_WIDTH = (int)(MIN_WIDTH * 0.7);
-	private static final int MIN_DICE_WIDTH = (int)(MIN_WIDTH * 0.3);
+	private static final int MIN_BOTTOM_RIGHT_WIDTH = (int)(MIN_WIDTH * 0.6);
+	private static final int MIN_DICE_WIDTH = (int)(MIN_WIDTH * 0.4);
 
 	private BoardCanvas boardPane;
 	private DiceCanvas dicePane;
 	private JPanel bottom;
 	
+	private JButton handButton;
 	private JButton casefileButton;
 	private JButton suggestionButton;
 	private JButton accusationButton;
 	private JButton endTurnButton;
 	
+	private JMenuItem handMenu;
 	private JMenuItem casefileMenu;
 	private JMenuItem suggestionMenu;
 	private JMenuItem accusationMenu;
@@ -113,10 +115,12 @@ public class BoardFrame extends JFrame
 		file.add(quit);
 		menu.add(file);
 		JMenu actions = new JMenu("Game Actions");
+		this.handMenu = new JMenuItem("View Hand");
 		this.casefileMenu = new JMenuItem("View CaseFile");
 		this.suggestionMenu = new JMenuItem("Make Suggestion");
 		this.accusationMenu = new JMenuItem("Make Accusation");
 		this.endTurnMenu = new JMenuItem("End Turn");
+		actions.add(handMenu);
 		actions.add(casefileMenu);
 		actions.add(suggestionMenu);
 		actions.add(accusationMenu);
@@ -134,11 +138,13 @@ public class BoardFrame extends JFrame
 	{
 		List<JButton> buttons = new ArrayList<JButton>();
 		
+		handButton = new JButton("View Hand");
 		casefileButton = new JButton("View CaseFile");
 		suggestionButton = new JButton("Make Suggestion");
 		accusationButton = new JButton("Make Accusation");
 		endTurnButton = new JButton("End Turn");
 		
+		buttons.add(handButton);
 		buttons.add(casefileButton);
 		buttons.add(suggestionButton);
 		buttons.add(accusationButton);
@@ -176,6 +182,12 @@ public class BoardFrame extends JFrame
 		{
 			GraphicalUserInterface.setFontSize(button, BUTTON_FONT_SIZE);
 		}
+	}
+	
+	public void addHandListener(ActionListener a)
+	{
+		handButton.addActionListener(a);
+		handMenu.addActionListener(a);
 	}
 	
 	public void addCasefileListener(ActionListener a)
