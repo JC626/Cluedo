@@ -142,7 +142,7 @@ public class Controller
 			}
 			
 			activePlayers.add(currentPlayer.get());
-			playerNames.add(name.get() + "(" + currentPlayer.get() + ")");
+			playerNames.add(name.get() + " (" + currentPlayer.get().getName() + ")");
 
 			availablePlayers.remove((int) selectedPlayerIndex.get()); // Integer is treated as .remove(Object x) but we want .remove(int x) so we need a cast.
 			availablePlayers.add(selectedPlayerIndex.get(), false);
