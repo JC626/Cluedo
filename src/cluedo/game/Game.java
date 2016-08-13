@@ -345,8 +345,10 @@ public class Game
 						checkCell = cells[x-1][y];
 						break;
 				}
+				assert checkCell != null;
 				if(board.containsPiece(checkCell) ||
-						playerPath.contains(checkCell)) 
+						playerPath.contains(checkCell) ||
+				checkCell.hasWall(Heading.opposite(dir)))
 				{
 					toRemove.add(dir);
 				}

@@ -342,6 +342,7 @@ public class Controller
 			@Override
 			public void keyPressed(KeyEvent e) {
 				int code = e.getKeyCode();
+				//TODO don't do anything if not corresponding key?
 				if(model.getRemainingMoves() == 0)
 				{
 					if(model.isInRoom())
@@ -350,7 +351,7 @@ public class Controller
 					}
 					else
 					{
-						view.error("Cannot Move", "No remaining moves");
+						view.error("Cannot Move", "No remaining moves");	
 					}
 				}
 				else if(model.isInRoom())
@@ -359,7 +360,7 @@ public class Controller
 				}
 				else if(!model.canMove())
 				{
-					view.error("Cannot Move", "You cannot move as all paths are blocked");
+					view.error("Cannot Move", "You cannot move as all paths are blocked.");
 				}
 				else
 				{
@@ -681,9 +682,7 @@ public class Controller
 			Image piece = getPieceImage(weapon.getName());
 			Cell pos = model.getPosition(weapon);
 			board.getBoardPane().changePieceLocation(piece, pos);
-		}
-		//model.getWeapons();
-		
+		}		
 	}
 	
 	/**
