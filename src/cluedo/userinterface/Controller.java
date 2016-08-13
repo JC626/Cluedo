@@ -24,6 +24,8 @@ import java.util.Set;
 
 import javax.imageio.ImageIO;
 
+import com.sun.xml.internal.ws.api.policy.ModelGenerator;
+
 import cluedo.board.Board;
 import cluedo.exceptions.IllegalMethodCallException;
 import cluedo.exceptions.InvalidMoveException;
@@ -74,6 +76,7 @@ public class Controller
 							System.out.println(String.format("%s: %s", p.get(i).getName(), s.get(i)));
 						}
 						//TODO set menu to invisible
+						view.setVisible(false);
 						model = new Game(p,s);
 						setupBoard();
 					}
@@ -194,6 +197,7 @@ public class Controller
 		board.addQuitListener(quitListener);
 		board.addEndTurnListener(endTurnListener());
 		board.addCasefileListener(casefileListener());
+	
 		//TODO suggestion listener
 		//TODO accusation listener
 		
@@ -464,6 +468,57 @@ public class Controller
 		};
 		return mouseListener;
 	}
+	private ActionListener handListener()
+	{
+		//TODO hand
+		ActionListener listener = new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+			
+			}
+		};
+		return listener;
+	}
+	
+	private ActionListener suggestionListener()
+	{
+		//TODO suggestions
+		ActionListener listener = new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				
+			}
+		};
+		return listener;
+	}
+	private ActionListener accusationListener()
+	{
+		//TODO accusation
+		ActionListener listener = new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				List<Player> activePlayers = model.getActivePlayers();
+				List<Boolean> available = new ArrayList<Boolean>(activePlayers.size());
+				List<String> playerNames = new ArrayList<String>(activePlayers.size());
+				for(Player players :activePlayers)
+				{
+					available.add(true);
+					playerNames.add(players.getName());
+				}
+				Optional<Integer> selectedPlayer = view.dialogRadioButtons("Accusation", "Who is making the accusation?", playerNames, available);
+				if(!selectedPlayer.isPresent())
+				{
+					return;
+				}	
+				Player accusingPlayer = activePlayers.get(selectedPlayer.get());
+				
+				
+				//TODO method for getting all suspect card, weapon card and room card names
+			}
+		};
+		return listener;
+	}
+	
 	
 	/**
 	 * Creates the board as it is to be drawn, based on Cells and their properties.
