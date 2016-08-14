@@ -74,7 +74,6 @@ public class Controller
 						{
 							System.out.println(String.format("%s: %s", p.get(i).getName(), s.get(i)));
 						}
-						//TODO set menu to invisible
 						view.setVisible(false);
 						model = new Game(p,s);
 						setupBoard();
@@ -181,15 +180,7 @@ public class Controller
 	{
 		view.newBoard(getImages(),initialisePieces());
 		//Setup initial player
-		Player startPlayer = model.getCurrentPlayer();
-		String startPlayerName = model.getHumanName(startPlayer);
-		int[] startDiceRoll = model.getDiceRoll();
-		Image d1 = getDiceImage(startDiceRoll[0]);
-		Image d2 = getDiceImage(startDiceRoll[1]);
-		view.changeDice(d1, d2);
-		
-		view.information(startPlayerName + "'s turn", startPlayerName + " it is your turn. You are playing as " + startPlayer.getName());
-		
+		newTurn();
 		//Add listeners here
 		//TODO add button listeners here
 
@@ -199,7 +190,6 @@ public class Controller
 		view.addCasefileListener(casefileListener());
 		view.addAccusationListener(accusationListener());
 		view.addSuggestionListener(suggestionListener());
-		//TODO suggestion listener
 		//TODO handListener
 		
 		view.addBoardKeyListener(keyListener());
@@ -222,31 +212,7 @@ public class Controller
 					return;
 				}
 				model.nextTurn();
-				Player player = model.getCurrentPlayer();
-				String playerName = model.getHumanName(player);
-				int[] diceRoll = model.getDiceRoll();
-				Image leftDie = getDiceImage(diceRoll[0]);
-				Image rightDie = getDiceImage(diceRoll[1]);
-				view.changeDice(leftDie, rightDie);
-				view.information(playerName + "'s turn", playerName + " it is your turn. You are playing as " + player.getName());
-				//Show exits if the player is in the room
-				if(model.isInRoom())
-				{
-					Image exitImage = convertToImage(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, EXIT_COLOR);
-					try 
-					{
-						List<Cell> exitCells = model.getAvailableExits();
-						view.drawExitCells(exitCells, exitImage);
-					} 
-					catch (InvalidMoveException e1) 
-					{
-						throw new IllegalMethodCallException(e1.getMessage());
-					} 
-					catch (NoAvailableExitException e1) 
-					{
-						view.error("All exits blocked", "All exits are blocked so cannot move out of a room.");
-					}
-				}
+				newTurn();
 			}
 		};
 		return listener;
@@ -617,6 +583,7 @@ public class Controller
 					return;
 				}
 				String playerName = model.getHumanName(accusingPlayer);
+				Player currentPlayer = model.getCurrentPlayer();
 				boolean won = model.makeAccusation(accusingPlayer, murderWeapon, murderRoom, murderer);
 				updateBoard();
 				if(won)
@@ -626,6 +593,11 @@ public class Controller
 				else
 				{
 					view.error("Game Over " + playerName, playerName + ", you've made a very serious accusation and we have evidence to the contrary. You will no longer be able to participate in this investigation.");
+					if(accusingPlayer == currentPlayer)
+					{
+						System.out.println("Hello");
+						newTurn();
+					}
 				}
 				//Go back to main menu
 				if(model.isGameOver())
@@ -644,6 +616,36 @@ public class Controller
 		};
 		return listener;
 	}
+	
+	private void newTurn()
+	{
+		Player player = model.getCurrentPlayer();
+		String playerName = model.getHumanName(player);
+		int[] diceRoll = model.getDiceRoll();
+		Image leftDie = getDiceImage(diceRoll[0]);
+		Image rightDie = getDiceImage(diceRoll[1]);
+		view.changeDice(leftDie, rightDie);
+		view.information(playerName + "'s turn", playerName + " it is your turn. You are playing as " + player.getName());
+		//Show exits if the player is in the room
+		if(model.isInRoom())
+		{
+			Image exitImage = convertToImage(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, EXIT_COLOR);
+			try 
+			{
+				List<Cell> exitCells = model.getAvailableExits();
+				view.drawExitCells(exitCells, exitImage);
+			} 
+			catch (InvalidMoveException e1) 
+			{
+				throw new IllegalMethodCallException(e1.getMessage());
+			} 
+			catch (NoAvailableExitException e1) 
+			{
+				view.error("All exits blocked", "All exits are blocked so cannot move out of a room.");
+			}
+		}
+	}
+	
 	private Optional<Card> chooseCard(List<Card> cards, String type,String message)
 	{
 		List<Boolean> available = new ArrayList<Boolean>(cards.size());
