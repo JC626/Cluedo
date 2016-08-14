@@ -27,12 +27,13 @@ import cluedo.utility.ErrorChecking;
 public class RadioButtonDialog extends JDialog
 {
 	private JPanel panel;
+	private JPanel buttonPanel;
 	private Optional<Integer> selectedIndex;
 	
 	private static final String AFFIRMATIVE_BUTTON_LABEL = "Ok";
 	
 	// LAYOUT_ROWS are determined by the number of buttons.
-	private static final int LAYOUT_COLS = 1;
+	private static int LAYOUT_COLS = 1;
 	private static final int LAYOUT_HORIZONTAL_GAP = 0;
 	private static final int LAYOUT_VERTICAL_GAP = 30;
 
@@ -62,12 +63,13 @@ public class RadioButtonDialog extends JDialog
 				cleanupDialog();
 			}
 		});
-
+		
 		panel = new JPanel();
+		buttonPanel = new JPanel();
 		JLabel message = new JLabel(question);
 		GraphicalUserInterface.setFontSize(message, BUTTON_FONT_SIZE);
 		message.setBorder(BorderFactory.createEmptyBorder(BORDER_TOP, BORDER_LEFT, BORDER_BOTTOM, BORDER_RIGHT));
-		this.add(message,BorderLayout.NORTH);
+		this.add(message, BorderLayout.NORTH);
 	}
 
 	/**
@@ -78,11 +80,14 @@ public class RadioButtonDialog extends JDialog
 	 */
 	public Optional<Integer> getUserSelection(List<? extends JRadioButton> buttons)
 	{
-		this.getContentPane().add(panel);
+		this.add(panel, BorderLayout.CENTER);
+		this.add(buttonPanel, BorderLayout.PAGE_END);
 
 		this.setMinimumSize(new Dimension(WINDOW_MINIMUM_WIDTH, WINDOW_MINIMUM_HEIGHT));
 		panel.setLayout(new GridLayout(buttons.size(), LAYOUT_COLS, LAYOUT_HORIZONTAL_GAP, LAYOUT_VERTICAL_GAP));
 		panel.setBorder(BorderFactory.createEmptyBorder(BORDER_TOP, BORDER_LEFT, BORDER_BOTTOM, BORDER_RIGHT));
+		
+		buttonPanel.setBorder(BorderFactory.createEmptyBorder(BORDER_TOP, BORDER_LEFT, BORDER_BOTTOM, BORDER_RIGHT));
 
 		ButtonGroup group = new ButtonGroup();
 
@@ -101,7 +106,8 @@ public class RadioButtonDialog extends JDialog
 		});
 		GraphicalUserInterface.setFontSize(affirmativeButton, BUTTON_FONT_SIZE);
 
-		panel.add(affirmativeButton);
+		buttonPanel.add(affirmativeButton);
+		
 		pack();
 		this.setVisible(true);
 
