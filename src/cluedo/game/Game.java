@@ -301,6 +301,18 @@ public class Game
 			i++;
 		}
 	}
+	/**
+	 * Set the player to their starting position.
+	 * Used for resetting the player's position
+	 * when they failed their accusation
+	 * @param player - Player who failed an accusation
+	 */
+	private void setStartingPosition(Player player)
+	{
+		int x = allPlayers.indexOf(player)*2;
+		int y = x+1;
+		board.setPosition(player, STARTINGPOSITION[x],STARTINGPOSITION[y]);
+	}
 
 	/**
 	 * Checks whether a player can move or exit a room
@@ -720,6 +732,7 @@ public class Game
 		else if (players.size() == 1) 
 		{
 			players.remove(player);
+			setStartingPosition(player);
 			gameOver = true;
 			return false;
 		} 
@@ -727,6 +740,7 @@ public class Game
 		{
 			// Accusation failed, remove player from the game
 			players.remove(player);
+			setStartingPosition(player);
 			if(player == currentPlayer)
 			{
 				remainingMoves = 0;

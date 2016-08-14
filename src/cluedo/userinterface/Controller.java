@@ -522,6 +522,7 @@ public class Controller
 						return;
 					}
 					Map<Player, Set<Card>> disproved = model.makeSuggestion(murderWeapon, murderer);
+					updateBoard();
 					if (!disproved.isEmpty())
 					{
 						Map<Player, Card> disprover = new HashMap<Player, Card>();
@@ -564,7 +565,6 @@ public class Controller
 					{
 						view.information("No disprovers","No one could disprove your suggestion... Maybe you're onto something here.");
 					}
-					updateBoard();
 				}
 			}
 		};
@@ -618,6 +618,7 @@ public class Controller
 				}
 				String playerName = model.getHumanName(accusingPlayer);
 				boolean won = model.makeAccusation(accusingPlayer, murderWeapon, murderRoom, murderer);
+				updateBoard();
 				if(won)
 				{
 					view.information(playerName + " you win!", "Congratulations on finding the murderer, " + accusingPlayer.getName() + "!");
