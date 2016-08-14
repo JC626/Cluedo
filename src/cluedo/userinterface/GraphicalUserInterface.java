@@ -3,10 +3,14 @@ package cluedo.userinterface;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.swing.BorderFactory;
@@ -16,6 +20,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
+import cluedo.model.Cell;
 import cluedo.utility.ErrorChecking;
 
 public class GraphicalUserInterface extends JFrame
@@ -26,7 +31,9 @@ public class GraphicalUserInterface extends JFrame
 
 
 	JButton newGame = new JButton("New Game");
-	JButton quit = new JButton("Quit");	
+	JButton quit = new JButton("Quit");
+
+	private BoardFrame board; // FIXME	
 
 	public GraphicalUserInterface()
 	{
@@ -137,7 +144,37 @@ public class GraphicalUserInterface extends JFrame
 		return new TextDialog(this, windowTitle).getUserInput(question);
 	}
 	
+	/**
+	 * Change the location of a player's piece
+	 * @param piece - The original image of the piece
+	 * @param newPos - The new position of the piece
+	 */
+	public void changePieceLocation(Image piece, Cell newPos)
+	{
+		board.getBoardPane().changePieceLocation(piece, newPos);
+	}
 	
+	/**
+	 * Changes the dice displayed when the player
+	 * starts their turn.
+	 * @param leftDie
+	 * @param rightDie
+	 */
+	public void changeDice(Image leftDie, Image rightDie) 
+	{
+		board.getDicePane().changeDice(leftDie, rightDie);
+	}
+	
+	/**
+	 * Draws the cells that a player can take 
+	 * to exit a room
+	 * @param exitCells - The cells that can be taken as exits
+	 * @param exitImage - The image of an exit cell
+	 */
+	public void drawExitCells(List<Cell> exitCells,Image exitImage)
+	{
+		board.getBoardPane().drawExitCells(exitCells, exitImage);
+	}
 	
 
 	public void buttonNewGameListener(ActionListener a)
@@ -150,6 +187,45 @@ public class GraphicalUserInterface extends JFrame
 		quit.addActionListener(a);
 	}
 	
+	public void addHandListener(ActionListener a)
+	{
+		board.addHandListener(a);
+	}
+	
+	public void addCasefileListener(ActionListener a)
+	{
+		board.addCasefileListener(a);
+	}
+	
+	public void addSuggestionListener(ActionListener a)
+	{
+		board.addSuggestionListener(a);
+	}
+	
+	public void addAccusationListener(ActionListener a)
+	{
+		board.addAccusationListener(a);
+	}
+	
+	public void addEndTurnListener(ActionListener a)
+	{
+		board.addEndTurnListener(a);
+	}
+	
+	public void addNewGameListener(ActionListener a)
+	{
+		board.addNewGameListener(a);
+	}
+	
+	public void addQuitListener(ActionListener a)
+	{
+		board.addQuitListener(a);
+	}
+	
+	
+	
+	
+	
 	/**
 	 * A wrapper method for setFont, which changes the font size of a component.
 	 * @param component The component that needs size changing.
@@ -159,4 +235,26 @@ public class GraphicalUserInterface extends JFrame
 	{
 		component.setFont(component.getFont().deriveFont(size));
 	}
+
+	public void destoryBoard()
+	{
+		board.dispose();
+		board = null;
+	}
+
+	public void addBoardKeyListener(KeyListener keyListener)
+	{
+		board.addKeyListener(keyListener);
+	}
+
+	public void addBoardMouseListener(MouseListener mouseListener)
+	{
+		board.getBoardPane().addMouseListener(mouseListener);
+	}
+	
+	public void newBoard(Image[][] boardImages, Map<Image,Cell> pieceLocations)
+	{
+		board = new BoardFrame(boardImages, pieceLocations);
+	}
+	
 }

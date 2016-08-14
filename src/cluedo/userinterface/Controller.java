@@ -42,7 +42,6 @@ public class Controller
 {
 	private Game model;
 	private GraphicalUserInterface view;
-	private BoardFrame board;
 	
 	private static final BasicStroke WALL_THICKNESS = new BasicStroke(7.0f);
 	private static final Color NORMAL_CELL_COLOUR = new Color(255,248,111);
@@ -180,32 +179,32 @@ public class Controller
 	}
 	private void setupBoard()
 	{
-		this.board = new BoardFrame(getImages(),initialisePieces());
+		view.newBoard(getImages(),initialisePieces());
 		//Setup initial player
 		Player startPlayer = model.getCurrentPlayer();
 		String startPlayerName = model.getHumanName(startPlayer);
 		int[] startDiceRoll = model.getDiceRoll();
 		Image d1 = getDiceImage(startDiceRoll[0]);
 		Image d2 = getDiceImage(startDiceRoll[1]);
-		board.getDicePane().changeDice(d1, d2);
+		view.changeDice(d1, d2);
 		
 		view.information(startPlayerName + "'s turn", startPlayerName + " it is your turn. You are playing as " + startPlayer.getName());
 		
 		//Add listeners here
 		//TODO add button listeners here
 
-		board.addNewGameListener(newGameListener);
-		board.addQuitListener(quitListener);
-		board.addEndTurnListener(endTurnListener());
-		board.addCasefileListener(casefileListener());
-		board.addAccusationListener(accusationListener());
-		board.addSuggestionListener(suggestionListener());
+		view.addNewGameListener(newGameListener);
+		view.addQuitListener(quitListener);
+		view.addEndTurnListener(endTurnListener());
+		view.addCasefileListener(casefileListener());
+		view.addAccusationListener(accusationListener());
+		view.addSuggestionListener(suggestionListener());
 		//TODO suggestion listener
 		//TODO handListener
 		
-		board.addKeyListener(keyListener());
+		view.addBoardKeyListener(keyListener());
 		//Add mouselistener to board pane so extra height from the menu bar doesn't affect clicking position
-		board.getBoardPane().addMouseListener(mouseListener());
+		view.addBoardMouseListener(mouseListener());
 	}
 	/**
 	 * Create a action listener for ending the turn
@@ -228,7 +227,7 @@ public class Controller
 				int[] diceRoll = model.getDiceRoll();
 				Image leftDie = getDiceImage(diceRoll[0]);
 				Image rightDie = getDiceImage(diceRoll[1]);
-				board.getDicePane().changeDice(leftDie, rightDie);
+				view.changeDice(leftDie, rightDie);
 				view.information(playerName + "'s turn", playerName + " it is your turn. You are playing as " + player.getName());
 				//Show exits if the player is in the room
 				if(model.isInRoom())
@@ -237,7 +236,7 @@ public class Controller
 					try 
 					{
 						List<Cell> exitCells = model.getAvailableExits();
-						board.getBoardPane().drawExitCells(exitCells, exitImage);
+						view.drawExitCells(exitCells, exitImage);
 					} 
 					catch (InvalidMoveException e1) 
 					{
@@ -388,7 +387,7 @@ public class Controller
 					{
 						Cell cell = model.move(direction);
 						String playerName = model.getCurrentPlayer().getName();
-						board.getBoardPane().changePieceLocation(getPieceImage(playerName), cell);
+						view.changePieceLocation(getPieceImage(playerName), cell);
 					} 
 					catch (InvalidMoveException e1) 
 					{
@@ -430,7 +429,7 @@ public class Controller
 							{
 								Cell toExit = model.takeExit(cell);
 								String playerName = model.getCurrentPlayer().getName();
-								board.getBoardPane().changePieceLocation(getPieceImage(playerName), toExit);
+								view.changePieceLocation(getPieceImage(playerName), toExit);
 								if(model.isInRoom())
 								{
 									view.information("Entered a room", "You used the secret passage to enter the " + model.getCurrentRoom().getName());
@@ -636,8 +635,8 @@ public class Controller
 						String answerText = String.format("All players have been eliminated. Answer: %s killed John Boddy in the %s with the %s",answer.get(0).getName(),answer.get(1).getName(),answer.get(2).getName());
 						view.information("No winners",answerText);
 					}
-					board.dispose();
-					board = null;
+
+					view.destoryBoard();
 					view.setVisible(true);
 				}
 			}
@@ -672,13 +671,13 @@ public class Controller
 		{
 			Image piece = getPieceImage(player.getName());
 			Cell pos = model.getPosition(player);
-			board.getBoardPane().changePieceLocation(piece, pos);
+			view.changePieceLocation(piece, pos);
 		}
 		for(Weapon weapon : model.getWeapons())
 		{
 			Image piece = getPieceImage(weapon.getName());
 			Cell pos = model.getPosition(weapon);
-			board.getBoardPane().changePieceLocation(piece, pos);
+			view.changePieceLocation(piece, pos);
 		}		
 	}
 	
