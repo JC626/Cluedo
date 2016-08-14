@@ -617,6 +617,9 @@ public class Controller
 		return listener;
 	}
 	
+	/**
+	 * Sets up the new turn for the current player
+	 */
 	private void newTurn()
 	{
 		Player player = model.getCurrentPlayer();

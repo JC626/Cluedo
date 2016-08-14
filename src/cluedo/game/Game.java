@@ -969,12 +969,12 @@ public class Game
 	}
 	
 	/**
-	 * 
+	 * Get the name that the users choose based
+	 * on the character they picked
 	 */
 	public String getHumanName(Player character)
 	{
-		int nameIndex = activeHumanPlayers.indexOf(character);
-		
+		int nameIndex = allHumanIterator.getList().indexOf(character);
 		if (nameIndex == -1)
 		{
 			throw new IllegalArgumentException("character must be an active human player");
