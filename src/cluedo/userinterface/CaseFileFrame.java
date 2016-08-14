@@ -52,6 +52,10 @@ public class CaseFileFrame extends JFrame{
 		JButton ok = new JButton("OK");
 		JLabel title = new JLabel("Your Casefile");
 		
+		ok.addActionListener(a -> {
+			this.dispose();
+		});
+		
 		GraphicalUserInterface.setFontSize(ok, BUTTON_FONT_SIZE);
 		GraphicalUserInterface.setFontSize(title, BUTTON_FONT_SIZE);
 		
