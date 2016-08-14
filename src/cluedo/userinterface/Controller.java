@@ -23,10 +23,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
-import javax.swing.JOptionPane;
-
-import com.sun.xml.internal.ws.api.policy.ModelGenerator;
-
 import cluedo.board.Board;
 import cluedo.exceptions.IllegalMethodCallException;
 import cluedo.exceptions.InvalidMoveException;
@@ -44,9 +40,9 @@ import cluedo.utility.Heading.Direction;
 
 public class Controller
 {
-	Game model;
-	GraphicalUserInterface view;
-	BoardFrame board;
+	private Game model;
+	private GraphicalUserInterface view;
+	private BoardFrame board;
 	
 	private static final BasicStroke WALL_THICKNESS = new BasicStroke(7.0f);
 	private static final Color NORMAL_CELL_COLOUR = new Color(255,248,111);
