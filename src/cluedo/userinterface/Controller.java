@@ -628,7 +628,7 @@ public class Controller
 		Image leftDie = getDiceImage(diceRoll[0]);
 		Image rightDie = getDiceImage(diceRoll[1]);
 		view.changeDice(leftDie, rightDie);
-		view.information(playerName + "'s turn", playerName + " it is your turn);
+		view.information(playerName + "'s turn", playerName + " it is your turn");
 		//Show exits if the player is in the room
 		if(model.isInRoom())
 		{
