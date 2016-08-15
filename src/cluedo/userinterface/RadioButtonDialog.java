@@ -99,7 +99,7 @@ public class RadioButtonDialog extends JDialog
 			panel.add(thisButton);
 		}
 
-		JButton affirmativeButton = new JButton(AFFIRMATIVE_BUTTON_LABEL );
+		JButton affirmativeButton = new JButton(AFFIRMATIVE_BUTTON_LABEL);
 		affirmativeButton.addActionListener((a) -> {
 			selectedIndex =  getSelectedIndex(buttons);
 			cleanupDialog();
