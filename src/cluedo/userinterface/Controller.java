@@ -23,6 +23,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+
 import cluedo.board.Board;
 import cluedo.exceptions.IllegalMethodCallException;
 import cluedo.exceptions.InvalidMoveException;
@@ -190,7 +192,7 @@ public class Controller
 		view.addCasefileListener(casefileListener());
 		view.addAccusationListener(accusationListener());
 		view.addSuggestionListener(suggestionListener());
-		//TODO handListener
+		view.addHandListener(handListener());
 		
 		view.addBoardKeyListener(keyListener());
 		//Add mouselistener to board pane so extra height from the menu bar doesn't affect clicking position
@@ -439,11 +441,38 @@ public class Controller
 	}
 	private ActionListener handListener()
 	{
-		//TODO hand
 		ActionListener listener = new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				List<String> options = allPlayerNames();
+				List<Boolean> available = new ArrayList<Boolean>();
+				
+				fillBoolean(available, available.size(), true);
 			
+				view.dialogViewHand(model.getCurrentPlayer().getName() + "'s hand", RadioButtonDialog.createRadioButtons(options, available), getCurrentPlayerHandImages());
+			}
+			
+			private List<ImageIcon> getCurrentPlayerHandImages()
+			{
+				List<ImageIcon> images = new ArrayList<ImageIcon>();
+				
+				images.addAll(getHandImages(stringListFromRoom(model.getPlayerRoomCards())));
+				images.addAll(getHandImages(stringListFromSuspect(model.getPlayerSuspectCards())));
+				images.addAll(getHandImages(stringListFromWeapon(model.getPlayerWeaponCards())));
+				
+				return images;
+			}
+			
+			private List<ImageIcon> getHandImages(List<String> names)
+			{
+				List<ImageIcon> images = new ArrayList<ImageIcon>();
+				
+				for (String name : names)
+				{
+					images.add(new ImageIcon(getImage(name)));
+				}
+				
+				return images;
 			}
 		};
 		return listener;
@@ -882,5 +911,50 @@ public class Controller
 		{
 			throw new RuntimeException(fileName + " not found");
 		}
+	}
+	
+	private List<String> stringListFromRoom(List<RoomCard> list)
+	{
+		List<String> names = new ArrayList<String>();
+		for (RoomCard r : list)
+		{
+			names.add(r.getName());
+		}
+		return names;
+	}
+	
+	private List<String> stringListFromSuspect(List<SuspectCard> list)
+	{
+		List<String> names = new ArrayList<String>();
+		for (SuspectCard s : list)
+		{
+			names.add(s.getName());
+		}
+		return names;
+	}
+	
+	private List<String> stringListFromWeapon(List<WeaponCard> list)
+	{
+		List<String> names = new ArrayList<String>();
+		for (WeaponCard w : list)
+		{
+			names.add(w.getName());
+		}
+		return names;
+	}
+	
+	private List<String> stringListFromStringArray(String[] array)
+	{
+		List<String> allStrings = new ArrayList<String>();
+		for (String w : array)
+		{
+			allStrings.add(w);
+		}
+		return allStrings;
+	}
+	
+	private List<String> allPlayerNames()
+	{
+		return stringListFromStringArray(GameBuilder.SUSPECT_NAMES);
 	}
 }

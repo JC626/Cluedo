@@ -119,7 +119,7 @@ public class GraphicalUserInterface extends JFrame
 		return ConfirmationDialog.okCancel(title, question);
 	}
 
-	public void dialogViewHand(String title, List<? extends JRadioButton> buttons, List<? extends ImageIcon> images)
+	public void dialogViewHand(String title, List<? extends JRadioButton> buttons, List<ImageIcon> images)
 	{
 		new ViewHandDialog(this, title).display(buttons, images);
 	}

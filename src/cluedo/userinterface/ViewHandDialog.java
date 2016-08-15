@@ -67,7 +67,7 @@ public class ViewHandDialog extends JDialog
 	 * These buttons can be created by the static createRadioButtons.
 	 * @return The integer selected, or Optional.empty() if close was selected.
 	 */
-	public void display(List<? extends JRadioButton> buttons, List<? extends ImageIcon> images)
+	public void display(List<? extends JRadioButton> buttons, List<ImageIcon> images)
 	{
 		this.add(panel, BorderLayout.CENTER);
 		this.add(largeImage, BorderLayout.EAST);
