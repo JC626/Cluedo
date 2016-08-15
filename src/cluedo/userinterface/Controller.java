@@ -447,7 +447,7 @@ public class Controller
 				List<String> options = allPlayerNames();
 				List<Boolean> available = new ArrayList<Boolean>();
 				
-				fillBoolean(available, available.size(), true);
+				fillBoolean(available, options.size(), true);
 			
 				view.dialogViewHand(model.getCurrentPlayer().getName() + "'s hand", RadioButtonDialog.createRadioButtons(options, available), getCurrentPlayerHandImages());
 			}
