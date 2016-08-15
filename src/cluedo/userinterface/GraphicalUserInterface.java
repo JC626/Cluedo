@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -29,11 +30,10 @@ public class GraphicalUserInterface extends JFrame
 
 	JLabel title = new JLabel("Cluedo");
 
-
 	JButton newGame = new JButton("New Game");
 	JButton quit = new JButton("Quit");
 
-	private BoardFrame board; // FIXME	
+	private BoardFrame board;
 
 	public GraphicalUserInterface()
 	{
@@ -119,8 +119,10 @@ public class GraphicalUserInterface extends JFrame
 		return ConfirmationDialog.okCancel(title, question);
 	}
 
-
-
+	public void dialogViewHand(String title, List<? extends JRadioButton> buttons, List<? extends ImageIcon> images)
+	{
+		new ViewHandDialog(this, title).display(buttons, images);
+	}
 
 	public Optional<Integer> dialogRadioButtons(String windowTitle, String question, List<String> options, List<Boolean> available)
 	{
@@ -175,7 +177,6 @@ public class GraphicalUserInterface extends JFrame
 	{
 		board.getBoardPane().drawExitCells(exitCells, exitImage);
 	}
-	
 
 	public void buttonNewGameListener(ActionListener a)
 	{
