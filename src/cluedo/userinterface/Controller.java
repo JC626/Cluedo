@@ -625,8 +625,8 @@ public class Controller
 		Player player = model.getCurrentPlayer();
 		String playerName = model.getHumanName(player);
 		int[] diceRoll = model.getDiceRoll();
-		Image leftDie = getDiceImage(diceRoll[0]);
-		Image rightDie = getDiceImage(diceRoll[1]);
+		Image leftDie = getImage("die" + diceRoll[0]);
+		Image rightDie = getImage("die" + diceRoll[1]);
 		view.changeDice(leftDie, rightDie);
 		view.information(playerName + "'s turn", playerName + " it is your turn");
 		//Show exits if the player is in the room
@@ -835,56 +835,32 @@ public class Controller
 	 */
 	private Map<Image,Cell> initialisePieces()
 	{
+		// We need to modify PIECE_IMAGES here because otherwise the references
+		// for the images in the map differ.
+		// We can't pass in the resulting map from this method to another because
+		// we lose the name associated with each image.
 		assert model != null;
 		Map<Image, Cell> pieces = new HashMap<Image,Cell>(); 
 		List<Weapon> weapons = model.getWeapons();
+		
 		for(Weapon weapon : weapons)
 		{
 			String weaponName = weapon.getName();
-			Image image = initialisePieceImage(weaponName);
-			PIECE_IMAGES.put(weaponName,image);
+			Image image = getImage(weaponName);
+			
+			PIECE_IMAGES.put(weaponName, image);
 			pieces.put(image, model.getPosition(weapon));
 		}
+		
 		for(Player player : Game.allPlayers)
 		{
 			String playerName = player.getName();
-			Image image = initialisePieceImage(playerName);
-			PIECE_IMAGES.put(playerName,image);
+			Image image = getImage(playerName);
+			
+			PIECE_IMAGES.put(playerName, image);
 			pieces.put(image, model.getPosition(player));
 		}
 		return pieces;
-	}
-	
-	private Image initialisePieceImage(String name)
-	{
-		String[] suspectNames = GameBuilder.SUSPECT_NAMES;
-		String[] weaponNames = GameBuilder.WEAPON_NAMES;
-
-		for(String suspect : suspectNames)
-		{
-			if(suspect.equals(name))
-			{
-				String fileName = "cluedo_images\\" + suspect + ".png";
-				try {
-					return ImageIO.read(new File(fileName));
-				} catch (IOException e) {
-					throw new RuntimeException(fileName + " not found");
-				}
-			}
-		}
-		for(String weapon : weaponNames)
-		{
-			if(weapon.equals(name))
-			{
-				String fileName = "cluedo_images\\" + weapon + ".png";
-				try {
-					return ImageIO.read(new File(fileName));
-				} catch (IOException e) {
-					throw new RuntimeException(fileName + " not found");
-				}
-			}
-		}
-		throw new IllegalArgumentException("No such image for that name");
 	}
 	
 	private Image getPieceImage(String name)
@@ -896,14 +872,15 @@ public class Controller
 		return PIECE_IMAGES.get(name);
 	}
 	
-	private Image getDiceImage(int number)
+	private Image getImage(String name)
 	{
-		String fileName = "cluedo_images\\die" + number + ".png";
-		try {
+		String fileName = "cluedo_images/" + name + ".png";
+		try
+		{
 			return ImageIO.read(new File(fileName));
-		} catch (IOException e) {
+		} catch (IOException e)
+		{
 			throw new RuntimeException(fileName + " not found");
 		}
 	}
-	
 }
