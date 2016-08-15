@@ -469,7 +469,7 @@ public class Controller
 				
 				for (String name : names)
 				{
-					images.add(new ImageIcon(getImage(name)));
+					images.add(new ImageIcon(getImage(name + "Card")));
 				}
 				
 				return images;
