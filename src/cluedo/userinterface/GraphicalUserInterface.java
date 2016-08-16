@@ -223,6 +223,11 @@ public class GraphicalUserInterface extends JFrame
 		board.addQuitListener(a);
 	}
 	
+	public void setBoardTitle(String title)
+	{
+		board.setTitle(title);
+	}
+	
 	
 	
 	

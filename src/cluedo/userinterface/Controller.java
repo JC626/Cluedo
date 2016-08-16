@@ -25,6 +25,8 @@ import java.util.Set;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
+import com.sun.corba.se.impl.protocol.BootstrapServerRequestDispatcher;
+
 import cluedo.board.Board;
 import cluedo.exceptions.IllegalMethodCallException;
 import cluedo.exceptions.InvalidMoveException;
@@ -53,6 +55,7 @@ public class Controller
 	private static final Color SECRET_PASSAGE_COLOR = Color.MAGENTA;
 	
 	private static final Map<String,Image> PIECE_IMAGES = new HashMap<String,Image>();	
+	private static final String BOARD_TITLE = "Cluedo Game - %s playing with %s remaining moves";
 	
 	private final ActionListener newGameListener;
 	private final ActionListener quitListener;
@@ -306,7 +309,29 @@ public class Controller
 			@Override
 			public void keyPressed(KeyEvent e) {
 				int code = e.getKeyCode();
-				//TODO don't do anything if not corresponding key?
+				//Find direction player moved
+				Direction direction = null;
+				switch(code)
+				{
+				case KeyEvent.VK_W:
+				case KeyEvent.VK_UP:
+					direction = Direction.North;
+					break;
+				case KeyEvent.VK_S:
+				case KeyEvent.VK_DOWN:
+					direction = Direction.South;
+					break;
+				case KeyEvent.VK_A:
+				case KeyEvent.VK_LEFT:
+					direction = Direction.West;
+					break;
+				case KeyEvent.VK_D:
+				case KeyEvent.VK_RIGHT:
+					direction = Direction.East;
+					break;
+				default:
+					return;
+				}
 				if(model.getRemainingMoves() == 0)
 				{
 					if(model.isInRoom())
@@ -329,33 +354,12 @@ public class Controller
 				else
 				{
 					//TODO remove dialog boxes if move is invalid?
-					//Find direction player moved
-					Direction direction = null;
-					switch(code)
-					{
-					case KeyEvent.VK_UP:
-						direction = Direction.North;
-						break;
-					case KeyEvent.VK_DOWN:
-						direction = Direction.South;
-						break;
-					case KeyEvent.VK_LEFT:
-						direction = Direction.West;
-						break;
-					case KeyEvent.VK_RIGHT:
-						direction = Direction.East;
-						break;
-					}
-					if(direction == null)
-					{
-						return;
-					}
 					//Move the player
 					try 
 					{
+						String characterName = model.getCurrentPlayer().getName();
 						Cell cell = model.move(direction);
-						String playerName = model.getCurrentPlayer().getName();
-						view.changePieceLocation(getPieceImage(playerName), cell);
+						view.changePieceLocation(getPieceImage(characterName), cell);
 					} 
 					catch (InvalidMoveException e1) 
 					{
@@ -367,6 +371,8 @@ public class Controller
 						view.dialogInformation("Entered a room", "You have entered the " + model.getCurrentRoom().getName());
 					}
 				}
+				String playerName = model.getHumanName(model.getCurrentPlayer());
+				view.setBoardTitle(String.format(BOARD_TITLE, playerName,model.getRemainingMoves()));
 			}
 		};		
 		return keyListener;
@@ -656,6 +662,8 @@ public class Controller
 		int[] diceRoll = model.getDiceRoll();
 		Image leftDie = getImage("die" + diceRoll[0]);
 		Image rightDie = getImage("die" + diceRoll[1]);
+		view.setBoardTitle(String.format(BOARD_TITLE, playerName,model.getRemainingMoves()));
+		
 		view.changeDice(leftDie, rightDie);
 		view.dialogInformation(playerName + "'s turn", playerName + " it is your turn");
 		//Show exits if the player is in the room
