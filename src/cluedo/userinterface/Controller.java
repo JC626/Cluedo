@@ -86,7 +86,7 @@ public class Controller
 		quitListener = new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (view.yesNo("Are you sure?", "Do you want to quit?"))
+				if (view.yesNoDialog("Are you sure?", "Do you want to quit?"))
 				{
 					System.exit(0);
 				}
@@ -115,12 +115,12 @@ public class Controller
 		
 		while (activePlayers.size() < Game.MIN_HUMAN_PLAYERS // Always ask until we have the minimum number
 		// Once we have the min, and less than the max, only continue if the players want to
-		|| (activePlayers.size() < Game.MAX_HUMAN_PLAYERS && view.yesNo("Any more players?", "Do you want to add more players? You currently have " + activePlayers.size())))
+		|| (activePlayers.size() < Game.MAX_HUMAN_PLAYERS && view.yesNoDialog("Any more players?", "Do you want to add more players? You currently have " + activePlayers.size())))
 		{
 			Optional<String> name = promptUserName();
 			if(name.isPresent() && name.get().length() <= 0)
 			{
-				view.error("Invalid name", "A name must be at least one character");
+				view.errorDialog("Invalid name", "A name must be at least one character");
 				continue;
 			}
 			
@@ -210,7 +210,7 @@ public class Controller
 			public void actionPerformed(ActionEvent arg0) {
 				if(model.getRemainingMoves() > 0)
 				{
-					view.error("Cannot End Turn", "Must use all your moves before ending your turn");
+					view.errorDialog("Cannot End Turn", "Must use all your moves before ending your turn");
 					return;
 				}
 				model.nextTurn();
@@ -311,20 +311,20 @@ public class Controller
 				{
 					if(model.isInRoom())
 					{
-						view.error("Cannot Move", "You just entered a room!");
+						view.errorDialog("Cannot Move", "You just entered a room!");
 					}
 					else
 					{
-						view.error("Cannot Move", "No remaining moves");	
+						view.errorDialog("Cannot Move", "No remaining moves");	
 					}
 				}
 				else if(model.isInRoom())
 				{
-					view.error("Cannot Move With Keyboard", "You cannot move in a room. Please select a exit with the mouse instead");
+					view.errorDialog("Cannot Move With Keyboard", "You cannot move in a room. Please select a exit with the mouse instead");
 				}
 				else if(!model.canMove())
 				{
-					view.error("Cannot Move", "You cannot move as all paths are blocked.");
+					view.errorDialog("Cannot Move", "You cannot move as all paths are blocked.");
 				}
 				else
 				{
@@ -359,12 +359,12 @@ public class Controller
 					} 
 					catch (InvalidMoveException e1) 
 					{
-						view.error("Cannot Move", "You cannot move in that direction");
+						view.errorDialog("Cannot Move", "You cannot move in that direction");
 					}
 
 					if(model.isInRoom())
 					{
-						view.information("Entered a room", "You have entered the " + model.getCurrentRoom().getName());
+						view.informationDialog("Entered a room", "You have entered the " + model.getCurrentRoom().getName());
 					}
 				}
 			}
@@ -400,7 +400,7 @@ public class Controller
 								view.changePieceLocation(getPieceImage(playerName), toExit);
 								if(model.isInRoom())
 								{
-									view.information("Entered a room", "You used the secret passage to enter the " + model.getCurrentRoom().getName());
+									view.informationDialog("Entered a room", "You used the secret passage to enter the " + model.getCurrentRoom().getName());
 								}
 							}
 						}
@@ -411,7 +411,7 @@ public class Controller
 					} 
 					catch (NoAvailableExitException e) 
 					{
-						view.error("All exits blocked", "All exits are blocked so cannot move out of a room.");
+						view.errorDialog("All exits blocked", "All exits are blocked so cannot move out of a room.");
 					}
 
 				}
@@ -488,11 +488,11 @@ public class Controller
 				{
 					if(!model.isInRoom())
 					{
-						view.error("Cannot make a suggestion", "You cannot make a suggestion as you are not in a room");
+						view.errorDialog("Cannot make a suggestion", "You cannot make a suggestion as you are not in a room");
 					}
 					else
 					{
-						view.error("Cannot make a suggestion", "You cannot make a suggestion as you have already made a suggestion this turn");
+						view.errorDialog("Cannot make a suggestion", "You cannot make a suggestion as you have already made a suggestion this turn");
 					}
 				}
 				else
@@ -511,7 +511,7 @@ public class Controller
 					SuspectCard murderer = (SuspectCard) suspectOption.get();
 					WeaponCard murderWeapon = (WeaponCard) weaponOption.get();
 					String verificationQuestion = String.format("You're suggesting %s committed the crime in the %s with the %s?", murderer.getName(), model.getCurrentRoom().getName(), murderWeapon.getName());
-					boolean confirm = view.yesNo("Are you sure?", verificationQuestion);
+					boolean confirm = view.yesNoDialog("Are you sure?", verificationQuestion);
 					if(!confirm)
 					{
 						return;
@@ -544,7 +544,7 @@ public class Controller
 						String disproverName = model.getHumanName(disprovingPlayer);
 						String currentPlayerName = model.getHumanName(model.getCurrentPlayer());
 
-						view.information(disproverName,String.format("%s, you can disprove the suggestion...", disproverName));
+						view.informationDialog(disproverName,String.format("%s, you can disprove the suggestion...", disproverName));
 						String question = String.format("%s choose a card to reveal to %s:", disproverName, currentPlayerName);
 						//radio buttons
 						Optional<Card> disproveCard = Optional.empty();
@@ -554,11 +554,11 @@ public class Controller
 						}
 						disprover.put(disprovingPlayer, disproveCard.get());
 						model.removeCard(disprover);
-						view.information("Suggestion disproved", disproverName + " has shown you the card, " + disproveCard.get().getName());
+						view.informationDialog("Suggestion disproved", disproverName + " has shown you the card, " + disproveCard.get().getName());
 					}
 					else
 					{
-						view.information("No disprovers","No one could disprove your suggestion... Maybe you're onto something here.");
+						view.informationDialog("No disprovers","No one could disprove your suggestion... Maybe you're onto something here.");
 					}
 				}
 			}
@@ -606,7 +606,7 @@ public class Controller
 				WeaponCard murderWeapon = (WeaponCard) weaponOption.get();
 				RoomCard murderRoom = (RoomCard) roomOption.get();
 				String confirmationMessage = String.format("Are you sure you want to accuse %s of killing John Boddy in the %s with the %s?", murderer.getName(), murderRoom.getName(), murderWeapon.getName());
-				boolean confirm = view.yesNo("Are you sure?", confirmationMessage);
+				boolean confirm = view.yesNoDialog("Are you sure?", confirmationMessage);
 				if(!confirm)
 				{
 					return;
@@ -617,11 +617,11 @@ public class Controller
 				updateBoard();
 				if(won)
 				{
-					view.information(playerName + " you win!", "Congratulations on finding the murderer, " + accusingPlayer.getName() + "!");
+					view.informationDialog(playerName + " you win!", "Congratulations on finding the murderer, " + accusingPlayer.getName() + "!");
 				}
 				else
 				{
-					view.error("Game Over " + playerName, playerName + ", you've made a very serious accusation and we have evidence to the contrary. You will no longer be able to participate in this investigation.");
+					view.errorDialog("Game Over " + playerName, playerName + ", you've made a very serious accusation and we have evidence to the contrary. You will no longer be able to participate in this investigation.");
 					if(accusingPlayer == currentPlayer)
 					{
 						System.out.println("Hello");
@@ -635,10 +635,10 @@ public class Controller
 					{
 						List<Card> answer = model.getAnswer();
 						String answerText = String.format("All players have been eliminated. Answer: %s killed John Boddy in the %s with the %s",answer.get(0).getName(),answer.get(1).getName(),answer.get(2).getName());
-						view.information("No winners",answerText);
+						view.informationDialog("No winners",answerText);
 					}
 
-					view.destoryBoard();
+					view.destroyBoard();
 					view.setVisible(true);
 				}
 			}
@@ -657,7 +657,7 @@ public class Controller
 		Image leftDie = getImage("die" + diceRoll[0]);
 		Image rightDie = getImage("die" + diceRoll[1]);
 		view.changeDice(leftDie, rightDie);
-		view.information(playerName + "'s turn", playerName + " it is your turn");
+		view.informationDialog(playerName + "'s turn", playerName + " it is your turn");
 		//Show exits if the player is in the room
 		if(model.isInRoom())
 		{
@@ -673,7 +673,7 @@ public class Controller
 			} 
 			catch (NoAvailableExitException e1) 
 			{
-				view.error("All exits blocked", "All exits are blocked so cannot move out of a room.");
+				view.errorDialog("All exits blocked", "All exits are blocked so cannot move out of a room.");
 			}
 		}
 	}

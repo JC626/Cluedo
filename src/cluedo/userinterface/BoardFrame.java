@@ -68,7 +68,7 @@ public class BoardFrame extends JFrame
 	
 		dicePane = new DiceCanvas(MIN_DICE_WIDTH,MIN_BOTTOM_HEIGHT);
 		
-		JPanel bottomRight = createBottomRightPanel(buttons);
+		JPanel bottomRight = createButtonPanel(buttons);
 		bottom = new JPanel(new FlowLayout(FlowLayout.LEADING,20,0));
 		bottom.setBorder(BorderFactory.createEmptyBorder(20, 0, 50, 0));
 
@@ -158,9 +158,9 @@ public class BoardFrame extends JFrame
 	 * These buttons are the game actions
 	 * that users can select when playing Cluedo
 	 * @param buttons - List of Buttons for game actions
-	 * @return The bottom right panel
+	 * @return The bottom right panel which contains the buttons
 	 */
-	private JPanel createBottomRightPanel(List<JButton> buttons)
+	private JPanel createButtonPanel(List<JButton> buttons)
 	{
 		JPanel panel = new JPanel();
 		panel.setMinimumSize(new Dimension(MIN_BOTTOM_RIGHT_WIDTH, MIN_BOTTOM_HEIGHT)); 

@@ -99,22 +99,22 @@ public class GraphicalUserInterface extends JFrame
 		}
 	}
 	
-	public void information(String title, String text)
+	public void informationDialog(String title, String text)
 	{
 		MessageDialog.information(title, text);
 	}
 	
-	public void error(String title, String text)
+	public void errorDialog(String title, String text)
 	{
 		MessageDialog.error(title, text);
 	}
 	
-	public boolean yesNo(String title, String question)
+	public boolean yesNoDialog(String title, String question)
 	{
 		return ConfirmationDialog.yesNo(title, question);
 	}
 
-	public boolean okCancel(String title, String question)
+	public boolean okCancelDialog(String title, String question)
 	{
 		return ConfirmationDialog.okCancel(title, question);
 	}
@@ -237,7 +237,7 @@ public class GraphicalUserInterface extends JFrame
 		component.setFont(component.getFont().deriveFont(size));
 	}
 
-	public void destoryBoard()
+	public void destroyBoard()
 	{
 		board.dispose();
 		board = null;
