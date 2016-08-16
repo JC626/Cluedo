@@ -730,7 +730,7 @@ public class Controller
 		Set<Cell> outOfBounds = model.getOutOfBoundCells();
 		Set<Cell> roomCells = model.getRoomCells();
 		Set<Cell> secretPassage = model.getSecretPassageCells();
-		Image secretPassageImage = convertToImage(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, SECRET_PASSAGE_COLOR);
+		Image secretPassageImage = getImage("Stairs").getScaledInstance( BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, Image.SCALE_DEFAULT);
 		Image outOfBoundsImage = convertToImage(0, 0, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, OUT_OF_BOUNDS_COLOR);
 		for (int x = 0; x < Board.WIDTH; x++)
 		{
