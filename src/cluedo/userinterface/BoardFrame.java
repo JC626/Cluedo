@@ -6,6 +6,7 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 
 import cluedo.model.Cell;
 
@@ -41,6 +43,8 @@ public class BoardFrame extends JFrame
 	private static final int MIN_BOTTOM_HEIGHT = MIN_HEIGHT - BoardCanvas.MIN_HEIGHT;
 	private static final int MIN_BOTTOM_RIGHT_WIDTH = (int)(MIN_WIDTH * 0.6);
 	private static final int MIN_DICE_WIDTH = (int)(MIN_WIDTH * 0.4);
+	private static final int HORIZONTAL_GAP = 15;
+
 
 	private BoardCanvas boardPane;
 	private DiceCanvas dicePane;
@@ -69,7 +73,7 @@ public class BoardFrame extends JFrame
 		dicePane = new DiceCanvas(MIN_DICE_WIDTH,MIN_BOTTOM_HEIGHT);
 		
 		JPanel bottomRight = createButtonPanel(buttons);
-		bottom = new JPanel(new FlowLayout(FlowLayout.LEADING,20,0));
+		bottom = new JPanel(new FlowLayout(FlowLayout.LEADING,HORIZONTAL_GAP,0));
 		bottom.setBorder(BorderFactory.createEmptyBorder(20, 0, 50, 0));
 
 		bottom.add(dicePane);
@@ -101,31 +105,40 @@ public class BoardFrame extends JFrame
 	
 	/**
 	 * Create menu options
+	 * Menu options are attached shortcuts too
 	 * @return MenuBar for the frame
 	 */
 	private JMenuBar createMenu()
 	{
 		JMenuBar menu = new JMenuBar();
 		JMenu file = new JMenu("File");
-		//TODO set shortcuts for menu buttons
-		//file.setMnemonic(KeyEvent.VK_A); //Setting shortcut
 		this.newGame = new JMenuItem("New Game");
 		this.quit = new JMenuItem("Quit");
 		file.add(newGame);
 		file.add(quit);
 		menu.add(file);
+		
 		JMenu actions = new JMenu("Game Actions");
 		this.handMenu = new JMenuItem("View Hand");
 		this.casefileMenu = new JMenuItem("View CaseFile");
 		this.suggestionMenu = new JMenuItem("Make Suggestion");
 		this.accusationMenu = new JMenuItem("Make Accusation");
 		this.endTurnMenu = new JMenuItem("End Turn");
+		
 		actions.add(handMenu);
 		actions.add(casefileMenu);
 		actions.add(suggestionMenu);
 		actions.add(accusationMenu);
 		actions.add(endTurnMenu);
 		menu.add(actions);
+		
+		//Setting shortcuts
+		newGame.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, 0));
+		quit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0)); 
+		handMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, 0));
+		casefileMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, 0));
+		suggestionMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0));
+		endTurnMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, 0));
 		
 		return menu;
 	}
@@ -164,7 +177,7 @@ public class BoardFrame extends JFrame
 	{
 		JPanel panel = new JPanel();
 		panel.setMinimumSize(new Dimension(MIN_BOTTOM_RIGHT_WIDTH, MIN_BOTTOM_HEIGHT)); 
-		panel.setLayout(new GridLayout(0, buttons.size(),15,0));
+		panel.setLayout(new GridLayout(0, buttons.size(),HORIZONTAL_GAP,0));
 		for(JButton button : buttons)
 		{
 			panel.add(button);
