@@ -24,6 +24,7 @@ import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 
 import com.sun.corba.se.impl.protocol.BootstrapServerRequestDispatcher;
 
@@ -184,6 +185,7 @@ public class Controller
 	private void setupBoard()
 	{
 		view.newBoard(getImages(),initialisePieces());
+		setBoardToolTip();
 		//Setup initial player
 		newTurn();
 		//Add listeners here
@@ -201,6 +203,25 @@ public class Controller
 		//Add mouselistener to board pane so extra height from the menu bar doesn't affect clicking position
 		view.addBoardMouseListener(mouseListener());
 	}
+	
+	private void setBoardToolTip()
+	{
+		List<JButton> buttons = view.getBoardButtons();
+		
+		List<String> hoverText = new ArrayList<String>();
+		String handText = "See the cards that you have in your hand";
+		String casefileText = "See your casefile. X's mean that the card has been removed from suspicion";
+		String suggestionText = "Suggest who the murderer is and what the murder weapon is in the room you are in. Must be in a room";
+		String accusationText = "Any player can accuse who the murderer, murder weapon and murder room is";
+		String endTurnText = "End turn. You can only end your turn if you have no remaining moves, just entered a room or all paths are blocked";
+		hoverText.add(handText);
+		hoverText.add(casefileText);
+		hoverText.add(suggestionText);
+		hoverText.add(accusationText);
+		hoverText.add(endTurnText);
+		GraphicalUserInterface.setToolTip(buttons, hoverText);
+	}
+	
 	/**
 	 * Create a action listener for ending the turn
 	 * and switching to the next player in the game

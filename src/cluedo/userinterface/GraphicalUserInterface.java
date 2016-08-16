@@ -16,6 +16,7 @@ import java.util.Optional;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -23,6 +24,7 @@ import javax.swing.JRadioButton;
 
 import cluedo.model.Cell;
 import cluedo.utility.ErrorChecking;
+import javafx.scene.control.Button;
 
 public class GraphicalUserInterface extends JFrame
 {
@@ -240,6 +242,19 @@ public class GraphicalUserInterface extends JFrame
 	public static void setFontSize(Component component, float size)
 	{
 		component.setFont(component.getFont().deriveFont(size));
+	}
+	public static void setToolTip(List<? extends JComponent> components, List<String> componentText)
+	{
+		assert components.size() == componentText.size();
+		for(int i = 0; i < components.size(); i++)
+		{
+			components.get(i).setToolTipText(componentText.get(i));
+		}
+	}
+	
+	public List<JButton> getBoardButtons()
+	{
+		return board.getButtons();
 	}
 
 	public void destroyBoard()

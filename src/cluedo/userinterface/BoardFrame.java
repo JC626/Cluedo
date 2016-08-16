@@ -10,6 +10,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +46,8 @@ public class BoardFrame extends JFrame
 	private static final int MIN_DICE_WIDTH = (int)(MIN_WIDTH * 0.4);
 	private static final int HORIZONTAL_GAP = 15;
 
-
+	private List<JButton> buttons;
+	
 	private BoardCanvas boardPane;
 	private DiceCanvas dicePane;
 	private JPanel bottom;
@@ -64,10 +66,11 @@ public class BoardFrame extends JFrame
 	private JMenuItem newGame;
 	private JMenuItem quit;
 	
+	
 	public BoardFrame(Image[][] boardImages, Map<Image,Cell> pieceLocations)
 	{
 		JMenuBar menuBar = createMenu();
-		List<JButton> buttons = createButtons();
+		this.buttons = createButtons();
 		boardPane = new BoardCanvas(boardImages,pieceLocations);
 	
 		dicePane = new DiceCanvas(MIN_DICE_WIDTH,MIN_BOTTOM_HEIGHT);
@@ -238,5 +241,9 @@ public class BoardFrame extends JFrame
 
 	public DiceCanvas getDicePane() {
 		return dicePane;
+	}
+
+	public List<JButton> getButtons() {
+		return Collections.unmodifiableList(buttons);
 	}
 }
