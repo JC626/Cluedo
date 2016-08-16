@@ -99,22 +99,22 @@ public class GraphicalUserInterface extends JFrame
 		}
 	}
 	
-	public void informationDialog(String title, String text)
+	public void dialogInformation(String title, String text)
 	{
 		MessageDialog.information(title, text);
 	}
 	
-	public void errorDialog(String title, String text)
+	public void dialogError(String title, String text)
 	{
 		MessageDialog.error(title, text);
 	}
 	
-	public boolean yesNoDialog(String title, String question)
+	public boolean dialogYesNo(String title, String question)
 	{
 		return ConfirmationDialog.yesNo(title, question);
 	}
 
-	public boolean okCancelDialog(String title, String question)
+	public boolean dialogOkCancel(String title, String question)
 	{
 		return ConfirmationDialog.okCancel(title, question);
 	}
