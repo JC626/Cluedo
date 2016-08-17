@@ -409,6 +409,7 @@ public class Controller
 			{
 				if(model.isInRoom())
 				{ 
+					String playerName = model.getCurrentPlayer().getName();
 					try 
 					{
 						//Find the corresponding cell 
@@ -420,7 +421,6 @@ public class Controller
 							if(cell.getX() == x && cell.getY() == y)
 							{
 								Cell toExit = model.takeExit(cell);
-								String playerName = model.getCurrentPlayer().getName();
 								view.changePieceLocation(getPieceImage(playerName), toExit);
 								if(model.isInRoom())
 								{
@@ -437,7 +437,7 @@ public class Controller
 					{
 						view.dialogError("All exits blocked", "All exits are blocked so cannot move out of a room.");
 					}
-
+					view.setBoardTitle(String.format(BOARD_TITLE, playerName,model.getRemainingMoves()));
 				}
 			}
 
