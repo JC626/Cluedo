@@ -1,5 +1,7 @@
 package cluedo.userinterface;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridLayout;
@@ -12,6 +14,7 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -20,30 +23,30 @@ import javax.swing.JPanel;
  * A generic frame for displaying images.
  * Does NOT take focus, so users can open other windows or dialogs.
  */
-public class ImageFrame extends JFrame
+public class ImageFrame extends JDialog
 {
 	private JPanel panel;
+	private JPanel buttonPanel;
 	
 	private final String AFFIRMATIVE_BUTTON_LABEL = "Ok";
-	private final String MISSING_IMAGE_TEXT = "The image could not be loaded.";
 	
-	private final int MINIMUM_FRAME_WIDTH = 400;
-	private final int MINIMUM_FRAME_HEIGHT = 700; 
+	private final int MINIMUM_FRAME_WIDTH = 300;
+	private final int MINIMUM_FRAME_HEIGHT = 400;
+	
+	private static final int BUTTON_FONT_SIZE = 26;
 
 	public ImageFrame(Frame owner, String title)
 	{
-		super(title);
-
-		this.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				cleanupDialog();
-			}
-		});
+		super(owner, title, true);
 
 		panel = new JPanel();
-
-		this.getContentPane().add(panel);
+		buttonPanel = new JPanel();
+		
+		this.add(panel);
+		this.add(buttonPanel);
+		
+		this.add(panel, BorderLayout.CENTER);
+		this.add(buttonPanel, BorderLayout.SOUTH);
 		this.setMinimumSize(new Dimension(MINIMUM_FRAME_WIDTH, MINIMUM_FRAME_HEIGHT));
 	}
 	
@@ -53,30 +56,22 @@ public class ImageFrame extends JFrame
 	 * Catches IO exception and displays text in place of the image
 	 * informing the user of the failing read.
 	 */
-	public void display(String imagePath)
+	public void display(ImageIcon image)
 	{
-		panel.setLayout(new GridLayout(0, 1, 10, 10));
-		panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+		panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 0, 20));
+		buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
 		
-		try
-		{
-			BufferedImage image = ImageIO.read(new File(imagePath));
-			JLabel imageLabel = new JLabel(new ImageIcon(image));
-			panel.add(imageLabel);
-		}
-		catch (IOException e)
-		{
-			JLabel substituteText = new JLabel(MISSING_IMAGE_TEXT);
-			panel.add(substituteText);
-		}
+		JLabel imageLabel = new JLabel(image);
+		panel.add(imageLabel);
 		
 		JButton affirmativeButton = new JButton(AFFIRMATIVE_BUTTON_LABEL);
 		affirmativeButton.addActionListener((a) -> {
 			cleanupDialog();
 		});
-
+		GraphicalUserInterface.setFontSize(affirmativeButton, BUTTON_FONT_SIZE);
 		
-		panel.add(affirmativeButton);
+		buttonPanel.add(affirmativeButton);
+		
 		
 		pack();	
 		this.setVisible(true);

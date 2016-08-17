@@ -455,17 +455,30 @@ public class Controller
 		};
 		return mouseListener;
 	}
+	
 	private ActionListener handListener()
 	{
 		ActionListener listener = new ActionListener(){
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				List<String> options = allPlayerNames();
+			public void actionPerformed(ActionEvent arg0)
+			{
+				List<String> options = getCurrentPlayerHandCardNames();
 				List<Boolean> available = new ArrayList<Boolean>();
 				
 				fillBoolean(available, options.size(), true);
 			
 				view.dialogViewHand(model.getCurrentPlayer().getName() + "'s hand", RadioButtonDialog.createRadioButtons(options, available), getCurrentPlayerHandImages());
+			}
+			
+			private List<String> getCurrentPlayerHandCardNames()
+			{
+				List<String> handNames = new ArrayList<String>();
+				
+				handNames.addAll(stringListFromRoom(model.getPlayerRoomCards()));
+				handNames.addAll(stringListFromSuspect(model.getPlayerSuspectCards()));
+				handNames.addAll(stringListFromWeapon(model.getPlayerWeaponCards()));
+				
+				return handNames;
 			}
 			
 			private List<ImageIcon> getCurrentPlayerHandImages()
