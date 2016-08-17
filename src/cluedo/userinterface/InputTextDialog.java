@@ -18,7 +18,7 @@ import javax.swing.JTextField;
  * A generic dialog box for text input.
  * Takes focus from the application, so users must enter something, or cancel.
  */
-public class TextDialog extends JDialog
+public class InputTextDialog extends JDialog
 {
 	private JPanel panel;
 	private Optional<String> userInput;
@@ -41,7 +41,7 @@ public class TextDialog extends JDialog
 	
 	private static final int BUTTON_FONT_SIZE = 26;
 
-	public TextDialog(Frame owner, String title)
+	public InputTextDialog(Frame owner, String title)
 	{
 		super(owner, title, true);
 		

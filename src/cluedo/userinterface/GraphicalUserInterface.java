@@ -145,7 +145,7 @@ public class GraphicalUserInterface extends JFrame
 	
 	public Optional<String> dialogTextInput(String windowTitle, String question)
 	{
-		return new TextDialog(this, windowTitle).getUserInput(question);
+		return new InputTextDialog(this, windowTitle).getUserInput(question);
 	}
 	
 	/**
