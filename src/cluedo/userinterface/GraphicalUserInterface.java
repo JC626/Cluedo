@@ -28,14 +28,14 @@ import javafx.scene.control.Button;
 
 public class GraphicalUserInterface extends JFrame
 {
-	JPanel mainMenu;
+	private JPanel mainMenu;
 
-	JLabel title = new JLabel("Cluedo");
+	private JLabel title = new JLabel("Cluedo");
 
-	JButton newGame = new JButton("New Game");
-	JButton quit = new JButton("Quit");
+	private JButton newGame = new JButton("New Game");
+	private JButton quit = new JButton("Quit");
 
-	private BoardFrame board;
+	private BoardFrame boardDisplay;
 
 	public GraphicalUserInterface()
 	{
@@ -155,7 +155,7 @@ public class GraphicalUserInterface extends JFrame
 	 */
 	public void changePieceLocation(Image piece, Cell newPos)
 	{
-		board.getBoardPane().changePieceLocation(piece, newPos);
+		boardDisplay.getBoardPane().changePieceLocation(piece, newPos);
 	}
 	
 	/**
@@ -166,7 +166,7 @@ public class GraphicalUserInterface extends JFrame
 	 */
 	public void changeDice(Image leftDie, Image rightDie) 
 	{
-		board.getDicePane().changeDice(leftDie, rightDie);
+		boardDisplay.getDicePane().changeDice(leftDie, rightDie);
 	}
 	
 	/**
@@ -177,7 +177,7 @@ public class GraphicalUserInterface extends JFrame
 	 */
 	public void drawExitCells(List<Cell> exitCells,Image exitImage)
 	{
-		board.getBoardPane().drawExitCells(exitCells, exitImage);
+		boardDisplay.getBoardPane().drawExitCells(exitCells, exitImage);
 	}
 
 	public void buttonNewGameListener(ActionListener a)
@@ -192,42 +192,42 @@ public class GraphicalUserInterface extends JFrame
 	
 	public void addHandListener(ActionListener a)
 	{
-		board.addHandListener(a);
+		boardDisplay.addHandListener(a);
 	}
 	
 	public void addCasefileListener(ActionListener a)
 	{
-		board.addCasefileListener(a);
+		boardDisplay.addCasefileListener(a);
 	}
 	
 	public void addSuggestionListener(ActionListener a)
 	{
-		board.addSuggestionListener(a);
+		boardDisplay.addSuggestionListener(a);
 	}
 	
 	public void addAccusationListener(ActionListener a)
 	{
-		board.addAccusationListener(a);
+		boardDisplay.addAccusationListener(a);
 	}
 	
 	public void addEndTurnListener(ActionListener a)
 	{
-		board.addEndTurnListener(a);
+		boardDisplay.addEndTurnListener(a);
 	}
 	
 	public void addNewGameListener(ActionListener a)
 	{
-		board.addNewGameListener(a);
+		boardDisplay.addNewGameListener(a);
 	}
 	
 	public void addQuitListener(ActionListener a)
 	{
-		board.addQuitListener(a);
+		boardDisplay.addQuitListener(a);
 	}
 	
 	public void setBoardTitle(String title)
 	{
-		board.setTitle(title);
+		boardDisplay.setTitle(title);
 	}
 	
 	
@@ -254,28 +254,28 @@ public class GraphicalUserInterface extends JFrame
 	
 	public List<JButton> getBoardButtons()
 	{
-		return board.getButtons();
+		return boardDisplay.getButtons();
 	}
 
 	public void destroyBoard()
 	{
-		board.dispose();
-		board = null;
+		boardDisplay.dispose();
+		boardDisplay = null;
 	}
 
 	public void addBoardKeyListener(KeyListener keyListener)
 	{
-		board.addKeyListener(keyListener);
+		boardDisplay.addKeyListener(keyListener);
 	}
 
 	public void addBoardMouseListener(MouseListener mouseListener)
 	{
-		board.getBoardPane().addMouseListener(mouseListener);
+		boardDisplay.getBoardPane().addMouseListener(mouseListener);
 	}
 	
 	public void newBoard(Image[][] boardImages, Map<Image,Cell> pieceLocations)
 	{
-		board = new BoardFrame(boardImages, pieceLocations);
+		boardDisplay = new BoardFrame(boardImages, pieceLocations);
 	}
 	
 }
