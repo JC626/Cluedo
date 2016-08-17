@@ -651,9 +651,8 @@ public class Controller
 				else
 				{
 					view.dialogError("Game Over " + playerName, playerName + ", you've made a very serious accusation and we have evidence to the contrary. You will no longer be able to participate in this investigation.");
-					if(accusingPlayer == currentPlayer)
+					if(accusingPlayer == currentPlayer && !model.isGameOver())
 					{
-						System.out.println("Hello");
 						newTurn();
 					}
 				}
