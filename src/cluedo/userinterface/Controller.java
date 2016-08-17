@@ -189,7 +189,6 @@ public class Controller
 		//Setup initial player
 		newTurn();
 		//Add listeners here
-		//TODO add button listeners here
 
 		view.addNewGameListener(newGameListener);
 		view.addQuitListener(quitListener);
@@ -315,20 +314,18 @@ public class Controller
 	 */
 	private KeyListener keyListener()
 	{
-		KeyListener keyListener = new KeyListener() {
+		KeyListener keyListener = new KeyListener()
+		{
 
 			@Override
-			public void keyTyped(KeyEvent e) {
-				// TODO Anything?
-			}
+			public void keyTyped(KeyEvent e) {}
 
 			@Override
-			public void keyReleased(KeyEvent e) {
-				// TODO Anything?
-			}
+			public void keyReleased(KeyEvent e) {}
 
 			@Override
-			public void keyPressed(KeyEvent e) {
+			public void keyPressed(KeyEvent e)
+			{
 				int code = e.getKeyCode();
 				//Find direction player moved
 				Direction direction = null;
@@ -445,24 +442,16 @@ public class Controller
 			}
 
 			@Override
-			public void mouseEntered(MouseEvent arg0) {
-				// TODO Anything?
-			}
+			public void mouseEntered(MouseEvent arg0) {}
 
 			@Override
-			public void mouseExited(MouseEvent arg0) {
-				// TODO Anything?
-			}
+			public void mouseExited(MouseEvent arg0) {}
 
 			@Override
-			public void mousePressed(MouseEvent arg0) {
-				// TODO Anything?
-			}
+			public void mousePressed(MouseEvent arg0) {}
 
 			@Override
-			public void mouseReleased(MouseEvent arg0) {
-				// TODO Anything?
-			}
+			public void mouseReleased(MouseEvent arg0) {}
 		};
 		return mouseListener;
 	}
@@ -507,10 +496,10 @@ public class Controller
 	
 	private ActionListener suggestionListener()
 	{
-		//TODO suggestions
 		ActionListener listener = new ActionListener(){
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent arg0)
+			{
 				if(!model.canMakeSuggestion())
 				{
 					if(!model.isInRoom())

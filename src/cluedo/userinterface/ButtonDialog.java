@@ -62,7 +62,8 @@ public class ButtonDialog extends JDialog
 	 */
 	public void display(List<String> buttonNames, List<? extends AbstractButton> buttons, List<ActionListener> buttonActions)
 	{
-		this.setMinimumSize(new Dimension(250, (50 * buttons.size()) + 150)); // TODO These values appear to work well.
+		// These values work well with most buttons. The vertical height is 50 per button plus a bit for the OK button at the bottom.
+		this.setMinimumSize(new Dimension(250, (50 * buttons.size()) + 150));
 		
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Vertical line format
 		panel.setBorder(BorderFactory.createEmptyBorder(borderSpaceTop, borderSpaceLeft, borderSpaceBottom, borderSpaceRight));
