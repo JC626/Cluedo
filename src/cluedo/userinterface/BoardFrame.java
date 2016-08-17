@@ -36,16 +36,20 @@ import cluedo.model.Cell;
  */
 public class BoardFrame extends JFrame
 {
-	private static final long serialVersionUID = 1L;
-	
 	public static final int MIN_WIDTH = 1100; 
 	public static final int MIN_HEIGHT = 1000;
+	
+	private static final long serialVersionUID = 1L;
+	
 	private static final int BUTTON_FONT_SIZE = 16;
+	
 	private static final int MIN_BOTTOM_HEIGHT = MIN_HEIGHT - BoardCanvas.MIN_HEIGHT;
 	private static final int MIN_BOTTOM_RIGHT_WIDTH = (int)(MIN_WIDTH * 0.6);
 	private static final int MIN_DICE_WIDTH = (int)(MIN_WIDTH * 0.4);
+	
 	private static final int HORIZONTAL_GAP = 15;
-
+	
+	
 	private List<JButton> buttons;
 	
 	private BoardCanvas boardPane;
@@ -71,12 +75,12 @@ public class BoardFrame extends JFrame
 	{
 		JMenuBar menuBar = createMenu();
 		this.buttons = createButtons();
-		boardPane = new BoardCanvas(boardImages,pieceLocations);
+		boardPane = new BoardCanvas(boardImages, pieceLocations);
 	
-		dicePane = new DiceCanvas(MIN_DICE_WIDTH,MIN_BOTTOM_HEIGHT);
+		dicePane = new DiceCanvas(MIN_DICE_WIDTH, MIN_BOTTOM_HEIGHT);
 		
 		JPanel bottomRight = createButtonPanel(buttons);
-		bottom = new JPanel(new FlowLayout(FlowLayout.LEADING,HORIZONTAL_GAP,0));
+		bottom = new JPanel(new FlowLayout(FlowLayout.LEADING,HORIZONTAL_GAP, 0));
 		bottom.setBorder(BorderFactory.createEmptyBorder(20, 0, 50, 0));
 
 		bottom.add(dicePane);
@@ -94,8 +98,9 @@ public class BoardFrame extends JFrame
 		
 		//Ensure the frame has the focus so that the keyboard listener will work
 		this.addWindowFocusListener(new WindowAdapter() {
-		    public void windowGainedFocus(WindowEvent e) {
-		       BoardFrame.this.requestFocusInWindow();
+		    public void windowGainedFocus(WindowEvent e)
+		    {
+		    	BoardFrame.this.requestFocusInWindow();
 		    }
 		});
 		
@@ -180,7 +185,8 @@ public class BoardFrame extends JFrame
 	{
 		JPanel panel = new JPanel();
 		panel.setMinimumSize(new Dimension(MIN_BOTTOM_RIGHT_WIDTH, MIN_BOTTOM_HEIGHT)); 
-		panel.setLayout(new GridLayout(0, buttons.size(),HORIZONTAL_GAP,0));
+		panel.setLayout(new GridLayout(0, buttons.size(), HORIZONTAL_GAP, 0));
+		
 		for(JButton button : buttons)
 		{
 			panel.add(button);
@@ -211,39 +217,47 @@ public class BoardFrame extends JFrame
 		casefileButton.addActionListener(a);
 		casefileMenu.addActionListener(a);
 	}
+	
 	public void addSuggestionListener(ActionListener a)
 	{
 		suggestionButton.addActionListener(a);
 		suggestionMenu.addActionListener(a);
 	}
+	
 	public void addAccusationListener(ActionListener a)
 	{
 		accusationButton.addActionListener(a);
 		accusationMenu.addActionListener(a);
 	}
+	
 	public void addEndTurnListener(ActionListener a)
 	{
 		endTurnButton.addActionListener(a);
 		endTurnMenu.addActionListener(a);
 	}
+	
 	public void addNewGameListener(ActionListener a)
 	{
 		newGame.addActionListener(a);
 	}
+	
 	public void addQuitListener(ActionListener a)
 	{
 		quit.addActionListener(a);
 	}
 	
-	public BoardCanvas getBoardPane() {
+	public BoardCanvas getBoardPane()
+	{
 		return boardPane;
 	}
 
-	public DiceCanvas getDicePane() {
+	public DiceCanvas getDicePane()
+	{
 		return dicePane;
 	}
 
-	public List<JButton> getButtons() {
+	public List<JButton> getButtons()
+	{
 		return Collections.unmodifiableList(buttons);
 	}
 }
