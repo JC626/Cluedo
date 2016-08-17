@@ -14,6 +14,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 /**
@@ -24,6 +25,7 @@ import javax.swing.JPanel;
 public class ButtonDialog extends JDialog
 {
 	private JPanel panel;
+	private JLabel title;
 	private static final int buttonFontSize = 25;
 	private static final int spaceBetweenButtons = 10;
 	
@@ -37,11 +39,11 @@ public class ButtonDialog extends JDialog
 	/**
 	 * A dialog box that contains buttons, as defined by display.
 	 * @param owner The owner of this window.
-	 * @param title The title of the window.
+	 * @param windowName The title of the window.
 	 */
-	public ButtonDialog(Frame owner, String title)
+	public ButtonDialog(Frame owner, String windowName)
 	{
-		super(owner, title, true); // Dialog is modal (retains focus)
+		super(owner, windowName, true); // Dialog is modal (retains focus)
 
 		this.addWindowListener(new WindowAdapter() {
 			@Override
@@ -49,9 +51,10 @@ public class ButtonDialog extends JDialog
 				cleanupDialog();
 			}
 		});
-
-		panel = new JPanel();
+		this.title = new JLabel(windowName);
 		
+		panel = new JPanel();
+		panel.add(title);
 		this.getContentPane().add(panel);
 	}
 
