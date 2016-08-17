@@ -33,7 +33,7 @@ public class RadioButtonDialog extends JDialog
 	private static final String AFFIRMATIVE_BUTTON_LABEL = "Ok";
 	
 	// LAYOUT_ROWS are determined by the number of buttons.
-	private static int LAYOUT_COLS = 1;
+	private int LAYOUT_COLS;
 	private static final int LAYOUT_HORIZONTAL_GAP = 0;
 	private static final int LAYOUT_VERTICAL_GAP = 15;
 
@@ -45,7 +45,7 @@ public class RadioButtonDialog extends JDialog
 	private static final int BUTTON_FONT_SIZE = 26;
 	
 	private static final int WINDOW_MINIMUM_WIDTH = 600;
-	private static final int WINDOW_MINIMUM_HEIGHT = 400;
+	private int WINDOW_MINIMUM_HEIGHT; // Depends on how many buttons we have
 
 	/**
 	 * A dialog box that contains buttons, as defined by getUserSelection.
@@ -80,6 +80,8 @@ public class RadioButtonDialog extends JDialog
 	 */
 	public Optional<Integer> getUserSelection(List<? extends JRadioButton> buttons)
 	{
+		WINDOW_MINIMUM_HEIGHT = buttons.size() * 40 + 250; // This seems to work well
+		
 		this.add(panel, BorderLayout.CENTER);
 		this.add(buttonPanel, BorderLayout.PAGE_END);
 
