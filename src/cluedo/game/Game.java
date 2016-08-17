@@ -1122,6 +1122,14 @@ public class Game
 	}
 
 	/**
+	 * @return The cards in the current player's hand
+	 */
+	public List<Card> getPlayerHand() 
+	{
+		return Collections.unmodifiableList(playerHand.get(currentPlayer));
+	}
+	
+	/**
 	 * @return The weapon cards in the current player's CaseFile
 	 */
 	public List<WeaponCard> getPlayerWeaponCards() 
