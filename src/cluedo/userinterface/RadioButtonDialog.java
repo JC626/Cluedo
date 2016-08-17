@@ -35,7 +35,7 @@ public class RadioButtonDialog extends JDialog
 	// LAYOUT_ROWS are determined by the number of buttons.
 	private static int LAYOUT_COLS = 1;
 	private static final int LAYOUT_HORIZONTAL_GAP = 0;
-	private static final int LAYOUT_VERTICAL_GAP = 30;
+	private static final int LAYOUT_VERTICAL_GAP = 15;
 
 	private static final int BORDER_TOP = 20;
 	private static final int BORDER_LEFT = 50;
