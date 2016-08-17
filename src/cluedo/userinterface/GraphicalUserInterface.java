@@ -24,7 +24,6 @@ import javax.swing.JRadioButton;
 
 import cluedo.model.Cell;
 import cluedo.utility.ErrorChecking;
-import javafx.scene.control.Button;
 
 public class GraphicalUserInterface extends JFrame
 {
