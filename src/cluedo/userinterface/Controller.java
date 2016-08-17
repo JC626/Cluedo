@@ -462,34 +462,12 @@ public class Controller
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				List<String> options = getCurrentPlayerHandCardNames();
+				List<String> options = stringListFromCard(model.getPlayerHand());
 				List<Boolean> available = new ArrayList<Boolean>();
 				
 				fillBoolean(available, options.size(), true);
 			
-				view.dialogViewHand(model.getCurrentPlayer().getName() + "'s hand", RadioButtonDialog.createRadioButtons(options, available), getCurrentPlayerHandImages());
-			}
-			
-			private List<String> getCurrentPlayerHandCardNames()
-			{
-				List<String> handNames = new ArrayList<String>();
-				
-				handNames.addAll(stringListFromRoom(model.getPlayerRoomCards()));
-				handNames.addAll(stringListFromSuspect(model.getPlayerSuspectCards()));
-				handNames.addAll(stringListFromWeapon(model.getPlayerWeaponCards()));
-				
-				return handNames;
-			}
-			
-			private List<ImageIcon> getCurrentPlayerHandImages()
-			{
-				List<ImageIcon> images = new ArrayList<ImageIcon>();
-				
-				images.addAll(getHandImages(stringListFromRoom(model.getPlayerRoomCards())));
-				images.addAll(getHandImages(stringListFromSuspect(model.getPlayerSuspectCards())));
-				images.addAll(getHandImages(stringListFromWeapon(model.getPlayerWeaponCards())));
-				
-				return images;
+				view.dialogViewHand(model.getCurrentPlayer().getName() + "'s hand", RadioButtonDialog.createRadioButtons(options, available), getHandImages(stringListFromCard(model.getPlayerHand())));
 			}
 			
 			private List<ImageIcon> getHandImages(List<String> names)
@@ -943,48 +921,13 @@ public class Controller
 		}
 	}
 	
-	private List<String> stringListFromRoom(List<RoomCard> list)
+	private List<String> stringListFromCard(List<Card> list)
 	{
 		List<String> names = new ArrayList<String>();
-		for (RoomCard r : list)
+		for (Card r : list)
 		{
 			names.add(r.getName());
 		}
 		return names;
-	}
-	
-	private List<String> stringListFromSuspect(List<SuspectCard> list)
-	{
-		List<String> names = new ArrayList<String>();
-		for (SuspectCard s : list)
-		{
-			names.add(s.getName());
-		}
-		return names;
-	}
-	
-	private List<String> stringListFromWeapon(List<WeaponCard> list)
-	{
-		List<String> names = new ArrayList<String>();
-		for (WeaponCard w : list)
-		{
-			names.add(w.getName());
-		}
-		return names;
-	}
-	
-	private List<String> stringListFromStringArray(String[] array)
-	{
-		List<String> allStrings = new ArrayList<String>();
-		for (String w : array)
-		{
-			allStrings.add(w);
-		}
-		return allStrings;
-	}
-	
-	private List<String> allPlayerNames()
-	{
-		return stringListFromStringArray(GameBuilder.SUSPECT_NAMES);
 	}
 }
