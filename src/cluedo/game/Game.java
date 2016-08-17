@@ -106,7 +106,7 @@ public class Game
 	 * The cards that each player has in their hand. Every player has different
 	 * cards to each other
 	 */
-	private Map<Player, Set<Card>> playerHand = new HashMap<Player,Set<Card>>();
+	private Map<Player, List<Card>> playerHand = new HashMap<Player,List<Card>>();
 	/**
 	 * These are the cards leftover after evenly distributing the cards to all
 	 * the players. Does not contain the answer cards. Every player will be able
@@ -237,7 +237,7 @@ public class Game
 		//Number of cards each player will get
 		int numCards = (allCards.size() - numExtra) / numPlayers; 
 		int countCards = 0;
-		Set<Card> cardsForPlayer = new HashSet<Card>();
+		List<Card> cardsForPlayer = new ArrayList<Card>();
 		for (Card card : allCards) {
 			// All cards evenly distributed, put the rest of the cards in extra
 			if(answer.containsCard(card))
@@ -266,7 +266,7 @@ public class Game
 				playerHand.put(player, cardsForPlayer);
 				// Go to the next player
 				numPlayers--;
-				cardsForPlayer = new HashSet<Card>();
+				cardsForPlayer = new ArrayList<Card>();
 				countCards = 0;
 			}
 		}
@@ -612,7 +612,7 @@ public class Game
 		}
 		while (player != currentPlayer) 
 		{
-			Set<Card> playerCards = playerHand.get(player);
+			List<Card> playerCards = playerHand.get(player);
 			Set<Card> disprovingCards = new HashSet<Card>();
 			if (playerCards.contains(roomCard)) 
 			{

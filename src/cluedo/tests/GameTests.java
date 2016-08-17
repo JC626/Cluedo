@@ -896,7 +896,7 @@ public class GameTests {
 				{
 					Field playerHandField = Game.class.getDeclaredField("playerHand");
 					playerHandField .setAccessible(true);
-					Map<Player,Set<Card>> allHands = (Map<Player,Set<Card>>) playerHandField .get(game);
+					Map<Player,List<Card>> allHands = (Map<Player,List<Card>>) playerHandField .get(game);
 					for(Card card : allHands.get(disprovingPlayer))
 					{
 						if(card instanceof WeaponCard)
@@ -969,13 +969,13 @@ public class GameTests {
 		assert answer != null;
 		WeaponCard guessWeapon = null;
 		Field playerHandField = null;
-		Map<Player,Set<Card>> allHands = null;
+		Map<Player,List<Card>> allHands = null;
 		try 
 		{
 			playerHandField = Game.class.getDeclaredField("playerHand");
 			playerHandField.setAccessible(true);
-			allHands = (Map<Player,Set<Card>>) playerHandField.get(game);
-			for(Map.Entry<Player, Set<Card>> hands : allHands.entrySet())
+			allHands = (Map<Player,List<Card>>) playerHandField.get(game);
+			for(Map.Entry<Player, List<Card>> hands : allHands.entrySet())
 			{
 				if(hands.getKey().getName().equals("Mrs. Peacock"))
 				{
