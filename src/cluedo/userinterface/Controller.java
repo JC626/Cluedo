@@ -47,45 +47,45 @@ public class Controller
 {
 	private Game model;
 	private GraphicalUserInterface view;
-	
+
 	private static final BasicStroke WALL_THICKNESS = new BasicStroke(7.0f);
 	private static final Color NORMAL_CELL_COLOUR = new Color(255,248,111);
 	private static final Color OUT_OF_BOUNDS_COLOR = Color.DARK_GRAY;
 	private static final Color ROOM_COLOR = new Color(206,218,224);
 	private static final Color EXIT_COLOR = Color.GREEN; //May require for later
 	private static final Color SECRET_PASSAGE_COLOR = Color.MAGENTA;
-	
+
 	private static final Map<String,Image> PIECE_IMAGES = new HashMap<String,Image>();	
 	private static final String BOARD_TITLE = "Cluedo Game - %s playing with %s remaining moves";
-	
+
 	private final ActionListener newGameListener;
 	private final ActionListener quitListener;
-	
+
 	public Controller()
 	{
 		this.view = new GraphicalUserInterface();
-		
+
 		newGameListener = new ActionListener(){
 
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					Optional<SimpleEntry<List<Player>, List<String>>> activePlayers = createPlayers();
-					
-					if (activePlayers.isPresent())
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Optional<SimpleEntry<List<Player>, List<String>>> activePlayers = createPlayers();
+
+				if (activePlayers.isPresent())
+				{
+					List<Player> p = activePlayers.get().getKey();
+					List<String> s = activePlayers.get().getValue();
+
+					for (int i = 0; i < p.size(); i++)
 					{
-						List<Player> p = activePlayers.get().getKey();
-						List<String> s = activePlayers.get().getValue();
-						
-						for (int i = 0; i < p.size(); i++)
-						{
-							System.out.println(String.format("%s: %s", p.get(i).getName(), s.get(i)));
-						}
-						view.setVisible(false);
-						model = new Game(p,s);
-						setupBoard();
+						System.out.println(String.format("%s: %s", p.get(i).getName(), s.get(i)));
 					}
+					view.setVisible(false);
+					model = new Game(p,s);
+					setupBoard();
 				}
-			};
+			}
+		};
 
 		quitListener = new ActionListener(){
 			@Override
@@ -97,13 +97,13 @@ public class Controller
 			}
 		};
 
-		
+
 		view.buttonNewGameListener(newGameListener);
 
 		view.buttonQuitListener(quitListener);
 
 	}
-	
+
 	/**
 	 * Get user input on the characters that each player wants to play.
 	 * @return Optional.of the players in turn order that each player wants to play.
@@ -114,12 +114,12 @@ public class Controller
 		List<Player> activePlayers =  new ArrayList<Player>(Game.allPlayers.size());
 		List<Boolean> availablePlayers = new ArrayList<Boolean>(activePlayers.size());
 		List<String> playerNames = new ArrayList<String>(activePlayers.size());
-		
+
 		fillBoolean(availablePlayers, Game.allPlayers.size(), true);
-		
+
 		while (activePlayers.size() < Game.MIN_HUMAN_PLAYERS // Always ask until we have the minimum number
-		// Once we have the min, and less than the max, only continue if the players want to
-		|| (activePlayers.size() < Game.MAX_HUMAN_PLAYERS && view.dialogYesNo("Any more players?", "Do you want to add more players? You currently have " + activePlayers.size())))
+				// Once we have the min, and less than the max, only continue if the players want to
+				|| (activePlayers.size() < Game.MAX_HUMAN_PLAYERS && view.dialogYesNo("Any more players?", "Do you want to add more players? You currently have " + activePlayers.size())))
 		{
 			Optional<String> name = promptUserName();
 			if(name.isPresent() && name.get().length() <= 0)
@@ -127,7 +127,7 @@ public class Controller
 				view.dialogError("Invalid name", "A name must be at least one character");
 				continue;
 			}
-			
+
 			//Cancelled or closed the dialog
 			if(!name.isPresent())
 			{
@@ -140,14 +140,14 @@ public class Controller
 			{
 				break;
 			}
-			
+
 			activePlayers.add(currentPlayer.get());
 			playerNames.add(name.get() + " (" + currentPlayer.get().getName() + ")");
 
 			availablePlayers.remove((int) selectedPlayerIndex.get()); // Integer is treated as .remove(Object x) but we want .remove(int x) so we need a cast.
 			availablePlayers.add(selectedPlayerIndex.get(), false);
 		}
-		
+
 		if (activePlayers.size() >= Game.MIN_HUMAN_PLAYERS)
 		{
 			assert activePlayers.size() == playerNames.size();
@@ -159,22 +159,22 @@ public class Controller
 			return Optional.empty();
 		}
 	}
-	
+
 	private Optional<String> promptUserName()
 	{
 		return view.dialogTextInput("Player name", "What is your name?");
 	}
-	
+
 	private Optional<Integer> promptUserCharacterIndex(List<String> playerNames, List<Boolean> availablePlayers)
 	{
 		return view.dialogRadioButtons("Select a player", "Which player would you like?", playerNames, availablePlayers);
 	}
-	
+
 	private Optional<Player> getPlayerFromIndex(Optional<Integer> index)
 	{
 		return index.isPresent() ? Optional.of(Game.allPlayers.get(index.get())) : Optional.empty();
 	}
-	
+
 	private void fillBoolean(List<Boolean> list, int size, boolean value)
 	{
 		for (int i = 0; i < size; i++)
@@ -197,16 +197,16 @@ public class Controller
 		view.addAccusationListener(accusationListener());
 		view.addSuggestionListener(suggestionListener());
 		view.addHandListener(handListener());
-		
+
 		view.addBoardKeyListener(keyListener());
 		//Add mouselistener to board pane so extra height from the menu bar doesn't affect clicking position
 		view.addBoardMouseListener(mouseListener());
 	}
-	
+
 	private void setBoardToolTip()
 	{
 		List<JButton> buttons = view.getBoardButtons();
-		
+
 		List<String> hoverText = new ArrayList<String>();
 		String handText = "See the cards that you have in your hand";
 		String casefileText = "See your casefile. X's mean that the card has been removed from suspicion";
@@ -220,7 +220,7 @@ public class Controller
 		hoverText.add(endTurnText);
 		GraphicalUserInterface.setToolTip(buttons, hoverText);
 	}
-	
+
 	/**
 	 * Create a action listener for ending the turn
 	 * and switching to the next player in the game
@@ -242,7 +242,7 @@ public class Controller
 		};
 		return listener;
 	}
-	
+
 	/**
 	 * Create a action listener for viewing a casefile
 	 * @return A ActionListener
@@ -266,14 +266,14 @@ public class Controller
 					boolean outOfSuspicion  = !model.getPlayerWeaponCards().contains(weaponCard);
 					weapons.put(weaponCard.getName(), outOfSuspicion);
 				}
-				
+
 				for (Card roomCard : model.getRoomCards())
 				{
 					boolean outOfSuspicion  = !model.getPlayerRoomCards().contains(roomCard);
 					rooms.put(roomCard.getName(), outOfSuspicion);
-					
+
 				}
-				
+
 				String[][] suspectRows = createRows(suspects);
 				String[][] weaponRows = createRows(weapons);
 				String[][] roomRows = createRows(rooms);
@@ -282,7 +282,7 @@ public class Controller
 		};
 		return listener;
 	}
-	
+
 	/**
 	 * Create the rows for a table
 	 * @param rows
@@ -331,24 +331,24 @@ public class Controller
 				Direction direction = null;
 				switch(code)
 				{
-				case KeyEvent.VK_W:
-				case KeyEvent.VK_UP:
-					direction = Direction.North;
-					break;
-				case KeyEvent.VK_S:
-				case KeyEvent.VK_DOWN:
-					direction = Direction.South;
-					break;
-				case KeyEvent.VK_A:
-				case KeyEvent.VK_LEFT:
-					direction = Direction.West;
-					break;
-				case KeyEvent.VK_D:
-				case KeyEvent.VK_RIGHT:
-					direction = Direction.East;
-					break;
-				default:
-					return;
+					case KeyEvent.VK_W:
+					case KeyEvent.VK_UP:
+						direction = Direction.North;
+						break;
+					case KeyEvent.VK_S:
+					case KeyEvent.VK_DOWN:
+						direction = Direction.South;
+						break;
+					case KeyEvent.VK_A:
+					case KeyEvent.VK_LEFT:
+						direction = Direction.West;
+						break;
+					case KeyEvent.VK_D:
+					case KeyEvent.VK_RIGHT:
+						direction = Direction.East;
+						break;
+					default:
+						return;
 				}
 				if(model.getRemainingMoves() == 0)
 				{
@@ -395,7 +395,7 @@ public class Controller
 		};		
 		return keyListener;
 	}
-	
+
 	/**
 	 * Create a mouselistener for the board
 	 * Used for selecting exits
@@ -455,7 +455,7 @@ public class Controller
 		};
 		return mouseListener;
 	}
-	
+
 	private ActionListener handListener()
 	{
 		ActionListener listener = new ActionListener(){
@@ -464,27 +464,27 @@ public class Controller
 			{
 				List<String> options = stringListFromCard(model.getPlayerHand());
 				List<Boolean> available = new ArrayList<Boolean>();
-				
+
 				fillBoolean(available, options.size(), true);
-			
+
 				view.dialogViewHand(model.getCurrentPlayer().getName() + "'s hand", RadioButtonDialog.createRadioButtons(options, available), getHandImages(stringListFromCard(model.getPlayerHand())));
 			}
-			
+
 			private List<ImageIcon> getHandImages(List<String> names)
 			{
 				List<ImageIcon> images = new ArrayList<ImageIcon>();
-				
+
 				for (String name : names)
 				{
 					images.add(new ImageIcon(getImage(name + "Card")));
 				}
-				
+
 				return images;
 			}
 		};
 		return listener;
 	}
-	
+
 	private ActionListener suggestionListener()
 	{
 		ActionListener listener = new ActionListener(){
@@ -557,7 +557,7 @@ public class Controller
 						Optional<Card> disproveCard = Optional.empty();
 						while(!disproveCard.isPresent())
 						{
-							 disproveCard = chooseCard(disprovingHandList, "card", question);
+							disproveCard = chooseCard(disprovingHandList, "card", question);
 						}
 						disprover.put(disprovingPlayer, disproveCard.get());
 						model.removeCard(disprover);
@@ -608,7 +608,7 @@ public class Controller
 				{
 					return;
 				}
-				
+
 				SuspectCard murderer = (SuspectCard) suspectOption.get();
 				WeaponCard murderWeapon = (WeaponCard) weaponOption.get();
 				RoomCard murderRoom = (RoomCard) roomOption.get();
@@ -640,8 +640,9 @@ public class Controller
 					if(!won)
 					{
 						List<Card> answer = model.getAnswer();
-						String answerText = String.format("All players have been eliminated. Answer: %s killed John Boddy in the %s with the %s",answer.get(0).getName(),answer.get(1).getName(),answer.get(2).getName());
-						view.dialogInformation("No winners",answerText);
+						String answerText = String.format("All players have been eliminated. Answer: %s killed John Boddy in the %s with the %s",
+								answer.get(0).getName(), answer.get(2).getName(), answer.get(1).getName());
+						view.dialogInformation("No winners", answerText);
 					}
 
 					view.destroyBoard();
@@ -651,7 +652,7 @@ public class Controller
 		};
 		return listener;
 	}
-	
+
 	/**
 	 * Sets up the new turn for the current player
 	 */
@@ -663,7 +664,7 @@ public class Controller
 		Image leftDie = getImage("die" + diceRoll[0]);
 		Image rightDie = getImage("die" + diceRoll[1]);
 		view.setBoardTitle(String.format(BOARD_TITLE, playerName,model.getRemainingMoves()));
-		
+
 		view.changeDice(leftDie, rightDie);
 		view.dialogInformation(playerName + "'s turn", playerName + " it is your turn");
 		//Show exits if the player is in the room
@@ -685,7 +686,7 @@ public class Controller
 			}
 		}
 	}
-	
+
 	private Optional<Card> chooseCard(List<Card> cards, String type,String message)
 	{
 		List<Boolean> available = new ArrayList<Boolean>(cards.size());
@@ -703,7 +704,7 @@ public class Controller
 		Optional<Card> card = Optional.of(cards.get(option.get()));
 		return card;
 	}
-	
+
 	/**
 	 * Update the position of all pieces (players and weapons)
 	 * on the BoardCanvas.
@@ -723,7 +724,7 @@ public class Controller
 			view.changePieceLocation(piece, pos);
 		}		
 	}
-	
+
 	/**
 	 * Creates the board as it is to be drawn, based on Cells and their properties.
 	 * @return The array of Images that represent each Cell.
@@ -731,10 +732,10 @@ public class Controller
 	private Image[][] getImages()
 	{
 		assert model != null : "Cannot get cells for an empty game";
-		
+
 		Image[][] images = new Image[Board.WIDTH][Board.HEIGHT];
 		Cell[][] cells = model.getCells();
-		
+
 		Set<Cell> outOfBounds = model.getOutOfBoundCells();
 		Set<Cell> roomCells = model.getRoomCells();
 		Set<Cell> secretPassage = model.getSecretPassageCells();
@@ -744,7 +745,7 @@ public class Controller
 		{
 			for (int y = 0; y < Board.HEIGHT; y++)
 			{
-				
+
 				Cell cell = cells[x][y];	
 				if(secretPassage.contains(cell))
 				{
@@ -766,7 +767,7 @@ public class Controller
 		}
 		return images;
 	}
-	
+
 	/**
 	 * Convert a rectangle and colour into an image.
 	 * @param rectangle The rectangle to convert into an image.
@@ -777,13 +778,13 @@ public class Controller
 	{
 		BufferedImage image = new BufferedImage(BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D graphics = image.createGraphics();
-		
+
 		graphics.setColor(colour);
 		graphics.fillRect(x, y, BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT);
-		
+
 		return image;
 	}
-	
+
 	private Image convertToImageNormalCell(int x, int y, int width, int height, Cell cell)
 	{
 		BasicStroke outline = new BasicStroke(1.0f);
@@ -802,7 +803,7 @@ public class Controller
 			graphics.setStroke(outline);
 			graphics.drawLine(x, y, x+width, y);
 		}
-		
+
 		if(cell.hasWall(Direction.South))
 		{
 			graphics.setStroke(WALL_THICKNESS);
@@ -813,7 +814,7 @@ public class Controller
 			graphics.setStroke(outline);
 			graphics.drawLine(x, y+height, x+width, y+height);
 		}
-		
+
 		if(cell.hasWall(Direction.West))
 		{
 			graphics.setStroke(WALL_THICKNESS);
@@ -824,7 +825,7 @@ public class Controller
 			graphics.setStroke(outline);
 			graphics.drawLine(x, y, x, y+height);
 		}
-		
+
 		if(cell.hasWall(Direction.East))
 		{
 			graphics.setStroke(WALL_THICKNESS);
@@ -842,12 +843,12 @@ public class Controller
 	{
 		BufferedImage image = new BufferedImage(BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, BufferedImage.TYPE_INT_RGB);
 		Graphics2D graphics = image.createGraphics();
-		
+
 		graphics.setColor(ROOM_COLOR);
 		graphics.fillRect(x, y, width, height);
 		graphics.setColor(Color.BLACK);
 		graphics.setStroke(WALL_THICKNESS);
-		
+
 		if(cell.hasWall(Direction.North))
 		{
 			graphics.drawLine(x, y, x+width, y);
@@ -879,27 +880,27 @@ public class Controller
 		assert model != null;
 		Map<Image, Cell> pieces = new HashMap<Image,Cell>(); 
 		List<Weapon> weapons = model.getWeapons();
-		
+
 		for(Weapon weapon : weapons)
 		{
 			String weaponName = weapon.getName();
 			Image image = getImage(weaponName);
-			
+
 			PIECE_IMAGES.put(weaponName, image);
 			pieces.put(image, model.getPosition(weapon));
 		}
-		
+
 		for(Player player : Game.allPlayers)
 		{
 			String playerName = player.getName();
 			Image image = getImage(playerName);
-			
+
 			PIECE_IMAGES.put(playerName, image);
 			pieces.put(image, model.getPosition(player));
 		}
 		return pieces;
 	}
-	
+
 	private Image getPieceImage(String name)
 	{
 		if(!PIECE_IMAGES.containsKey(name))
@@ -908,7 +909,7 @@ public class Controller
 		}
 		return PIECE_IMAGES.get(name);
 	}
-	
+
 	private Image getImage(String name)
 	{
 		String fileName = "cluedo_images/" + name + ".png";
@@ -920,7 +921,7 @@ public class Controller
 			throw new RuntimeException(fileName + " not found");
 		}
 	}
-	
+
 	private List<String> stringListFromCard(List<Card> list)
 	{
 		List<String> names = new ArrayList<String>();
