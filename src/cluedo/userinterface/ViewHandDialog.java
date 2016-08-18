@@ -29,7 +29,7 @@ public class ViewHandDialog extends JDialog
 	private static final String AFFIRMATIVE_BUTTON_LABEL = "Ok";
 	
 	// LAYOUT_ROWS and COLS are determined by the number of buttons.
-	private static int LAYOUT_COLS = 1;
+	private int LAYOUT_COLS = 1;
 	private static final int LAYOUT_HORIZONTAL_GAP = 0;
 	private static final int LAYOUT_VERTICAL_GAP = 30;
 
