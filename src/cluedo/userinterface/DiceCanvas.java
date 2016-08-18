@@ -14,11 +14,23 @@ import javax.swing.JPanel;
 public class DiceCanvas extends JPanel
 {
 	private static final long serialVersionUID = 1L;
+	
+	private static final int BORDER_TOP = 0;
+	private static final int BORDER_LEFT = 2;
+	private static final int BORDER_BOTTOM = 10;
+	private static final int BORDER_RIGHT = 0;
 		
 	private int IMAGE_SIZE = 60;
 	private JLabel leftDieLabel;
 	private JLabel rightDieLabel;
 	
+	/**
+	 * Area in which we display the dice rolls.
+	 * @param width The minimum size of the canvas.
+	 * Should be at least the size of the largest dice image. 
+	 * @param height The minimum size of the canvas.
+	 * Should be at least the size of the largest dice image.
+	 */
 	public DiceCanvas(int width, int height)  
 	{
 		leftDieLabel = new JLabel();
@@ -26,9 +38,10 @@ public class DiceCanvas extends JPanel
 		this.add(leftDieLabel);
 		this.add(rightDieLabel);
 		
-		this.setLayout(new GridLayout(0, 2, 10, 0));
+		this.setLayout(new GridLayout(BORDER_TOP, BORDER_LEFT, BORDER_BOTTOM, BORDER_RIGHT));
 		this.setMinimumSize(new Dimension(width, height));
 	}
+	
 	/**
 	 * Changes the dice displayed when the player
 	 * starts their turn.
