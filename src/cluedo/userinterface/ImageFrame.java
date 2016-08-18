@@ -21,7 +21,6 @@ import javax.swing.JPanel;
 
 /**
  * A generic frame for displaying images.
- * Does NOT take focus, so users can open other windows or dialogs.
  */
 public class ImageFrame extends JDialog
 {
@@ -29,7 +28,19 @@ public class ImageFrame extends JDialog
 	private JPanel buttonPanel;
 	
 	private final String AFFIRMATIVE_BUTTON_LABEL = "Ok";
+
+	private static final int PANEL_BORDER_TOP = 20;
+	private static final int PANEL_BORDER_LEFT = 20;
+	private static final int PANEL_BORDER_BOTTOM = 0;
+	private static final int PANEL_BORDER_RIGHT = 20;
 	
+	private static final int BUTTON_BORDER_TOP = 0;
+	private static final int BUTTON_BORDER_LEFT = 0;
+	private static final int BUTTON_BORDER_BOTTOM = 10;
+	private static final int BUTTON_BORDER_RIGHT = 0;
+	
+	// These should be calculated from the maximum image size,
+	// but all of our images are the same size.
 	private final int MINIMUM_FRAME_WIDTH = 300;
 	private final int MINIMUM_FRAME_HEIGHT = 400;
 	
@@ -58,8 +69,8 @@ public class ImageFrame extends JDialog
 	 */
 	public void display(ImageIcon image)
 	{
-		panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 0, 20));
-		buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+		panel.setBorder(BorderFactory.createEmptyBorder(PANEL_BORDER_TOP, PANEL_BORDER_LEFT, PANEL_BORDER_BOTTOM, PANEL_BORDER_RIGHT));
+		buttonPanel.setBorder(BorderFactory.createEmptyBorder(BUTTON_BORDER_TOP, BUTTON_BORDER_LEFT, BUTTON_BORDER_BOTTOM, BUTTON_BORDER_RIGHT));
 		
 		JLabel imageLabel = new JLabel(image);
 		panel.add(imageLabel);
