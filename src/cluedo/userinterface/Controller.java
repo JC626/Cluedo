@@ -641,8 +641,7 @@ public class Controller
 					if(!won)
 					{
 						List<Card> answer = model.getAnswer();
-						String answerText = String.format("All players have been eliminated. Answer: %s killed John Boddy in the %s with the %s",
-								answer.get(0).getName(), answer.get(2).getName(), answer.get(1).getName());
+						String answerText = String.format("All players have been eliminated. Answer: %s killed John Boddy in the %s with the %s", answer.get(0).getName(), answer.get(2).getName(), answer.get(1).getName());
 						view.dialogInformation("No winners", answerText);
 					}
 
