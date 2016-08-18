@@ -123,21 +123,43 @@ public class Controller
 		}
 	}
 
+	/**
+	 * Get the user's name.
+	 * @return Optional.of(userName) if the user entered a name. Optional.empty() if they cancelled.
+	 */
 	private Optional<String> promptUserName()
 	{
 		return view.dialogTextInput("Player name", "What is your name?");
 	}
 
+	/**
+	 * Get user input from a list of remaining players.
+	 * @param playerNames The names of all players.
+	 * @param availablePlayers A list containing true if a player can be selected, false otherwise.
+	 * @return Optional.of(userSelection) if the user selected a player. Optional.empty() if they cancelled.
+	 */
 	private Optional<Integer> promptUserCharacterIndex(List<String> playerNames, List<Boolean> availablePlayers)
 	{
 		return view.dialogRadioButtons("Select a player", "Which player would you like?", playerNames, availablePlayers);
 	}
 
+	/**
+	 * If index is present then the player at that index is returned, otherwise Optional.empty is returned.
+	 * @param index The index of the player to be found.
+	 * @return Optional.of(playerAtIndex) if index is present, Optional.empty() otherwise.
+	 */
 	private Optional<Player> getPlayerFromIndex(Optional<Integer> index)
 	{
 		return index.isPresent() ? Optional.of(Game.allPlayers.get(index.get())) : Optional.empty();
 	}
 
+	/**
+	 * Add the specified boolean value up to size in list.
+	 * Works best on empty lists, but can be called on non-empty lists.
+	 * @param list The list of booleans to change.
+	 * @param size The number of booleans to add.
+	 * @param value The boolean values to add.
+	 */
 	private void fillBoolean(List<Boolean> list, int size, boolean value)
 	{
 		for (int i = 0; i < size; i++)
@@ -145,6 +167,7 @@ public class Controller
 			list.add(value);
 		}
 	}
+	
 	private void setupBoard()
 	{
 		view.newBoard(getImages(),initialisePieces());
@@ -474,6 +497,7 @@ public class Controller
 
 				for (String name : names)
 				{
+					// All card images are of the form "_____Card"
 					images.add(new ImageIcon(getImage(name + "Card")));
 				}
 
@@ -570,6 +594,7 @@ public class Controller
 		};
 		return listener;
 	}
+	
 	private ActionListener accusationListener()
 	{
 		ActionListener listener = new ActionListener(){
@@ -684,7 +709,15 @@ public class Controller
 		}
 	}
 
-	private Optional<Card> chooseCard(List<Card> cards, String type,String message)
+	/**
+	 * Prompt the user to chose a card from a list.
+	 * @param cards The cards that the user can select.
+	 * @param type The type of card, for the window title.
+	 * @param message The message to display to the user.
+	 * @return Optional.of(card) where card is the card the user selected
+	 * Or Optional.empty() if the user canceled. 
+	 */
+	private Optional<Card> chooseCard(List<Card> cards, String type, String message)
 	{
 		List<Boolean> available = new ArrayList<Boolean>(cards.size());
 		List<String> cardName = new ArrayList<String>(cards.size());
@@ -782,6 +815,15 @@ public class Controller
 		return image;
 	}
 
+	/**
+	 * Generate an image of the specified width and height at the x and y position.
+	 * @param x The x position of the image.
+	 * @param y The y position of the image.
+	 * @param width The width of the image.
+	 * @param height The height of the image.
+	 * @param cell The cell to draw.
+	 * @return The resulting image.
+	 */
 	private Image convertToImageNormalCell(int x, int y, int width, int height, Cell cell)
 	{
 		BasicStroke outline = new BasicStroke(1.0f);
@@ -836,6 +878,15 @@ public class Controller
 		return image;
 	}
 
+	/**
+	 * Generate an image of the specified width and height at the x and y position.
+	 * @param x The x position of the image.
+	 * @param y The y position of the image.
+	 * @param width The width of the image.
+	 * @param height The height of the image.
+	 * @param cell The cell to draw.
+	 * @return The resulting image.
+	 */
 	private Image convertToImageRoomCell(int x, int y, int width, int height, Cell cell)
 	{
 		BufferedImage image = new BufferedImage(BoardCanvas.CELL_WIDTH, BoardCanvas.CELL_HEIGHT, BufferedImage.TYPE_INT_RGB);
@@ -846,6 +897,7 @@ public class Controller
 		graphics.setColor(Color.BLACK);
 		graphics.setStroke(WALL_THICKNESS);
 
+		// Draw outline of the Cell.
 		if(cell.hasWall(Direction.North))
 		{
 			graphics.drawLine(x, y, x+width, y);
@@ -865,8 +917,9 @@ public class Controller
 		return image;
 	}
 	/**
-	 * Get all the pieces and their locations from the game
-	 * @return the images of pieces and their locations
+	 * Get all the pieces and their locations from the game.
+	 * Adds the items to PIECE_IMAGES.
+	 * @return the images of pieces and their locations.
 	 */
 	private Map<Image,Cell> initialisePieces()
 	{
@@ -898,6 +951,12 @@ public class Controller
 		return pieces;
 	}
 
+	/**
+	 * Retrieve the associated image from PIECE_IMAGES.
+	 * @param name The name of the mapping to image in PIECE_IMAGES.
+	 * @throws IllegalArgumentException if the name is not in PIECE_IMAGES.
+	 * @return The associated image for name.
+	 */
 	private Image getPieceImage(String name)
 	{
 		if(!PIECE_IMAGES.containsKey(name))
@@ -907,6 +966,12 @@ public class Controller
 		return PIECE_IMAGES.get(name);
 	}
 
+	/**
+	 * Get an image from a filename.
+	 * @param name The name of the image. Must be in cluedo_images and have a png extension.
+	 * @throws RuntimeException if the file doesn't exist.
+	 * @return
+	 */
 	private Image getImage(String name)
 	{
 		String fileName = "cluedo_images/" + name + ".png";
@@ -919,12 +984,17 @@ public class Controller
 		}
 	}
 
+	/**
+	 * Converts a list of Cards into a list of their names.
+	 * @param list The cards that are to be converted.
+	 * @return A list of the names of each card in the same order as list.
+	 */
 	private List<String> stringListFromCard(List<Card> list)
 	{
 		List<String> names = new ArrayList<String>();
-		for (Card r : list)
+		for (Card c : list)
 		{
-			names.add(r.getName());
+			names.add(c.getName());
 		}
 		return names;
 	}
