@@ -104,6 +104,8 @@ public class InputTextDialog extends JDialog
 	 */
 	private void cancelAction()
 	{
+		// If the user cancels, then we shouldn't return what they selected,
+		// but a placeholder value instead.
 		userInput = Optional.empty();
 		cleanupDialog();
 	}
