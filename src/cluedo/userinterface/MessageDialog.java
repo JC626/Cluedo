@@ -4,7 +4,8 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-public class MessageDialog extends JDialog{
+public class MessageDialog extends JDialog
+{
 
 	/**
 	 * Presents the dialog as an Information message
@@ -29,8 +30,7 @@ public class MessageDialog extends JDialog{
 	 */
 	private static void dialogBox(String title, String text, int messageType)
 	{
-		JOptionPane.showMessageDialog(null, new JLabel(text), title,
-				messageType);
+		JOptionPane.showMessageDialog(null, new JLabel(text), title, messageType);
 	}
 	
 }
