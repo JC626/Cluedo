@@ -26,15 +26,15 @@ public class ButtonDialog extends JDialog
 {
 	private JPanel panel;
 	private JLabel title;
-	private static final int buttonFontSize = 25;
-	private static final int spaceBetweenButtons = 10;
+	private static final int BUTTON_FONT_SIZE = 25;
+	private static final int SPACE_BETWEEN_BUTTONS = 10;
 	
-	private static final int borderSpaceTop = 20;
-	private static final int borderSpaceLeft = 20;
-	private static final int borderSpaceBottom = 0;
-	private static final int borderSpaceRight = 0;
+	private static final int BORDER_TOP = 20;
+	private static final int BORDER_LEFT = 20;
+	private static final int BORDER_BOTTOM = 0;
+	private static final int BORDER_RIGHT = 0;
 	
-	private final String affirmativeButtonLabel = "Ok";
+	private final String AFFIRMATIVE_BUTTON_LABEL = "Ok";
 
 	/**
 	 * A dialog box that contains buttons, as defined by display.
@@ -69,8 +69,9 @@ public class ButtonDialog extends JDialog
 		this.setMinimumSize(new Dimension(250, (50 * buttons.size()) + 150));
 		
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Vertical line format
-		panel.setBorder(BorderFactory.createEmptyBorder(borderSpaceTop, borderSpaceLeft, borderSpaceBottom, borderSpaceRight));
+		panel.setBorder(BorderFactory.createEmptyBorder(BORDER_TOP, BORDER_LEFT, BORDER_BOTTOM, BORDER_RIGHT));
 
+		// Add our buttons and their associated listeners.
 		for (int i = 0; i < buttons.size(); i++)
 		{
 			AbstractButton thisButton = buttons.get(i);
@@ -80,21 +81,21 @@ public class ButtonDialog extends JDialog
 			thisButton.setText(thisButtonName);
 			thisButton.addActionListener(thisButtonAction);
 			
-			GraphicalUserInterface.setFontSize(thisButton, buttonFontSize);
+			GraphicalUserInterface.setFontSize(thisButton, BUTTON_FONT_SIZE);
 			thisButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 			panel.add(thisButton);
-			addVerticalSpace(spaceBetweenButtons);
+			addVerticalSpace(SPACE_BETWEEN_BUTTONS);
 		}
 		
-		addVerticalSpace(spaceBetweenButtons); // Extra space between ok button and our provided buttons
+		addVerticalSpace(SPACE_BETWEEN_BUTTONS); // Extra space between ok button and our provided buttons
 
-		JButton affirmativeButton = new JButton(affirmativeButtonLabel);
+		JButton affirmativeButton = new JButton(AFFIRMATIVE_BUTTON_LABEL);
 		affirmativeButton.addActionListener((a) -> {
 			cleanupDialog();
 		});
 		
-		GraphicalUserInterface.setFontSize(affirmativeButton, buttonFontSize);
+		GraphicalUserInterface.setFontSize(affirmativeButton, BUTTON_FONT_SIZE);
 		affirmativeButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 		panel.add(affirmativeButton);
@@ -102,6 +103,10 @@ public class ButtonDialog extends JDialog
 		this.setVisible(true);
 	}
 	
+	/**
+	 * Placeholder space between this element and the next.
+	 * @param amount Amount in pixels to give. May be negative.
+	 */
 	private void addVerticalSpace(int amount)
 	{
 		panel.add(Box.createRigidArea(new Dimension(0, amount)));
