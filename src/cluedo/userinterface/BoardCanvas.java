@@ -30,7 +30,12 @@ public class BoardCanvas extends JPanel
 	private Map<Image,Image> scaledImages = new HashMap<Image,Image>(); 
 	private Map<Image, Cell> scaledPieces = new HashMap<Image,Cell>();
 	
-	public BoardCanvas(Image[][] boardImages, Map<Image,Cell> pieceImages)
+	/**
+	 * @param boardImages The images to be displayed on the Board. Does not include movable pieces.
+	 * May not be null. May contain null.
+	 * @param pieceImages Movable pieces to be displayed on the Board.
+	 */
+	public BoardCanvas(Image[][] boardImages, Map<Image, Cell> pieceImages)
 	{
 		if (boardImages == null)
 		{
@@ -100,7 +105,8 @@ public class BoardCanvas extends JPanel
 	}
 	
 	/**
-	 * Change the location of a player's piece
+	 * Change the location of a player's piece.
+	 * Note that this does not affect the game state.
 	 * @param piece - The original image of the piece
 	 * @param newPos - The new position of the piece
 	 */
