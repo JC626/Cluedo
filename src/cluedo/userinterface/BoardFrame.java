@@ -72,8 +72,14 @@ public class BoardFrame extends JFrame
 	private JMenuItem newGame;
 	private JMenuItem quit;
 	
-	
-	public BoardFrame(Image[][] boardImages, Map<Image, Cell> pieceLocations)
+	/**
+	 * A new frame that contains a visual representation of the Board.
+	 * @param boardImages The images that make up the Board.
+	 * @param pieceLocations The locations of the Pieces on the Board.
+	 * @param actionOnCloseButton The actions to take on clicking the close button.
+	 * Null will be passed in as the action event.
+	 */
+	public BoardFrame(Image[][] boardImages, Map<Image, Cell> pieceLocations, ActionListener actionOnCloseButton)
 	{
 		JMenuBar menuBar = createMenu();
 		this.buttons = createButtons();
@@ -98,15 +104,25 @@ public class BoardFrame extends JFrame
 		this.add(boardPane, BorderLayout.CENTER);
 		this.add(bottom, BorderLayout.PAGE_END);
 		
-		//Ensure the frame has the focus so that the keyboard listener will work
+
+		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		this.addWindowFocusListener(new WindowAdapter() {
 		    public void windowGainedFocus(WindowEvent e)
 		    {
+				// Ensure the frame has the focus so that the keyboard listener will work
 		    	BoardFrame.this.requestFocusInWindow();
 		    }
 		});
 		
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// Close the window in the way that the Controller wants us to close it.
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				actionOnCloseButton.actionPerformed(null);
+			}
+		});
+		
+		
 		pack();
 		
 		setVisible(true);

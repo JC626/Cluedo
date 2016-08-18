@@ -4,9 +4,12 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -36,15 +39,31 @@ public class GraphicalUserInterface extends JFrame
 
 	private BoardFrame boardDisplay;
 
-	public GraphicalUserInterface()
+	private final ActionListener actionOnCloseButton;
+
+	/**
+	 * Create a new GUI.
+	 * @param actionOnCloseButton The actions to take on clicking the close button.
+	 * Null will be passed in as the action event.
+	 */
+	public GraphicalUserInterface(ActionListener actionOnCloseButton)
 	{
 		super("Cluedo"); // Window title
+		
+		this.actionOnCloseButton = actionOnCloseButton;
 
 		setupMainMenu();
 
 		addAllPanels();
 		
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				actionOnCloseButton.actionPerformed(null);
+			}
+		});
+		
 		this.setMinimumSize(new Dimension(600, 600));
 		
 		pack();
@@ -282,7 +301,15 @@ public class GraphicalUserInterface extends JFrame
 	
 	public void newBoard(Image[][] boardImages, Map<Image,Cell> pieceLocations)
 	{
-		boardDisplay = new BoardFrame(boardImages, pieceLocations);
+		boardDisplay = new BoardFrame(boardImages, pieceLocations, actionOnCloseButton);
 	}
 	
+	/**
+	 * Destroy the window, and set visible to false.
+	 */
+	private void cleanupDialog()
+	{
+		this.dispose();
+		this.setVisible(false);
+	}	
 }

@@ -58,7 +58,7 @@ public class Controller
 
 	public Controller()
 	{
-		this.view = new GraphicalUserInterface();
+		this.view = new GraphicalUserInterface(quitListener());
 
 		view.buttonNewGameListener(newGameListener());
 		view.buttonQuitListener(quitListener());
