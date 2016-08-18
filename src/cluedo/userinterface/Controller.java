@@ -53,54 +53,17 @@ public class Controller
 	private static final Color OUT_OF_BOUNDS_COLOR = Color.DARK_GRAY;
 	private static final Color ROOM_COLOR = new Color(206,218,224);
 	private static final Color EXIT_COLOR = Color.GREEN; //May require for later
-	private static final Color SECRET_PASSAGE_COLOR = Color.MAGENTA;
 
 	private static final Map<String,Image> PIECE_IMAGES = new HashMap<String,Image>();	
 	private static final String BOARD_TITLE = "Cluedo Game - %s playing with %s remaining moves";
 
-	private final ActionListener newGameListener;
-	private final ActionListener quitListener;
 
 	public Controller()
 	{
 		this.view = new GraphicalUserInterface();
-
-		newGameListener = new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Optional<SimpleEntry<List<Player>, List<String>>> activePlayers = createPlayers();
-
-				if (activePlayers.isPresent())
-				{
-					List<Player> p = activePlayers.get().getKey();
-					List<String> s = activePlayers.get().getValue();
-
-					for (int i = 0; i < p.size(); i++)
-					{
-						System.out.println(String.format("%s: %s", p.get(i).getName(), s.get(i)));
-					}
-					view.setVisible(false);
-					model = new Game(p,s);
-					setupBoard();
-				}
-			}
-		};
-
-		quitListener = new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (view.dialogYesNo("Are you sure?", "Do you want to quit?"))
-				{
-					System.exit(0);
-				}
-			}
-		};
-
-
-		view.buttonNewGameListener(newGameListener);
-
-		view.buttonQuitListener(quitListener);
+	
+		view.buttonNewGameListener(newGameListener());
+		view.buttonQuitListener(quitListener());
 
 	}
 
@@ -190,8 +153,8 @@ public class Controller
 		newTurn();
 		//Add listeners here
 
-		view.addNewGameListener(newGameListener);
-		view.addQuitListener(quitListener);
+		view.addNewGameListener(newGameListener());
+		view.addQuitListener(quitListener());
 		view.addEndTurnListener(endTurnListener());
 		view.addCasefileListener(casefileListener());
 		view.addAccusationListener(accusationListener());
@@ -219,6 +182,42 @@ public class Controller
 		hoverText.add(accusationText);
 		hoverText.add(endTurnText);
 		GraphicalUserInterface.setToolTip(buttons, hoverText);
+	}
+	private ActionListener newGameListener()
+	{
+		ActionListener listener = new ActionListener(){
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					Optional<SimpleEntry<List<Player>, List<String>>> activePlayers = createPlayers();
+
+					if (activePlayers.isPresent())
+					{
+						List<Player> p = activePlayers.get().getKey();
+						List<String> s = activePlayers.get().getValue();
+						view.setVisible(false);
+						model = new Game(p,s);
+						view.destroyBoard();
+						setupBoard();
+					}
+				}
+		};
+		return listener;
+	}
+	private ActionListener quitListener()
+	{
+		ActionListener listener = new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{
+				if (view.dialogYesNo("Are you sure?", "Do you want to quit?"))
+				{
+					System.exit(0);
+				}
+			}
+		};
+		return listener;
 	}
 
 	/**
