@@ -312,7 +312,7 @@ public class Controller
 				String[][] suspectRows = createRows(suspects);
 				String[][] weaponRows = createRows(weapons);
 				String[][] roomRows = createRows(rooms);
-				CaseFileFrame casefile = new CaseFileFrame(suspectRows, weaponRows, roomRows);
+				new CaseFileFrame(suspectRows, weaponRows, roomRows);
 			}
 		};
 		return listener;
