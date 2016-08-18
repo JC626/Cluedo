@@ -23,6 +23,7 @@ import cluedo.utility.ErrorChecking;
 
 /**
  * Displays a number of Radio buttons as defined by the caller.
+ * An 
  */
 public class RadioButtonDialog extends JDialog
 {
@@ -51,8 +52,10 @@ public class RadioButtonDialog extends JDialog
 	 * A dialog box that contains buttons, as defined by getUserSelection.
 	 * @param owner The owner of this window.
 	 * @param title The title of the window.
+	 * @param question A question to ask the user.
+	 * Added to the top so could be used as a title for the buttons.
 	 */
-	public RadioButtonDialog(Frame owner, String title,String question)
+	public RadioButtonDialog(Frame owner, String title, String question)
 	{
 		super(owner, title, true);
 
@@ -67,6 +70,7 @@ public class RadioButtonDialog extends JDialog
 		panel = new JPanel();
 		buttonPanel = new JPanel();
 		JLabel message = new JLabel(question);
+		
 		GraphicalUserInterface.setFontSize(message, BUTTON_FONT_SIZE);
 		message.setBorder(BorderFactory.createEmptyBorder(BORDER_TOP, BORDER_LEFT, BORDER_BOTTOM, BORDER_RIGHT));
 		this.add(message, BorderLayout.NORTH);
@@ -91,6 +95,7 @@ public class RadioButtonDialog extends JDialog
 		
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(BORDER_TOP, BORDER_LEFT, BORDER_BOTTOM, BORDER_RIGHT));
 
+		// Create and add our buttons to the main panel.
 		ButtonGroup group = new ButtonGroup();
 
 		for (int i = 0; i < buttons.size(); i++)
@@ -101,6 +106,7 @@ public class RadioButtonDialog extends JDialog
 			panel.add(thisButton);
 		}
 
+		// Create our ok button.
 		JButton affirmativeButton = new JButton(AFFIRMATIVE_BUTTON_LABEL);
 		affirmativeButton.addActionListener((a) -> {
 			selectedIndex =  getSelectedIndex(buttons);
