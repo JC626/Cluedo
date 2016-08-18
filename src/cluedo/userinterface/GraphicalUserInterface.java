@@ -263,7 +263,10 @@ public class GraphicalUserInterface extends JFrame
 
 	public void destroyBoard()
 	{
-		boardDisplay.dispose();
+		if(boardDisplay!= null)
+		{
+			boardDisplay.dispose();
+		}
 		boardDisplay = null;
 	}
 
