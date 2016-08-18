@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -56,12 +57,14 @@ public class BoardFrame extends JFrame
 	private DiceCanvas dicePane;
 	private JPanel bottom;
 	
+	// User gameplay buttons
 	private JButton handButton;
 	private JButton casefileButton;
 	private JButton suggestionButton;
 	private JButton accusationButton;
 	private JButton endTurnButton;
 	
+	// Menu options
 	private JMenuItem handMenu;
 	private JMenuItem casefileMenu;
 	private JMenuItem suggestionMenu;
@@ -71,7 +74,7 @@ public class BoardFrame extends JFrame
 	private JMenuItem quit;
 	
 	
-	public BoardFrame(Image[][] boardImages, Map<Image,Cell> pieceLocations)
+	public BoardFrame(Image[][] boardImages, Map<Image, Cell> pieceLocations)
 	{
 		JMenuBar menuBar = createMenu();
 		this.buttons = createButtons();
@@ -118,37 +121,46 @@ public class BoardFrame extends JFrame
 	 */
 	private JMenuBar createMenu()
 	{
+		JMenu actions = new JMenu("Game Actions");
 		JMenuBar menu = new JMenuBar();
 		JMenu file = new JMenu("File");
-		this.newGame = new JMenuItem("New Game");
-		this.quit = new JMenuItem("Quit");
+		newGame = new JMenuItem("New Game");
+		quit = new JMenuItem("Quit");
+		
 		file.add(newGame);
 		file.add(quit);
+		
 		menu.add(file);
 		
-		JMenu actions = new JMenu("Game Actions");
-		this.handMenu = new JMenuItem("View Hand");
-		this.casefileMenu = new JMenuItem("View CaseFile");
-		this.suggestionMenu = new JMenuItem("Make Suggestion");
-		this.accusationMenu = new JMenuItem("Make Accusation");
-		this.endTurnMenu = new JMenuItem("End Turn");
+		
+		handMenu = new JMenuItem("View Hand");
+		casefileMenu = new JMenuItem("View CaseFile");
+		suggestionMenu = new JMenuItem("Make Suggestion");
+		accusationMenu = new JMenuItem("Make Accusation");
+		endTurnMenu = new JMenuItem("End Turn");
 		
 		actions.add(handMenu);
 		actions.add(casefileMenu);
 		actions.add(suggestionMenu);
 		actions.add(accusationMenu);
 		actions.add(endTurnMenu);
+		
 		menu.add(actions);
 		
 		//Setting shortcuts
-		newGame.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, 0));
-		quit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0)); 
-		handMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, 0));
-		casefileMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, 0));
-		suggestionMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0));
-		endTurnMenu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, 0));
+		setShortcut(newGame, KeyEvent.VK_N);
+		setShortcut(quit, KeyEvent.VK_ESCAPE);
+		setShortcut(handMenu, KeyEvent.VK_H);
+		setShortcut(casefileMenu, KeyEvent.VK_C);
+		setShortcut(suggestionMenu, KeyEvent.VK_SPACE);
+		setShortcut(endTurnMenu, KeyEvent.VK_T);
 		
 		return menu;
+	}
+	
+	private void setShortcut(JMenuItem item, int event)
+	{
+		item.setAccelerator(KeyStroke.getKeyStroke(event, 0));
 	}
 	
 	/**
@@ -206,6 +218,31 @@ public class BoardFrame extends JFrame
 		}
 	}
 	
+	
+	/*
+	 * Getters
+	 */
+	
+	public BoardCanvas getBoardPane()
+	{
+		return boardPane;
+	}
+
+	public DiceCanvas getDicePane()
+	{
+		return dicePane;
+	}
+
+	public List<JButton> getButtons()
+	{
+		return Collections.unmodifiableList(buttons);
+	}
+	
+	
+	/*
+	 * Listener adders
+	 */
+	
 	public void addHandListener(ActionListener a)
 	{
 		handButton.addActionListener(a);
@@ -244,20 +281,5 @@ public class BoardFrame extends JFrame
 	public void addQuitListener(ActionListener a)
 	{
 		quit.addActionListener(a);
-	}
-	
-	public BoardCanvas getBoardPane()
-	{
-		return boardPane;
-	}
-
-	public DiceCanvas getDicePane()
-	{
-		return dicePane;
-	}
-
-	public List<JButton> getButtons()
-	{
-		return Collections.unmodifiableList(buttons);
 	}
 }
