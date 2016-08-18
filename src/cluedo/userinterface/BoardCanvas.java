@@ -9,7 +9,6 @@ import java.util.Map;
 
 import javax.swing.JPanel;
 import cluedo.board.Board;
-import cluedo.exceptions.IllegalMethodCallException;
 import cluedo.model.Cell;
 
 public class BoardCanvas extends JPanel
@@ -64,7 +63,9 @@ public class BoardCanvas extends JPanel
 		}
 	}
 	/**
-	 * Draw boardImages as provided in the constructor onto Graphics g.
+	 * Draws the board using boardImages
+	 * and the state of the board (the location of pieces)
+	 * as provided in the constructor onto Graphics g.
 	 * If boardImages contains null images, they are not drawn.
 	 */
 	protected void paintComponent(Graphics g)
@@ -122,7 +123,15 @@ public class BoardCanvas extends JPanel
 		repaint();
 	}
 	
-	public void changePlayerLocation(Image currentPiece, Cell newPos)
+	/**
+	 * Animates the movement of a player
+	 * when they move by one cell.
+	 * Does not animate the player moving into/out of a room
+	 * or if a piece is being transferred
+	 * @param currentPiece - The player being moved
+	 * @param newPos - The new cell position the player moved to
+	 */
+	public void animatePlayerMove(Image currentPiece, Cell newPos)
 	{
 		if(!scaledImages.containsKey(currentPiece))
 		{
@@ -132,10 +141,13 @@ public class BoardCanvas extends JPanel
 		Cell oldPos = scaledPieces.get(scaled);
 		int xDiff = newPos.getX() - oldPos.getX();
 		int yDiff = newPos.getY() - oldPos.getY();
-		//Piece must only move in one direction to animate
-		//i.e. a change in x by one or a change in y by one
+		/*
+		 * Piece must only move in one direction to animate
+		 * i.e. a change in x by one or a change in y by one
+		 */
 		if(!(Math.abs(xDiff) == 1 && yDiff == 0) && !(xDiff == 0 && Math.abs(yDiff) == 1))
 		{
+			//Player moved into a room
 			changePieceLocation(currentPiece, newPos);
 			return;
 		}

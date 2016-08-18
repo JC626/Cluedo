@@ -371,14 +371,12 @@ public class Controller
 				}
 				else
 				{
-					//TODO remove dialog boxes if move is invalid?
 					//Move the player
 					try 
 					{
 						String characterName = model.getCurrentPlayer().getName();
 						Cell cell = model.move(direction);
-						view.animatePieces(getPieceImage(characterName), cell);
-						//view.changePieceLocation(getPieceImage(characterName), cell);
+						view.animatePlayerMove(getPieceImage(characterName), cell);
 					} 
 					catch (InvalidMoveException e1) 
 					{

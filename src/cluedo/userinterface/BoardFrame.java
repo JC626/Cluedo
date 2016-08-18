@@ -30,9 +30,9 @@ import cluedo.model.Cell;
  * Displays the Board window
  * Contains:
  * A menu bar
- * Picture of the cluedo board
+ * The Cluedo board with pieces.
  * Dice Images for the player to know how many moves they have
- * Buttons for player to select game actions in the bottom right
+ * Buttons for player to select game actions (located in the bottom right)
  *
  */
 public class BoardFrame extends JFrame

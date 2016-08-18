@@ -7,9 +7,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 /**
- * Panel to display dice roll
+ * Panel to display the dice roll
  * for the player to know how many
- * moves they have
+ * moves they have rolled
  */
 public class DiceCanvas extends JPanel
 {

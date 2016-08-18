@@ -18,6 +18,8 @@ import javax.swing.table.TableModel;
 
 /**
  * A window that displays the current player's casefile.
+ * This window consists of three tables which are the
+ * suspects, weapons and rooms in the casefile
  * An "X" represents the cards that the player has removed from
  * suspicion.
  * A " " represents that the card may still be part of the murder
@@ -29,7 +31,7 @@ public class CaseFileFrame extends JFrame
 	private static final float BUTTON_FONT_SIZE = 20;
 	private static final int VERTICAL_GAP = 30;
 
-	//TODO Should pass these into the constructor?
+	//The column header name for each table
 	private String[] suspectHeader = {"Suspects", "\t"};
 	private String[] weaponHeader = {"Weapons", "\t"};
 	private String[] roomHeader = {"Rooms", "\t"};
@@ -105,12 +107,13 @@ public class CaseFileFrame extends JFrame
 		{
 			public boolean isCellEditable(int row, int column)
 			{
-				return false; // This causes all cells to be not editable
+				return false; // This causes all cells to be not be editable
 			}
 		};
 		
 		JTable table = new JTable(model);
 		JScrollPane scrollPane = new JScrollPane(table);
+		//Height of table sized to fit all the rows at the minimum height required to see the row
 		int height = (int)(table.getRowHeight() * (table.getRowCount() + 1.5)) - 1;
 		
 		table.getTableHeader().setReorderingAllowed(false);

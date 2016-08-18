@@ -157,9 +157,9 @@ public class GraphicalUserInterface extends JFrame
 		boardDisplay.getBoardPane().changePieceLocation(piece, newPos);
 	}
 	
-	public void animatePieces(Image piece, Cell newPos)
+	public void animatePlayerMove(Image piece, Cell newPos)
 	{
-		boardDisplay.getBoardPane().changePlayerLocation(piece, newPos);
+		boardDisplay.getBoardPane().animatePlayerMove(piece, newPos);
 	}
 	
 	/**
