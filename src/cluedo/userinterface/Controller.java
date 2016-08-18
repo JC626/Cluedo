@@ -70,18 +70,28 @@ public class Controller
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Optional<SimpleEntry<List<Player>, List<String>>> activePlayers = createPlayers();
+				List<Card> extraCards;
 
 				if (activePlayers.isPresent())
 				{
 					List<Player> p = activePlayers.get().getKey();
 					List<String> s = activePlayers.get().getValue();
 
-					for (int i = 0; i < p.size(); i++)
-					{
-						System.out.println(String.format("%s: %s", p.get(i).getName(), s.get(i)));
-					}
+					
 					view.setVisible(false);
 					model = new Game(p,s);
+					extraCards = model.getExtraCards();
+									
+					// Non even distribution of cards, show them to everyone.
+					if (!extraCards.isEmpty())
+					{
+						List<Boolean> allAvailable = new ArrayList<Boolean>();
+						fillBoolean(allAvailable, extraCards.size(), true);
+						view.dialogViewHand("Extra cards",
+								RadioButtonDialog.createRadioButtons(stringListFromCard(extraCards), allAvailable), // Create all available radio buttons from extraCards. 
+								getHandImages(stringListFromCard(extraCards))); // Get the images from extraCards.
+					}
+					
 					setupBoard();
 				}
 			}
@@ -490,19 +500,6 @@ public class Controller
 				fillBoolean(available, options.size(), true);
 
 				view.dialogViewHand(model.getCurrentPlayer().getName() + "'s hand", RadioButtonDialog.createRadioButtons(options, available), getHandImages(stringListFromCard(model.getPlayerHand())));
-			}
-
-			private List<ImageIcon> getHandImages(List<String> names)
-			{
-				List<ImageIcon> images = new ArrayList<ImageIcon>();
-
-				for (String name : names)
-				{
-					// All card images are of the form "_____Card"
-					images.add(new ImageIcon(getImage(name + "Card")));
-				}
-
-				return images;
 			}
 		};
 		return listener;
@@ -983,6 +980,24 @@ public class Controller
 		{
 			throw new RuntimeException(fileName + " not found");
 		}
+	}
+	
+	/**
+	 * Get the list of Card images for the given names.
+	 * @param names The names of the pieces.
+	 * @return The ImageIcons of the associated Cards in the same order as names.
+	 */
+	private List<ImageIcon> getHandImages(List<String> names)
+	{
+		List<ImageIcon> images = new ArrayList<ImageIcon>();
+
+		for (String name : names)
+		{
+			// All card images are of the form "_____Card"
+			images.add(new ImageIcon(getImage(name + "Card")));
+		}
+
+		return images;
 	}
 
 	/**
