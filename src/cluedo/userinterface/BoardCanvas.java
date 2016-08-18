@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.swing.JPanel;
 import cluedo.board.Board;
+import cluedo.exceptions.IllegalMethodCallException;
 import cluedo.model.Cell;
 
 public class BoardCanvas extends JPanel
@@ -119,6 +120,72 @@ public class BoardCanvas extends JPanel
 		Image scaled = scaledImages.get(piece);
 		scaledPieces.put(scaled, newPos);
 		repaint();
+	}
+	
+	public void changePlayerLocation(Image currentPiece, Cell newPos)
+	{
+		if(!scaledImages.containsKey(currentPiece))
+		{
+			throw new IllegalArgumentException("The piece image does not exist on the board");
+		}
+		Image scaled = scaledImages.get(currentPiece);
+		Cell oldPos = scaledPieces.get(scaled);
+		int xDiff = newPos.getX() - oldPos.getX();
+		int yDiff = newPos.getY() - oldPos.getY();
+		//Piece must only move in one direction to animate
+		//i.e. a change in x by one or a change in y by one
+		if(!(Math.abs(xDiff) == 1 && yDiff == 0) && !(xDiff == 0 && Math.abs(yDiff) == 1))
+		{
+			changePieceLocation(currentPiece, newPos);
+			return;
+		}
+		Graphics g = getGraphics();
+		int limit = Math.abs(xDiff) == 1 ? CELL_WIDTH : CELL_HEIGHT;
+		int i = 0;
+		//Change position by some i amount to make animation
+		while(i < limit)
+		{
+			//Use double buffering to remove flickering
+			Image doubleBuffer = createImage((int)getSize().getWidth(), (int)getSize().getHeight());
+			Graphics offscreen = doubleBuffer.getGraphics();
+			offscreen.drawImage(boardImage, 0, 0, this);
+			
+			for(Map.Entry<Image, Cell> piece: scaledPieces.entrySet())
+			{
+				Cell location = piece.getValue();
+				int x = location.getX()*CELL_WIDTH + PIECE_SHIFT/2;
+				int y = location.getY()*CELL_HEIGHT + PIECE_SHIFT/2;
+				if(piece.getKey() == scaled)
+				{
+					if(xDiff == 1)
+					{
+						x+= i;
+					}
+					else if(xDiff == -1)
+					{
+						x-= i;
+					}
+					else if(yDiff == 1)
+					{
+						y+= i;					
+					}
+					else
+					{
+						y-= i;				
+					} 
+				}	
+				offscreen.drawImage(piece.getKey(), x, y,this);
+			}
+
+			try {
+				Thread.sleep(20); //Delay 20ms
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			i+= limit/10;
+			g.drawImage(doubleBuffer, 0, 0, this);
+		}
+		changePieceLocation(currentPiece, newPos);
 	}
 	
 	/**

@@ -157,6 +157,11 @@ public class GraphicalUserInterface extends JFrame
 		boardDisplay.getBoardPane().changePieceLocation(piece, newPos);
 	}
 	
+	public void animatePieces(Image piece, Cell newPos)
+	{
+		boardDisplay.getBoardPane().changePlayerLocation(piece, newPos);
+	}
+	
 	/**
 	 * Changes the dice displayed when the player
 	 * starts their turn.

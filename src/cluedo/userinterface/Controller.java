@@ -377,7 +377,8 @@ public class Controller
 					{
 						String characterName = model.getCurrentPlayer().getName();
 						Cell cell = model.move(direction);
-						view.changePieceLocation(getPieceImage(characterName), cell);
+						view.animatePieces(getPieceImage(characterName), cell);
+						//view.changePieceLocation(getPieceImage(characterName), cell);
 					} 
 					catch (InvalidMoveException e1) 
 					{
