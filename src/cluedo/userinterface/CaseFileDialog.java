@@ -5,6 +5,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -23,7 +24,7 @@ import javax.swing.table.TableModel;
  * suspicion.
  * A " " represents that the card may still be part of the murder
  */
-public class CaseFileFrame extends JFrame
+public class CaseFileDialog extends JDialog
 {
 	private static final int MIN_WIDTH = 600;
 	private static final int MIN_HEIGHT = 600;
@@ -42,7 +43,7 @@ public class CaseFileFrame extends JFrame
 	 * @param weaponRows
 	 * @param roomRows
 	 */
-	public CaseFileFrame(String[][] suspectRows, String[][] weaponRows, String[][] roomRows) 
+	public CaseFileDialog(String[][] suspectRows, String[][] weaponRows, String[][] roomRows) 
 	{
 		this.setTitle("Your Casefile");
 		this.setMinimumSize(new Dimension(MIN_WIDTH, MIN_HEIGHT));
@@ -87,7 +88,6 @@ public class CaseFileFrame extends JFrame
 		panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 50, 20));
 		this.add(panel);
 		
-		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		pack();
 		setVisible(true);
 		setResizable(false);

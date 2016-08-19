@@ -38,9 +38,7 @@ public class BoardFrame extends JFrame
 {
 	public static final int MIN_WIDTH = 1200; 
 	public static final int MIN_HEIGHT = 1000;
-	
-	private static final long serialVersionUID = 1L;
-	
+		
 	private static final int BUTTON_FONT_SIZE = 16;
 	
 	private static final int MIN_BOTTOM_HEIGHT = MIN_HEIGHT - BoardCanvas.MIN_HEIGHT;

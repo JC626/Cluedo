@@ -97,7 +97,7 @@ public class ViewHandDialog extends JDialog
 			panel.add(thisButton);
 			thisButton.addActionListener((a) -> {
 				// images.get(buttons.indexOf(thisButton)) is the image associated with this button.
-				new ImageFrame(null, thisButton.getText()).display(images.get(buttons.indexOf(thisButton)));
+				new ImageDialog(null, thisButton.getText()).display(images.get(buttons.indexOf(thisButton)));
 			});
 		}
 

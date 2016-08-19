@@ -11,9 +11,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 /**
- * A generic frame for displaying images.
+ * A generic dialog for displaying images.
  */
-public class ImageFrame extends JDialog
+public class ImageDialog extends JDialog
 {
 	private JPanel panel;
 	private JPanel buttonPanel;
@@ -37,7 +37,7 @@ public class ImageFrame extends JDialog
 	
 	private static final int BUTTON_FONT_SIZE = 26;
 
-	public ImageFrame(Frame owner, String title)
+	public ImageDialog(Frame owner, String title)
 	{
 		super(owner, title, true);
 
