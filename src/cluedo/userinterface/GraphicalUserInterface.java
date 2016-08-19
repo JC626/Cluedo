@@ -302,13 +302,4 @@ public class GraphicalUserInterface extends JFrame
 	{
 		boardDisplay = new BoardFrame(boardImages, pieceLocations, actionOnCloseButton);
 	}
-	
-	/**
-	 * Destroy the window, and set visible to false.
-	 */
-	private void cleanupDialog()
-	{
-		this.dispose();
-		this.setVisible(false);
-	}	
 }
