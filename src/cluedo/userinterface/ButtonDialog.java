@@ -99,6 +99,7 @@ public class ButtonDialog extends JDialog
 		affirmativeButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 		panel.add(affirmativeButton);
+		setResizable(false);
 		pack();
 		this.setVisible(true);
 	}

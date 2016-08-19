@@ -120,11 +120,9 @@ public class BoardFrame extends JFrame
 			}
 		});
 		
-		
-		pack();
-		
-		setVisible(true);
 		setResizable(false);
+		pack();
+		setVisible(true);
 	}
 	
 	/**

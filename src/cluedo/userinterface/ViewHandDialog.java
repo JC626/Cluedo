@@ -109,6 +109,7 @@ public class ViewHandDialog extends JDialog
 
 		buttonPanel.add(affirmativeButton);
 		
+		setResizable(false);
 		pack();
 		this.setVisible(true);
 	}

@@ -93,6 +93,7 @@ public class InputTextDialog extends JDialog
 		panel.add(affirmativeButton);
 		panel.add(negativeButton);
 		
+		setResizable(false);
 		pack();	
 		this.setVisible(true);
 		

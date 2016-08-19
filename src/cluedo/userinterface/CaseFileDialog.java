@@ -88,9 +88,9 @@ public class CaseFileDialog extends JDialog
 		panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 50, 20));
 		this.add(panel);
 		
+		setResizable(false);
 		pack();
 		setVisible(true);
-		setResizable(false);
 	}
 
 	/**
