@@ -65,9 +65,9 @@ public class GraphicalUserInterface extends JFrame
 		
 		this.setMinimumSize(new Dimension(600, 600));
 		
-		pack();
 		setResizable(false);
-		this.setVisible(true);
+		pack();
+		this.setVisible(true);	
 	}
 
 	private void addAllPanels()

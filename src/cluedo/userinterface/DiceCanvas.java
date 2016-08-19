@@ -15,10 +15,10 @@ public class DiceCanvas extends JPanel
 {
 	private static final long serialVersionUID = 1L;
 	
-	private static final int BORDER_TOP = 0;
-	private static final int BORDER_LEFT = 2;
-	private static final int BORDER_BOTTOM = 10;
-	private static final int BORDER_RIGHT = 0;
+	private static final int ROWS = 0;
+	private static final int COLS = 2;
+	private static final int HORIZONTAL_GAP = 10;
+	private static final int VERTICAL_GAP = 0;
 		
 	private int IMAGE_SIZE = 60;
 	private JLabel leftDieLabel;
@@ -38,8 +38,9 @@ public class DiceCanvas extends JPanel
 		this.add(leftDieLabel);
 		this.add(rightDieLabel);
 		
-		this.setLayout(new GridLayout(BORDER_TOP, BORDER_LEFT, BORDER_BOTTOM, BORDER_RIGHT));
+		this.setLayout(new GridLayout(ROWS, COLS, HORIZONTAL_GAP, VERTICAL_GAP));
 		this.setMinimumSize(new Dimension(width, height));
+		
 	}
 	
 	/**
