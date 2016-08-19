@@ -36,7 +36,7 @@ import cluedo.model.Cell;
  */
 public class BoardFrame extends JFrame
 {
-	public static final int MIN_WIDTH = 1100; 
+	public static final int MIN_WIDTH = 1200; 
 	public static final int MIN_HEIGHT = 1000;
 	
 	private static final long serialVersionUID = 1L;
