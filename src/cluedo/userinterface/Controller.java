@@ -343,8 +343,8 @@ public class Controller
 
 	/**
 	 * Create a keylistener for the board
-	 * It is used for keys to be used to move 
-	 * around the board
+	 * It is used so that players can press
+	 * keys to move around the board.
 	 * @return A new keylistener
 	 */
 	private KeyListener keyListener()
@@ -423,8 +423,7 @@ public class Controller
 						view.dialogInformation("Entered a room", "You have entered the " + model.getCurrentRoom().getName());
 					}
 				}
-				String playerName = model.getHumanName(model.getCurrentPlayer());
-				view.setBoardTitle(String.format(BOARD_TITLE, playerName,model.getRemainingMoves()));
+				updateBoardTitle();
 			}
 		};		
 		return keyListener;
@@ -443,7 +442,6 @@ public class Controller
 			{
 				if(model.isInRoom())
 				{ 
-					String playerName = model.getCurrentPlayer().getName();
 					try 
 					{
 						//Find the corresponding cell 
@@ -454,6 +452,7 @@ public class Controller
 						{
 							if(cell.getX() == x && cell.getY() == y)
 							{
+								String playerName = model.getCurrentPlayer().getName();
 								Cell toExit = model.takeExit(cell);
 								view.changePieceLocation(getPieceImage(playerName), toExit);
 								if(model.isInRoom())
@@ -471,7 +470,7 @@ public class Controller
 					{
 						view.dialogError("All exits blocked", "All exits are blocked so cannot move out of a room.");
 					}
-					view.setBoardTitle(String.format(BOARD_TITLE, playerName,model.getRemainingMoves()));
+					updateBoardTitle();
 				}
 			}
 
@@ -677,6 +676,9 @@ public class Controller
 
 	/**
 	 * Sets up the new turn for the current player
+	 * by displaying a new dice roll
+	 * If the player is in a room highlight the
+	 * exit cells green.
 	 */
 	private void newTurn()
 	{
@@ -685,7 +687,7 @@ public class Controller
 		int[] diceRoll = model.getDiceRoll();
 		Image leftDie = getImage("die" + diceRoll[0]);
 		Image rightDie = getImage("die" + diceRoll[1]);
-		view.setBoardTitle(String.format(BOARD_TITLE, playerName,model.getRemainingMoves()));
+		updateBoardTitle();
 
 		view.changeDice(leftDie, rightDie);
 		view.dialogInformation(playerName + "'s turn", playerName + " it is your turn");
@@ -753,6 +755,17 @@ public class Controller
 			Cell pos = model.getPosition(weapon);
 			view.changePieceLocation(piece, pos);
 		}		
+	}
+	
+	/**
+	 * Update the title of the BoardFrame
+	 * to contain the current player and
+	 * their remaining moves
+	 */
+	private void updateBoardTitle()
+	{
+		String playerName = model.getHumanName(model.getCurrentPlayer());
+		view.setBoardTitle(String.format(BOARD_TITLE, playerName,model.getRemainingMoves()));
 	}
 
 	/**
