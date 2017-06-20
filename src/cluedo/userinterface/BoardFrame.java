@@ -158,7 +158,7 @@ public class BoardFrame extends JFrame
 		
 		menu.add(actions);
 		
-		//Setting shortcuts
+		// Shortcuts for our menu options.
 		setShortcut(newGame, KeyEvent.VK_N);
 		setShortcut(quit, KeyEvent.VK_ESCAPE);
 		setShortcut(handMenu, KeyEvent.VK_H);
@@ -169,6 +169,12 @@ public class BoardFrame extends JFrame
 		return menu;
 	}
 	
+	/**
+	 * Helper method for setting shortcuts on JMenuItems.
+	 * No modifiers are used for the key event.
+	 * @param item The menu item to add the shortcut to.
+	 * @param event The key press to respond to.
+	 */
 	private void setShortcut(JMenuItem item, int event)
 	{
 		item.setAccelerator(KeyStroke.getKeyStroke(event, 0));
@@ -234,16 +240,29 @@ public class BoardFrame extends JFrame
 	 * Getters
 	 */
 	
+	/**
+	 * The section of the frame that contains the drawn Board.
+	 * @return The area where the Board is drawn.
+	 */
 	public BoardCanvas getBoardPane()
 	{
 		return boardPane;
 	}
 
+	/**
+	 * The section of the frame that contains the drawn dice.
+	 * @return The area where the dice are drawn.
+	 */
 	public DiceCanvas getDicePane()
 	{
 		return dicePane;
 	}
 
+	/**
+	 * All buttons on the frame.
+	 * Does not include menu options.
+	 * @return An unmodifiable list of the buttons on the frame.
+	 */
 	public List<JButton> getButtons()
 	{
 		return Collections.unmodifiableList(buttons);
